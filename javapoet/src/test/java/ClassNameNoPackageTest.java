@@ -24,10 +24,11 @@ import org.junit.Test;
  * modules, this test must live in this package.
  */
 public final class ClassNameNoPackageTest {
-  @Test public void shouldSupportClassInDefaultPackage() {
-    ClassName className = ClassName.get(ClassNameNoPackageTest.class);
-    assertThat(className.packageName()).isEqualTo("");
-    assertThat(className.simpleName()).isEqualTo("ClassNameNoPackageTest");
-    assertThat(className.toString()).isEqualTo("ClassNameNoPackageTest");
-  }
+    @Test
+    public void shouldSupportClassInDefaultPackage() {
+        ClassName className = ClassName.get(ClassNameNoPackageTest.class);
+        assertThat(className.packageName()).isEqualTo("");
+        assertThat(className.simpleName()).isEqualTo("ClassNameNoPackageTest");
+        assertThat(className.toString()).isEqualTo("ClassNameNoPackageTest");
+    }
 }

@@ -150,11 +150,11 @@ public final class MethodSpecTest {
         ExecutableElement methodElement = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
         MethodSpec method = MethodSpec.overriding(methodElement).build();
         assertThat(method.toString())
-                .isEqualTo(""
-                        + "@java.lang.Override\n"
-                        + "protected <T extends java.lang.Runnable & java.io.Closeable> java.lang.Runnable "
-                        + "everything(\n"
-                        + "    java.lang.String thing, java.util.List<? extends T> things) throws java.io.IOException,\n"
+                .isEqualTo("@java.lang.Override\n"
+                        + "protected <T extends java.lang.Runnable & java.io.Closeable> java.lang.Runnable"
+                        + " everything(\n"
+                        + "    java.lang.String thing, java.util.List<? extends T> things) throws"
+                        + " java.io.IOException,\n"
                         + "    java.lang.SecurityException {\n"
                         + "}\n");
     }

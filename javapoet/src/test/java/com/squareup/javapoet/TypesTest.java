@@ -15,26 +15,25 @@
  */
 package com.squareup.javapoet;
 
+import com.google.testing.compile.CompilationRule;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.google.testing.compile.CompilationRule;
-
 @RunWith(JUnit4.class)
 public final class TypesTest extends AbstractTypesTest {
-  @Rule public final CompilationRule compilation = new CompilationRule();
+    @Rule
+    public final CompilationRule compilation = new CompilationRule();
 
-  @Override
-  protected Elements getElements() {
-    return compilation.getElements();
-  }
+    @Override
+    protected Elements getElements() {
+        return compilation.getElements();
+    }
 
-  @Override
-  protected Types getTypes() {
-    return compilation.getTypes();
-  }
+    @Override
+    protected Types getTypes() {
+        return compilation.getTypes();
+    }
 }
