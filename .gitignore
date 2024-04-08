@@ -1,23 +1,40 @@
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Eclipse
 .classpath
+.checkstyle
+.factorypath
 .project
 .settings
-.checkstyle
-eclipsebin
+*.launch
 
-bin
-gen
-build
-out
-lib
+# Codegen
+.generated
+.apt_generated
+generated_src/
+**/src/generated/
 
-target
-pom.xml.*
-release.properties
-
-.idea
-*.iml
-classes
-
-obj
-
+# OS X
 .DS_Store
+
+# Java
+*.class
+
+# Build Systems
+.gradle/
+bin/
+build/
+out/
+reports/
+
+
+# SublimeText + TextMate + Vim
+*.sublime-workspace
+*.sublime-project
+*.tmproj
+*.tmproject
+*.sw[op]
