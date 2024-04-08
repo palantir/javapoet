@@ -50,8 +50,6 @@ that to a `HelloWorld.java` file.
 In this case we write the file to `System.out`, but we could also get it as a string
 (`JavaFile.toString()`) or write it to the file system (`JavaFile.writeTo()`).
 
-The [Javadoc][javadoc] catalogs the complete JavaPoet API, which we explore below.
-
 ### Code & Control Flow
 
 Most of JavaPoet's API uses plain old immutable Java objects. There's also builders, method chaining
@@ -157,7 +155,7 @@ void main() {
     System.out.println("Ok, time still moving forward");
   }
 }
-``` 
+```
 
 Catching exceptions using `try/catch` is also a use case for `nextControlFlow()`:
 
@@ -187,7 +185,7 @@ void main() {
 
 The string-concatenation in calls to `beginControlFlow()` and `addStatement` is distracting. Too
 many operators. To address this, JavaPoet offers a syntax inspired-by but incompatible-with
-[`String.format()`][formatter]. It accepts **`$L`** to emit a **literal** value in the output. This
+`String.format()`. It accepts **`$L`** to emit a **literal** value in the output. This
 works just like `Formatter`'s `%s`:
 
 ```java
@@ -513,7 +511,7 @@ public abstract class HelloWorld {
 ```
 
 The other modifiers work where permitted. Note that when specifying modifiers, JavaPoet uses
-[`javax.lang.model.element.Modifier`][modifier], a class that is not available on Android. This
+`javax.lang.model.element.Modifier`, a class that is not available on Android. This
 limitation applies to code-generating-code only; the output code runs everywhere: JVMs, Android,
 and GWT.
 
@@ -606,7 +604,7 @@ public class HelloWorld {
 ```
 
 The extended `Builder` form is necessary when a field has Javadoc, annotations, or a field
-initializer. Field initializers use the same [`String.format()`][formatter]-like syntax as the code
+initializer. Field initializers use the same `String.format()`-like syntax as the code
 blocks above:
 
 ```java
@@ -883,61 +881,3 @@ Which generates this:
 ```
 
 Use `$T` when referencing types in Javadoc to get automatic imports.
-
-Download
---------
-
-Download [the latest .jar][dl] or depend via Maven:
-```xml
-<dependency>
-  <groupId>com.squareup</groupId>
-  <artifactId>javapoet</artifactId>
-  <version>1.13.0</version>
-</dependency>
-```
-or Gradle:
-```groovy
-compile 'com.squareup:javapoet:1.13.0'
-```
-
-Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
-
-
-
-License
--------
-
-    Copyright 2015 Square, Inc.
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
-
-
-JavaWriter
-==========
-
-JavaPoet is the successor to [JavaWriter][javawriter]. New projects should prefer JavaPoet because
-it has a stronger code model: it understands types and can manage imports automatically. JavaPoet is
-also better suited to composition: rather than streaming the contents of a `.java` file
-top-to-bottom in a single pass, a file can be assembled as a tree of declarations.
-
-JavaWriter continues to be available in [GitHub][javawriter] and [Maven Central][javawriter_maven].
-
-
- [dl]: https://search.maven.org/remote_content?g=com.squareup&a=javapoet&v=LATEST
- [snap]: https://oss.sonatype.org/content/repositories/snapshots/com/squareup/javapoet/
- [javadoc]: https://square.github.io/javapoet/1.x/javapoet/
- [javawriter]: https://github.com/square/javapoet/tree/javawriter_2
- [javawriter_maven]: https://search.maven.org/#artifactdetails%7Ccom.squareup%7Cjavawriter%7C2.5.1%7Cjar
- [formatter]: https://developer.android.com/reference/java/util/Formatter.html
- [modifier]: https://docs.oracle.com/javase/8/docs/api/javax/lang/model/element/Modifier.html

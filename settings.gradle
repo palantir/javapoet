@@ -1,0 +1,3 @@
+rootProject.name = 'javapoet-root'
+
+include 'javapoet'

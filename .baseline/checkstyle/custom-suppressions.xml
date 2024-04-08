@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN" "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <suppress checks="AbbreviationAsWordInName" />
+    <suppress checks="AnnotationLocation" />
+    <suppress checks="AnnotationUseStyle" />
+    <suppress checks="AtclauseOrder" />
+    <suppress checks="AvoidEscapedUnicodeCharacters" />
+    <suppress checks="AvoidStarImport" />
+    <suppress checks="AvoidStaticImport" />
+    <suppress checks="ClassTypeParameterName" />
+    <suppress checks="CyclomaticComplexity" />
+    <suppress checks="DesignForExtension" />
+    <suppress checks="EmptyCatchBlock" />
+    <suppress checks="EmptyLineSeparator" />
+    <suppress checks="HiddenField" />
+    <suppress checks="HideUtilityClassConstructor" />
+    <suppress checks="IllegalType" />
+    <suppress checks="ImportOrder" />
+    <suppress checks="LineLength" />
+    <suppress checks="LocalVariableName" />
+    <suppress checks="MemberName" />
+    <suppress checks="MethodLength" />
+    <suppress checks="MissingDeprecated" />
+    <suppress checks="ModifierOrder" />
+    <suppress checks="NeedBraces" />
+    <suppress checks="NewlineAtEndOfFile" />
+    <suppress checks="NoClone" />
+    <suppress checks="NonEmptyAtclauseDescription" />
+    <suppress checks="OneStatementPerLine" />
+    <suppress checks="OperatorWrap" />
+    <suppress checks="OverloadMethodsDeclarationOrder" />
+    <suppress checks="PackageDeclaration" />
+    <suppress checks="ParameterAssignment" />
+    <suppress checks="ParameterName" />
+    <suppress checks="RedundantModifier" />
+    <suppress checks="RegexpSingleline" />
+    <suppress checks="RegexpSinglelineJava" />
+    <suppress checks="RightCurly" />
+    <suppress checks="SummaryJavadoc" />
+    <suppress checks="SuperClone" />
+    <suppress checks="TypeName" />
+    <suppress checks="UnusedImports" />
+    <suppress checks="VisibilityModifier" />
+    <suppress checks="WhitespaceAfter" />
+</suppressions>

@@ -1,0 +1,50 @@
+apply plugin: 'com.palantir.external-publish-jar'
+
+dependencies {
+    testImplementation 'com.google.code.findbugs:jsr305'
+    testImplementation 'com.google.guava:guava'
+    testImplementation 'com.google.jimfs:jimfs'
+    testImplementation 'com.google.testing.compile:compile-testing'
+    testImplementation 'com.google.truth:truth'
+    testImplementation 'junit:junit'
+    testImplementation 'org.eclipse.jdt.core.compiler:ecj'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core'
+
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
+}
+
+tasks.withType(JavaCompile) {
+    options.errorprone {
+        disable('AnnotateFormatMethod')
+        disable('AvoidNewHashMapInt')
+        disable('BadAssert')
+        disable('ClassCanBeStatic')
+        disable('ClassInitializationDeadlock')
+        disable('DefaultCharset')
+        disable('EmptyCatch')
+        disable('EqualsGetClass')
+        disable('EscapedEntity')
+        disable('ImmutableEnumChecker')
+        disable('JdkObsolete')
+        disable('MissingOverride')
+        disable('MissingSummary')
+        disable('NonApiType')
+        disable('PreferSafeLoggableExceptions')
+        disable('PreferSafeLoggingPreconditions')
+        disable('RedundantModifier')
+        disable('ReferenceEquality')
+        disable('ReturnValueIgnored')
+        disable('StrictUnusedVariable')
+        disable('StringSplitter')
+        disable('ThrowError')
+        disable('TruthSelfEquals')
+        disable('TypeParameterUnusedInFormals')
+        disable('UndefinedEquals')
+        disable('UnnecessaryParentheses')
+        disable('UnicodeEscape')
+        disable('UnusedMethod')
+    }
+}
+
+tasks.spotlessJavaCheck.enabled = false
