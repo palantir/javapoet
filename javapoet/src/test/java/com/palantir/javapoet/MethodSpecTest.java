@@ -16,12 +16,12 @@
 package com.palantir.javapoet;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 import static com.palantir.javapoet.TestUtil.findFirst;
 import static javax.lang.model.util.ElementFilter.methodsIn;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.CompilationRule;
@@ -66,42 +66,30 @@ public final class MethodSpecTest {
 
     @Test
     public void nullAnnotationsAddition() {
-        try {
-            MethodSpec.methodBuilder("doSomething").addAnnotations(null);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("annotationSpecs == null");
-        }
+        assertThatThrownBy(() -> MethodSpec.methodBuilder("doSomething").addAnnotations(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("annotationSpecs == null");
     }
 
     @Test
     public void nullTypeVariablesAddition() {
-        try {
-            MethodSpec.methodBuilder("doSomething").addTypeVariables(null);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("typeVariables == null");
-        }
+        assertThatThrownBy(() -> MethodSpec.methodBuilder("doSomething").addTypeVariables(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("typeVariables == null");
     }
 
     @Test
     public void nullParametersAddition() {
-        try {
-            MethodSpec.methodBuilder("doSomething").addParameters(null);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("parameterSpecs == null");
-        }
+        assertThatThrownBy(() -> MethodSpec.methodBuilder("doSomething").addParameters(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("parameterSpecs == null");
     }
 
     @Test
     public void nullExceptionsAddition() {
-        try {
-            MethodSpec.methodBuilder("doSomething").addExceptions(null);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("exceptions == null");
-        }
+        assertThatThrownBy(() -> MethodSpec.methodBuilder("doSomething").addExceptions(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("exceptions == null");
     }
 
     @Target(ElementType.PARAMETER)
@@ -228,38 +216,24 @@ public final class MethodSpecTest {
     public void overrideFinalClassMethod() {
         TypeElement classElement = getElement(FinalClass.class);
         List<ExecutableElement> methods = methodsIn(elements.getAllMembers(classElement));
-        try {
-            MethodSpec.overriding(findFirst(methods, "method"));
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected)
-                    .hasMessageThat()
-                    .isEqualTo("Cannot override method on final class com.palantir.javapoet.MethodSpecTest.FinalClass");
-        }
+        assertThatThrownBy(() -> MethodSpec.overriding(findFirst(methods, "method")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Cannot override method on final class com.palantir.javapoet.MethodSpecTest.FinalClass");
     }
 
     @Test
     public void overrideInvalidModifiers() {
         TypeElement classElement = getElement(InvalidOverrideMethods.class);
         List<ExecutableElement> methods = methodsIn(elements.getAllMembers(classElement));
-        try {
-            MethodSpec.overriding(findFirst(methods, "finalMethod"));
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("cannot override method with modifiers: [final]");
-        }
-        try {
-            MethodSpec.overriding(findFirst(methods, "privateMethod"));
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("cannot override method with modifiers: [private]");
-        }
-        try {
-            MethodSpec.overriding(findFirst(methods, "staticMethod"));
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("cannot override method with modifiers: [static]");
-        }
+        assertThatThrownBy(() -> MethodSpec.overriding(findFirst(methods, "finalMethod")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("cannot override method with modifiers: [final]");
+        assertThatThrownBy(() -> MethodSpec.overriding(findFirst(methods, "privateMethod")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("cannot override method with modifiers: [private]");
+        assertThatThrownBy(() -> MethodSpec.overriding(findFirst(methods, "staticMethod")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("cannot override method with modifiers: [static]");
     }
 
     abstract static class AbstractClassWithPrivateAnnotation {
@@ -379,22 +353,16 @@ public final class MethodSpecTest {
 
     @Test
     public void nullIsNotAValidMethodName() {
-        try {
-            MethodSpec.methodBuilder(null);
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).isEqualTo("name == null");
-        }
+        assertThatThrownBy(() -> MethodSpec.methodBuilder(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("name == null");
     }
 
     @Test
     public void addModifiersVarargsShouldNotBeNull() {
-        try {
-            MethodSpec.methodBuilder("taco").addModifiers((Modifier[]) null);
-            fail("NullPointerException expected");
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).isEqualTo("modifiers == null");
-        }
+        assertThatThrownBy(() -> MethodSpec.methodBuilder("taco").addModifiers((Modifier[]) null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("modifiers == null");
     }
 
     @Test

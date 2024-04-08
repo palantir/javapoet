@@ -15,10 +15,8 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -47,59 +45,44 @@ public final class CodeBlockTest {
 
     @Test
     public void isEmpty() {
-        assertTrue(CodeBlock.builder().isEmpty());
-        assertTrue(CodeBlock.builder().add("").isEmpty());
-        assertFalse(CodeBlock.builder().add(" ").isEmpty());
+        assertThat(CodeBlock.builder().isEmpty()).isTrue();
+        assertThat(CodeBlock.builder().add("").isEmpty()).isTrue();
+        assertThat(CodeBlock.builder().add(" ").isEmpty()).isFalse();
     }
 
     @Test
     public void indentCannotBeIndexed() {
-        try {
-            CodeBlock.builder().add("$1>", "taco").build();
-            fail();
-        } catch (IllegalArgumentException exp) {
-            assertThat(exp).hasMessageThat().isEqualTo("$$, $>, $<, $[, $], $W, and $Z may not have an index");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$1>", "taco").build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("$$, $>, $<, $[, $], $W, and $Z may not have an index");
     }
 
     @Test
     public void deindentCannotBeIndexed() {
-        try {
-            CodeBlock.builder().add("$1<", "taco").build();
-            fail();
-        } catch (IllegalArgumentException exp) {
-            assertThat(exp).hasMessageThat().isEqualTo("$$, $>, $<, $[, $], $W, and $Z may not have an index");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$1<", "taco").build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("$$, $>, $<, $[, $], $W, and $Z may not have an index");
     }
 
     @Test
     public void dollarSignEscapeCannotBeIndexed() {
-        try {
-            CodeBlock.builder().add("$1$", "taco").build();
-            fail();
-        } catch (IllegalArgumentException exp) {
-            assertThat(exp).hasMessageThat().isEqualTo("$$, $>, $<, $[, $], $W, and $Z may not have an index");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$1$", "taco").build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("$$, $>, $<, $[, $], $W, and $Z may not have an index");
     }
 
     @Test
     public void statementBeginningCannotBeIndexed() {
-        try {
-            CodeBlock.builder().add("$1[", "taco").build();
-            fail();
-        } catch (IllegalArgumentException exp) {
-            assertThat(exp).hasMessageThat().isEqualTo("$$, $>, $<, $[, $], $W, and $Z may not have an index");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$1[", "taco").build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("$$, $>, $<, $[, $], $W, and $Z may not have an index");
     }
 
     @Test
     public void statementEndingCannotBeIndexed() {
-        try {
-            CodeBlock.builder().add("$1]", "taco").build();
-            fail();
-        } catch (IllegalArgumentException exp) {
-            assertThat(exp).hasMessageThat().isEqualTo("$$, $>, $<, $[, $], $W, and $Z may not have an index");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$1]", "taco").build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("$$, $>, $<, $[, $], $W, and $Z may not have an index");
     }
 
     @Test
@@ -155,25 +138,19 @@ public final class CodeBlockTest {
 
     @Test
     public void missingNamedArgument() {
-        try {
-            Map<String, Object> map = new LinkedHashMap<>();
-            CodeBlock.builder().addNamed("$text:S", map).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("Missing named argument for $text");
-        }
+        Map<String, Object> map = new LinkedHashMap<>();
+        assertThatThrownBy(() -> CodeBlock.builder().addNamed("$text:S", map).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Missing named argument for $text");
     }
 
     @Test
     public void lowerCaseNamed() {
-        try {
-            Map<String, Object> map = new LinkedHashMap<>();
-            map.put("Text", "tacos");
-            CodeBlock block = CodeBlock.builder().addNamed("$Text:S", map).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("argument 'Text' must start with a lowercase character");
-        }
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("Text", "tacos");
+        assertThatThrownBy(() -> CodeBlock.builder().addNamed("$Text:S", map).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("argument 'Text' must start with a lowercase character");
     }
 
     @Test
@@ -201,92 +178,67 @@ public final class CodeBlockTest {
     public void danglingNamed() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("clazz", Integer.class);
-        try {
-            CodeBlock.builder().addNamed("$clazz:T$", map).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("dangling $ at end");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().addNamed("$clazz:T$", map).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("dangling $ at end");
     }
 
     @Test
     public void indexTooHigh() {
-        try {
-            CodeBlock.builder().add("$2T", String.class).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("index 2 for '$2T' not in range (received 1 arguments)");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$2T", String.class).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("index 2 for '$2T' not in range (received 1 arguments)");
     }
 
     @Test
     public void indexIsZero() {
-        try {
-            CodeBlock.builder().add("$0T", String.class).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("index 0 for '$0T' not in range (received 1 arguments)");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$0T", String.class).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("index 0 for '$0T' not in range (received 1 arguments)");
     }
 
     @Test
     public void indexIsNegative() {
-        try {
-            CodeBlock.builder().add("$-1T", String.class).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("invalid format string: '$-1T'");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$-1T", String.class).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("invalid format string: '$-1T'");
     }
 
     @Test
     public void indexWithoutFormatType() {
-        try {
-            CodeBlock.builder().add("$1", String.class).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("dangling format characters in '$1'");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$1", String.class).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("dangling format characters in '$1'");
     }
 
     @Test
     public void indexWithoutFormatTypeNotAtStringEnd() {
-        try {
-            CodeBlock.builder().add("$1 taco", String.class).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("invalid format string: '$1 taco'");
-        }
+        assertThatThrownBy(
+                        () -> CodeBlock.builder().add("$1 taco", String.class).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("invalid format string: '$1 taco'");
     }
 
     @Test
     public void indexButNoArguments() {
-        try {
-            CodeBlock.builder().add("$1T").build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("index 1 for '$1T' not in range (received 0 arguments)");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$1T").build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("index 1 for '$1T' not in range (received 0 arguments)");
     }
 
     @Test
     public void formatIndicatorAlone() {
-        try {
-            CodeBlock.builder().add("$", String.class).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("dangling format characters in '$'");
-        }
+        assertThatThrownBy(() -> CodeBlock.builder().add("$", String.class).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("dangling format characters in '$'");
     }
 
     @Test
     public void formatIndicatorWithoutIndexOrFormatType() {
-        try {
-            CodeBlock.builder().add("$ tacoString", String.class).build();
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("invalid format string: '$ tacoString'");
-        }
+        assertThatThrownBy(() ->
+                        CodeBlock.builder().add("$ tacoString", String.class).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("invalid format string: '$ tacoString'");
     }
 
     @Test
@@ -300,25 +252,19 @@ public final class CodeBlockTest {
     @Test
     public void tooManyStatementEnters() {
         CodeBlock codeBlock = CodeBlock.builder().add("$[$[").build();
-        try {
-            // We can't report this error until rendering type because code blocks might be composed.
-            codeBlock.toString();
-            fail();
-        } catch (IllegalStateException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("statement enter $[ followed by statement enter $[");
-        }
+        // We can't report this error until rendering type because code blocks might be composed.
+        assertThatThrownBy(codeBlock::toString)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("statement enter $[ followed by statement enter $[");
     }
 
     @Test
     public void statementExitWithoutStatementEnter() {
         CodeBlock codeBlock = CodeBlock.builder().add("$]").build();
-        try {
-            // We can't report this error until rendering type because code blocks might be composed.
-            codeBlock.toString();
-            fail();
-        } catch (IllegalStateException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("statement exit $] has no matching statement enter $[");
-        }
+        // We can't report this error until rendering type because code blocks might be composed.
+        assertThatThrownBy(codeBlock::toString)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("statement exit $] has no matching statement enter $[");
     }
 
     @Test

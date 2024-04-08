@@ -15,8 +15,8 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;

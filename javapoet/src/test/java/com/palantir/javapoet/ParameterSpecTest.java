@@ -15,11 +15,11 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.palantir.javapoet.TestUtil.findFirst;
 import static javax.lang.model.util.ElementFilter.fieldsIn;
 import static javax.lang.model.util.ElementFilter.methodsIn;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.testing.compile.CompilationRule;
 import java.util.ArrayList;
@@ -77,22 +77,16 @@ public class ParameterSpecTest {
 
     @Test
     public void keywordName() {
-        try {
-            ParameterSpec.builder(int.class, "super");
-            fail();
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("not a valid name: super");
-        }
+        assertThatThrownBy(() -> ParameterSpec.builder(int.class, "super"))
+                .isInstanceOf(Exception.class)
+                .hasMessage("not a valid name: super");
     }
 
     @Test
     public void nullAnnotationsAddition() {
-        try {
-            ParameterSpec.builder(int.class, "foo").addAnnotations(null);
-            fail();
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("annotationSpecs == null");
-        }
+        assertThatThrownBy(() -> ParameterSpec.builder(int.class, "foo").addAnnotations(null))
+                .isInstanceOf(Exception.class)
+                .hasMessage("annotationSpecs == null");
     }
 
     final class VariableElementFieldClass {
@@ -105,12 +99,9 @@ public class ParameterSpecTest {
         List<VariableElement> methods = fieldsIn(elements.getAllMembers(classElement));
         VariableElement element = findFirst(methods, "name");
 
-        try {
-            ParameterSpec.get(element);
-            fail();
-        } catch (IllegalArgumentException exception) {
-            assertThat(exception).hasMessageThat().isEqualTo("element is not a parameter");
-        }
+        assertThatThrownBy(() -> ParameterSpec.get(element))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("element is not a parameter");
     }
 
     final class VariableElementParameterClass {
@@ -133,12 +124,9 @@ public class ParameterSpecTest {
         modifiers.add(Modifier.FINAL);
         modifiers.add(Modifier.PUBLIC);
 
-        try {
-            ParameterSpec.builder(int.class, "foo").addModifiers(modifiers);
-            fail();
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("unexpected parameter modifier: public");
-        }
+        assertThatThrownBy(() -> ParameterSpec.builder(int.class, "foo").addModifiers(modifiers))
+                .isInstanceOf(Exception.class)
+                .hasMessage("unexpected parameter modifier: public");
     }
 
     @Test

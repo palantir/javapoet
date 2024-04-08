@@ -5,8 +5,8 @@ dependencies {
     testImplementation 'com.google.guava:guava'
     testImplementation 'com.google.jimfs:jimfs'
     testImplementation 'com.google.testing.compile:compile-testing'
-    testImplementation 'com.google.truth:truth'
     testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.eclipse.jdt.core.compiler:ecj'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.mockito:mockito-core'
@@ -18,7 +18,6 @@ tasks.withType(JavaCompile) {
     options.errorprone {
         disable('AnnotateFormatMethod')
         disable('AvoidNewHashMapInt')
-        disable('BadAssert')
         disable('ClassCanBeStatic')
         disable('ClassInitializationDeadlock')
         disable('DefaultCharset')
@@ -38,7 +37,6 @@ tasks.withType(JavaCompile) {
         disable('StrictUnusedVariable')
         disable('StringSplitter')
         disable('ThrowError')
-        disable('TruthSelfEquals')
         disable('TypeParameterUnusedInFormals')
         disable('UndefinedEquals')
         disable('UnnecessaryParentheses')
