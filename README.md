@@ -1,6 +1,8 @@
 JavaPoet
 ========
 
+_This repo is forked from the excellent [square/javapoet](https://github.com/square/javapoet) project which is no longer actively maintained._
+
 `JavaPoet` is a Java API for generating `.java` source files.
 
 Source file generation can be useful when doing things such as annotation processing or interacting
