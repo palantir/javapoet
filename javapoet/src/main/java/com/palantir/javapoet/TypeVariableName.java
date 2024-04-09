@@ -67,7 +67,7 @@ public final class TypeVariableName extends TypeName {
     }
 
     public TypeVariableName withBounds(List<? extends TypeName> bounds) {
-        ArrayList<TypeName> newBounds = new ArrayList<>();
+        List<TypeName> newBounds = new ArrayList<>();
         newBounds.addAll(this.bounds);
         newBounds.addAll(bounds);
         return new TypeVariableName(name, newBounds, annotations);

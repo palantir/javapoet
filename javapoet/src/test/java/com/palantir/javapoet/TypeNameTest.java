@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.Test;
 
+@SuppressWarnings("ClassCanBeStatic")
 public class TypeNameTest {
 
     private static final AnnotationSpec ANNOTATION_SPEC =
@@ -166,7 +167,7 @@ public class TypeNameTest {
     }
 
     @Test
-    public void isPrimitive() throws Exception {
+    public void isPrimitive() {
         assertThat(TypeName.INT.isPrimitive()).isTrue();
         assertThat(ClassName.get("java.lang", "Integer").isPrimitive()).isFalse();
         assertThat(ClassName.get("java.lang", "String").isPrimitive()).isFalse();
@@ -175,7 +176,7 @@ public class TypeNameTest {
     }
 
     @Test
-    public void isBoxedPrimitive() throws Exception {
+    public void isBoxedPrimitive() {
         assertThat(TypeName.INT.isBoxedPrimitive()).isFalse();
         assertThat(ClassName.get("java.lang", "Integer").isBoxedPrimitive()).isTrue();
         assertThat(ClassName.get("java.lang", "String").isBoxedPrimitive()).isFalse();
@@ -188,13 +189,13 @@ public class TypeNameTest {
     }
 
     @Test
-    public void canBoxAnnotatedPrimitive() throws Exception {
+    public void canBoxAnnotatedPrimitive() {
         assertThat(TypeName.BOOLEAN.annotated(ANNOTATION_SPEC).box())
                 .isEqualTo(ClassName.get("java.lang", "Boolean").annotated(ANNOTATION_SPEC));
     }
 
     @Test
-    public void canUnboxAnnotatedPrimitive() throws Exception {
+    public void canUnboxAnnotatedPrimitive() {
         assertThat(ClassName.get("java.lang", "Boolean")
                         .annotated(ANNOTATION_SPEC)
                         .unbox())

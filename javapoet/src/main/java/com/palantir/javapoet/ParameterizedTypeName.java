@@ -81,7 +81,9 @@ public final class ParameterizedTypeName extends TypeName {
             out.emitAndIndent("<");
             boolean firstParameter = true;
             for (TypeName parameter : typeArguments) {
-                if (!firstParameter) out.emitAndIndent(", ");
+                if (!firstParameter) {
+                    out.emitAndIndent(", ");
+                }
                 parameter.emit(out);
                 firstParameter = false;
             }

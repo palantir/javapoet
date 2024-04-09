@@ -15,11 +15,11 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.base.Charsets.*;
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -49,8 +49,12 @@ public final class TypesEclipseTest extends AbstractTypesTest {
      * A {@link JUnit4} {@link Rule} that executes tests such that a instances of {@link Elements} and
      * {@link Types} are available during execution.
      *
-     * <p>To use this rule in a test, just add the following field: <pre>   {@code
-     *   @Rule public CompilationRule compilationRule = new CompilationRule();}
+     * <p>To use this rule in a test, just add the following field:
+     * <pre>
+     * {@code
+     *   @Rule public CompilationRule compilationRule = new CompilationRule();
+     * }
+     * </pre>
      *
      * @author Gregory Kick
      */
@@ -59,7 +63,7 @@ public final class TypesEclipseTest extends AbstractTypesTest {
         private Types types;
 
         @Override
-        public Statement apply(final Statement base, Description description) {
+        public Statement apply(final Statement base, Description _description) {
             return new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
@@ -83,7 +87,7 @@ public final class TypesEclipseTest extends AbstractTypesTest {
                         }
 
                         @Override
-                        public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+                        public boolean process(Set<? extends TypeElement> _annotations, RoundEnvironment roundEnv) {
                             // just run the test on the last round after compilation is over
                             if (roundEnv.processingOver()) {
                                 try {
@@ -128,7 +132,7 @@ public final class TypesEclipseTest extends AbstractTypesTest {
             JavaCompiler compiler = new EclipseCompiler();
             DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
             JavaFileManager fileManager =
-                    compiler.getStandardFileManager(diagnosticCollector, Locale.getDefault(), UTF_8);
+                    compiler.getStandardFileManager(diagnosticCollector, Locale.getDefault(), StandardCharsets.UTF_8);
             JavaCompiler.CompilationTask task = compiler.getTask(
                     null,
                     fileManager,

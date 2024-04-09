@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+@SuppressWarnings({"ClassCanBeStatic", "StrictUnusedVariable"})
 public class ParameterSpecTest {
     @Rule
     public final CompilationRule compilation = new CompilationRule();
@@ -41,7 +42,7 @@ public class ParameterSpecTest {
     private Elements elements;
 
     @Before
-    public void setUp() {
+    public void before() {
         elements = compilation.getElements();
     }
 

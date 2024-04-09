@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -46,17 +47,17 @@ import javax.tools.SimpleJavaFileObject;
 public final class JavaFile {
     private static final Appendable NULL_APPENDABLE = new Appendable() {
         @Override
-        public Appendable append(CharSequence charSequence) {
+        public Appendable append(CharSequence _charSequence) {
             return this;
         }
 
         @Override
-        public Appendable append(CharSequence charSequence, int start, int end) {
+        public Appendable append(CharSequence _charSequence, int _start, int _end) {
             return this;
         }
 
         @Override
-        public Appendable append(char c) {
+        public Appendable append(char _c) {
             return this;
         }
     };
@@ -133,7 +134,7 @@ public final class JavaFile {
                 directory);
         Path outputDirectory = directory;
         if (!packageName.isEmpty()) {
-            for (String packageComponent : packageName.split("\\.")) {
+            for (String packageComponent : packageName.split("\\.", -1)) {
                 outputDirectory = outputDirectory.resolve(packageComponent);
             }
             Files.createDirectories(outputDirectory);
@@ -165,14 +166,14 @@ public final class JavaFile {
     public void writeTo(Filer filer) throws IOException {
         String fileName = packageName.isEmpty() ? typeSpec.name : packageName + "." + typeSpec.name;
         List<Element> originatingElements = typeSpec.originatingElements;
-        JavaFileObject filerSourceFile =
-                filer.createSourceFile(fileName, originatingElements.toArray(new Element[originatingElements.size()]));
+        JavaFileObject filerSourceFile = filer.createSourceFile(fileName, originatingElements.toArray(new Element[0]));
         try (Writer writer = filerSourceFile.openWriter()) {
             writeTo(writer);
         } catch (Exception e) {
             try {
                 filerSourceFile.delete();
             } catch (Exception ignored) {
+                // Ignored
             }
             throw e;
         }
@@ -199,7 +200,7 @@ public final class JavaFile {
 
         int importedTypesCount = 0;
         for (ClassName className : new TreeSet<>(codeWriter.importedTypes().values())) {
-            // TODO what about nested types like java.util.Map.Entry?
+            // TODO(pkoenig): what about nested types like java.util.Map.Entry?
             if (skipJavaLangImports
                     && className.packageName().equals("java.lang")
                     && !alwaysQualify.contains(className.simpleName)) {
@@ -220,9 +221,15 @@ public final class JavaFile {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
         return toString().equals(o.toString());
     }
 
@@ -238,7 +245,7 @@ public final class JavaFile {
             writeTo(result);
             return result.toString();
         } catch (IOException e) {
-            throw new AssertionError();
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -250,12 +257,12 @@ public final class JavaFile {
             private final long lastModified = System.currentTimeMillis();
 
             @Override
-            public String getCharContent(boolean ignoreEncodingErrors) {
+            public String getCharContent(boolean _ignoreEncodingErrors) {
                 return JavaFile.this.toString();
             }
 
             @Override
-            public InputStream openInputStream() throws IOException {
+            public InputStream openInputStream() {
                 return new ByteArrayInputStream(getCharContent(true).getBytes(UTF_8));
             }
 

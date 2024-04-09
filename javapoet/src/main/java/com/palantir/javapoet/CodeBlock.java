@@ -18,6 +18,7 @@ package com.palantir.javapoet;
 import static com.palantir.javapoet.Util.checkArgument;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,9 +83,15 @@ public final class CodeBlock {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
         return toString().equals(o.toString());
     }
 
@@ -100,7 +107,7 @@ public final class CodeBlock {
             new CodeWriter(out).emit(this);
             return out.toString();
         } catch (IOException e) {
-            throw new AssertionError();
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -248,7 +255,9 @@ public final class CodeBlock {
             for (int p = 0; p < format.length(); ) {
                 if (format.charAt(p) != '$') {
                     int nextP = format.indexOf('$', p + 1);
-                    if (nextP == -1) nextP = format.length();
+                    if (nextP == -1) {
+                        nextP = format.length();
+                    }
                     formatParts.add(format.substring(p, nextP));
                     p = nextP;
                     continue;
@@ -343,11 +352,21 @@ public final class CodeBlock {
         }
 
         private String argToName(Object o) {
-            if (o instanceof CharSequence) return o.toString();
-            if (o instanceof ParameterSpec) return ((ParameterSpec) o).name;
-            if (o instanceof FieldSpec) return ((FieldSpec) o).name;
-            if (o instanceof MethodSpec) return ((MethodSpec) o).name;
-            if (o instanceof TypeSpec) return ((TypeSpec) o).name;
+            if (o instanceof CharSequence) {
+                return o.toString();
+            }
+            if (o instanceof ParameterSpec) {
+                return ((ParameterSpec) o).name;
+            }
+            if (o instanceof FieldSpec) {
+                return ((FieldSpec) o).name;
+            }
+            if (o instanceof MethodSpec) {
+                return ((MethodSpec) o).name;
+            }
+            if (o instanceof TypeSpec) {
+                return ((TypeSpec) o).name;
+            }
             throw new IllegalArgumentException("expected name but was " + o);
         }
 
@@ -360,10 +379,18 @@ public final class CodeBlock {
         }
 
         private TypeName argToType(Object o) {
-            if (o instanceof TypeName) return (TypeName) o;
-            if (o instanceof TypeMirror) return TypeName.get((TypeMirror) o);
-            if (o instanceof Element) return TypeName.get(((Element) o).asType());
-            if (o instanceof Type) return TypeName.get((Type) o);
+            if (o instanceof TypeName) {
+                return (TypeName) o;
+            }
+            if (o instanceof TypeMirror) {
+                return TypeName.get((TypeMirror) o);
+            }
+            if (o instanceof Element) {
+                return TypeName.get(((Element) o).asType());
+            }
+            if (o instanceof Type) {
+                return TypeName.get((Type) o);
+            }
             throw new IllegalArgumentException("expected type but was " + o);
         }
 

@@ -59,7 +59,9 @@ final class LineWrapper {
 
     /** Emit {@code s}. This may be buffered to permit line wraps to be inserted. */
     void append(String s) throws IOException {
-        if (closed) throw new IllegalStateException("closed");
+        if (closed) {
+            throw new IllegalStateException("closed");
+        }
 
         if (nextFlush != null) {
             int nextNewline = s.indexOf('\n');
@@ -84,9 +86,13 @@ final class LineWrapper {
 
     /** Emit either a space or a newline character. */
     void wrappingSpace(int indentLevel) throws IOException {
-        if (closed) throw new IllegalStateException("closed");
+        if (closed) {
+            throw new IllegalStateException("closed");
+        }
 
-        if (this.nextFlush != null) flush(nextFlush);
+        if (this.nextFlush != null) {
+            flush(nextFlush);
+        }
         column++; // Increment the column even though the space is deferred to next call to flush().
         this.nextFlush = FlushType.SPACE;
         this.indentLevel = indentLevel;
@@ -94,17 +100,25 @@ final class LineWrapper {
 
     /** Emit a newline character if the line will exceed it's limit, otherwise do nothing. */
     void zeroWidthSpace(int indentLevel) throws IOException {
-        if (closed) throw new IllegalStateException("closed");
+        if (closed) {
+            throw new IllegalStateException("closed");
+        }
 
-        if (column == 0) return;
-        if (this.nextFlush != null) flush(nextFlush);
+        if (column == 0) {
+            return;
+        }
+        if (this.nextFlush != null) {
+            flush(nextFlush);
+        }
         this.nextFlush = FlushType.EMPTY;
         this.indentLevel = indentLevel;
     }
 
     /** Flush any outstanding text and forbid future writes to this line wrapper. */
     void close() throws IOException {
-        if (nextFlush != null) flush(nextFlush);
+        if (nextFlush != null) {
+            flush(nextFlush);
+        }
         closed = true;
     }
 
@@ -137,7 +151,7 @@ final class LineWrapper {
     private enum FlushType {
         WRAP,
         SPACE,
-        EMPTY;
+        EMPTY,
     }
 
     /** A delegating {@link Appendable} that records info about the chars passing through it. */

@@ -73,8 +73,7 @@ public final class WildcardTypeName extends TypeName {
     /**
      * Returns a type that represents an unknown type that extends {@code bound}. For example, if
      * {@code bound} is {@code CharSequence.class}, this returns {@code ? extends CharSequence}. If
-     * {@code bound} is {@code Object.class}, this returns {@code ?}, which is shorthand for {@code
-     * ? extends Object}.
+     * {@code bound} is {@code Object.class}, this returns {@code ?}.
      */
     public static WildcardTypeName subtypeOf(TypeName upperBound) {
         return new WildcardTypeName(Collections.singletonList(upperBound), Collections.emptyList());

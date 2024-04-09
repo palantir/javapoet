@@ -43,6 +43,18 @@ allprojects {
             '-Xlint:deprecation',
             '-Werror',
         ]
+        options.errorprone {
+            disable('AnnotateFormatMethod')
+            disable('ClassInitializationDeadlock')
+            disable('MissingSummary')
+            disable('PreferSafeLoggableExceptions')
+            disable('PreferSafeLoggingPreconditions')
+            disable('ReferenceEquality')
+        }
+    }
+
+    tasks.withType(Javadoc) {
+        options.addBooleanOption('Werror', true)
     }
 
     tasks.check.dependsOn javadoc, checkUnusedDependencies, checkImplicitDependencies

@@ -36,9 +36,11 @@ final class Util {
     private Util() {}
 
     static <K, V> Map<K, List<V>> immutableMultimap(Map<K, List<V>> multimap) {
-        LinkedHashMap<K, List<V>> result = new LinkedHashMap<>();
+        Map<K, List<V>> result = new LinkedHashMap<>();
         for (Map.Entry<K, List<V>> entry : multimap.entrySet()) {
-            if (entry.getValue().isEmpty()) continue;
+            if (entry.getValue().isEmpty()) {
+                continue;
+            }
             result.put(entry.getKey(), immutableList(entry.getValue()));
         }
         return Collections.unmodifiableMap(result);
@@ -49,16 +51,22 @@ final class Util {
     }
 
     static void checkArgument(boolean condition, String format, Object... args) {
-        if (!condition) throw new IllegalArgumentException(String.format(format, args));
+        if (!condition) {
+            throw new IllegalArgumentException(String.format(format, args));
+        }
     }
 
     static <T> T checkNotNull(T reference, String format, Object... args) {
-        if (reference == null) throw new NullPointerException(String.format(format, args));
+        if (reference == null) {
+            throw new NullPointerException(String.format(format, args));
+        }
         return reference;
     }
 
     static void checkState(boolean condition, String format, Object... args) {
-        if (!condition) throw new IllegalStateException(String.format(format, args));
+        if (!condition) {
+            throw new IllegalStateException(String.format(format, args));
+        }
     }
 
     static <T> List<T> immutableList(Collection<T> collection) {
@@ -79,33 +87,27 @@ final class Util {
     static void requireExactlyOneOf(Set<Modifier> modifiers, Modifier... mutuallyExclusive) {
         int count = 0;
         for (Modifier modifier : mutuallyExclusive) {
-            if (modifiers.contains(modifier)) count++;
+            if (modifiers.contains(modifier)) {
+                count++;
+            }
         }
         checkArgument(count == 1, "modifiers %s must contain one of %s", modifiers, Arrays.toString(mutuallyExclusive));
     }
 
+    @SuppressWarnings("UnicodeEscape")
     static String characterLiteralWithoutSingleQuotes(char c) {
         // see https://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6
-        switch (c) {
-            case '\b':
-                return "\\b"; /* \u0008: backspace (BS) */
-            case '\t':
-                return "\\t"; /* \u0009: horizontal tab (HT) */
-            case '\n':
-                return "\\n"; /* \u000a: linefeed (LF) */
-            case '\f':
-                return "\\f"; /* \u000c: form feed (FF) */
-            case '\r':
-                return "\\r"; /* \u000d: carriage return (CR) */
-            case '\"':
-                return "\""; /* \u0022: double quote (") */
-            case '\'':
-                return "\\'"; /* \u0027: single quote (') */
-            case '\\':
-                return "\\\\"; /* \u005c: backslash (\) */
-            default:
-                return isISOControl(c) ? String.format("\\u%04x", (int) c) : Character.toString(c);
-        }
+        return switch (c) {
+            case '\b' -> "\\b"; /* \u0008: backspace (BS) */
+            case '\t' -> "\\t"; /* \u0009: horizontal tab (HT) */
+            case '\n' -> "\\n"; /* \u000a: linefeed (LF) */
+            case '\f' -> "\\f"; /* \u000c: form feed (FF) */
+            case '\r' -> "\\r"; /* \u000d: carriage return (CR) */
+            case '\"' -> "\""; /* \u0022: double quote (") */
+            case '\'' -> "\\'"; /* \u0027: single quote (') */
+            case '\\' -> "\\\\"; /* \u005c: backslash (\) */
+            default -> isISOControl(c) ? String.format("\\u%04x", (int) c) : Character.toString(c);
+        };
     }
 
     /** Returns the string literal representing {@code value}, including wrapping double quotes. */

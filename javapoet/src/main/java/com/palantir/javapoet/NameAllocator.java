@@ -59,16 +59,18 @@ import javax.lang.model.SourceVersion;
  * }</pre>
  *
  * The above code generates unique names if presented with conflicts. Given user-supplied properties
- * with names {@code ab} and {@code sb} this generates the following:  <pre>   {@code
- *
- *   &#64;Override
+ * with names {@code ab} and {@code sb} this generates the following:
+ * <pre>
+ * {@code
+ *   @Override
  *   public String toString() {
  *     StringBuilder sb_ = new StringBuilder();
  *     sb_.append(ab);
  *     sb_.append(sb);
  *     return sb_.toString();
  *   }
- * }</pre>
+ * }
+ * </pre>
  *
  * The underscore is appended to {@code sb} to avoid conflicting with the user-supplied {@code sb}
  * property. Underscores are also prefixed for names that start with a digit, and used to replace
@@ -86,7 +88,7 @@ public final class NameAllocator implements Cloneable {
         this(new LinkedHashSet<>(), new LinkedHashMap<>());
     }
 
-    private NameAllocator(LinkedHashSet<String> allocatedNames, LinkedHashMap<Object, String> tagToName) {
+    private NameAllocator(Set<String> allocatedNames, Map<Object, String> tagToName) {
         this.allocatedNames = allocatedNames;
         this.tagToName = tagToName;
     }
@@ -153,9 +155,10 @@ public final class NameAllocator implements Cloneable {
      * of a NameAllocator to be used in the respective definition of multiples, independently-scoped,
      * inner code blocks.
      *
-     * @return A deep copy of this NameAllocator.
+     * @return A deep copy of this NameAllocator
      */
     @Override
+    @SuppressWarnings({"NoClone", "SuperClone"})
     public NameAllocator clone() {
         return new NameAllocator(new LinkedHashSet<>(this.allocatedNames), new LinkedHashMap<>(this.tagToName));
     }

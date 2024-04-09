@@ -19,6 +19,9 @@ import java.util.Collection;
 import javax.lang.model.element.Element;
 
 final class TestUtil {
+
+    private TestUtil() {}
+
     static <E extends Element> E findFirst(Collection<E> elements, String name) {
         for (E element : elements) {
             if (element.getSimpleName().toString().equals(name)) {

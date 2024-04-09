@@ -15,7 +15,6 @@
  */
 package com.palantir.javapoet;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -183,11 +182,10 @@ public final class FileWritingTest {
 
         Path fooPath = fsRoot.resolve(fs.getPath("foo", "Test.java"));
         assertThat(Files.exists(fooPath)).isTrue();
-        String source = new String(Files.readAllBytes(fooPath));
+        String source = Files.readString(fooPath);
 
         assertThat(source)
-                .isEqualTo(""
-                        + "package foo;\n"
+                .isEqualTo("package foo;\n"
                         + "\n"
                         + "import java.lang.String;\n"
                         + "import java.lang.System;\n"
@@ -215,8 +213,8 @@ public final class FileWritingTest {
         javaFile.writeTo(fsRoot);
 
         Path fooPath = fsRoot.resolve(fs.getPath("foo", "Taco.java"));
-        assertThat(new String(Files.readAllBytes(fooPath), UTF_8))
-                .isEqualTo("" + "// Pi\u00f1ata\u00a1\n" + "package foo;\n" + "\n" + "class Taco {\n" + "}\n");
+        assertThat(Files.readString(fooPath))
+                .isEqualTo("// Pi\u00f1ata\u00a1\n" + "package foo;\n" + "\n" + "class Taco {\n" + "}\n");
     }
 
     @Test

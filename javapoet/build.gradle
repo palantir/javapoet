@@ -14,35 +14,4 @@ dependencies {
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
 
-tasks.withType(JavaCompile) {
-    options.errorprone {
-        disable('AnnotateFormatMethod')
-        disable('AvoidNewHashMapInt')
-        disable('ClassCanBeStatic')
-        disable('ClassInitializationDeadlock')
-        disable('DefaultCharset')
-        disable('EmptyCatch')
-        disable('EqualsGetClass')
-        disable('EscapedEntity')
-        disable('ImmutableEnumChecker')
-        disable('JdkObsolete')
-        disable('MissingOverride')
-        disable('MissingSummary')
-        disable('NonApiType')
-        disable('PreferSafeLoggableExceptions')
-        disable('PreferSafeLoggingPreconditions')
-        disable('RedundantModifier')
-        disable('ReferenceEquality')
-        disable('ReturnValueIgnored')
-        disable('StrictUnusedVariable')
-        disable('StringSplitter')
-        disable('ThrowError')
-        disable('TypeParameterUnusedInFormals')
-        disable('UndefinedEquals')
-        disable('UnnecessaryParentheses')
-        disable('UnicodeEscape')
-        disable('UnusedMethod')
-    }
-}
-
 tasks.spotlessJavaCheck.enabled = false

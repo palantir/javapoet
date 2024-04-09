@@ -21,6 +21,7 @@ import static com.palantir.javapoet.Util.checkState;
 import static com.palantir.javapoet.Util.requireExactlyOneOf;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public final class TypeSpec {
         this.typeSpecs = Util.immutableList(builder.typeSpecs);
         this.alwaysQualifiedNames = Util.immutableSet(builder.alwaysQualifiedNames);
 
-        nestedTypesSimpleNames = new HashSet<>(builder.typeSpecs.size());
+        nestedTypesSimpleNames = new HashSet<>();
         List<Element> originatingElementsMutable = new ArrayList<>();
         originatingElementsMutable.addAll(builder.originatingElements);
         for (TypeSpec typeSpec : builder.typeSpecs) {
@@ -237,7 +238,9 @@ public final class TypeSpec {
                     codeWriter.emit(" extends");
                     boolean firstType = true;
                     for (TypeName type : extendsTypes) {
-                        if (!firstType) codeWriter.emit(",");
+                        if (!firstType) {
+                            codeWriter.emit(",");
+                        }
                         codeWriter.emit(" $T", type);
                         firstType = false;
                     }
@@ -247,7 +250,9 @@ public final class TypeSpec {
                     codeWriter.emit(" implements");
                     boolean firstType = true;
                     for (TypeName type : implementsTypes) {
-                        if (!firstType) codeWriter.emit(",");
+                        if (!firstType) {
+                            codeWriter.emit(",");
+                        }
                         codeWriter.emit(" $T", type);
                         firstType = false;
                     }
@@ -267,7 +272,9 @@ public final class TypeSpec {
                             enumConstants.entrySet().iterator();
                     i.hasNext(); ) {
                 Map.Entry<String, TypeSpec> enumConstant = i.next();
-                if (!firstMember) codeWriter.emit("\n");
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 enumConstant.getValue().emit(codeWriter, enumConstant.getKey(), Collections.emptySet());
                 firstMember = false;
                 if (i.hasNext()) {
@@ -277,56 +284,80 @@ public final class TypeSpec {
                 }
             }
 
-            if (needsSeparator) codeWriter.emit(";\n");
+            if (needsSeparator) {
+                codeWriter.emit(";\n");
+            }
 
             // Static fields.
             for (FieldSpec fieldSpec : fieldSpecs) {
-                if (!fieldSpec.hasModifier(Modifier.STATIC)) continue;
-                if (!firstMember) codeWriter.emit("\n");
+                if (!fieldSpec.hasModifier(Modifier.STATIC)) {
+                    continue;
+                }
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 fieldSpec.emit(codeWriter, kind.implicitFieldModifiers);
                 firstMember = false;
             }
 
             if (!staticBlock.isEmpty()) {
-                if (!firstMember) codeWriter.emit("\n");
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 codeWriter.emit(staticBlock);
                 firstMember = false;
             }
 
             // Non-static fields.
             for (FieldSpec fieldSpec : fieldSpecs) {
-                if (fieldSpec.hasModifier(Modifier.STATIC)) continue;
-                if (!firstMember) codeWriter.emit("\n");
+                if (fieldSpec.hasModifier(Modifier.STATIC)) {
+                    continue;
+                }
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 fieldSpec.emit(codeWriter, kind.implicitFieldModifiers);
                 firstMember = false;
             }
 
             // Initializer block.
             if (!initializerBlock.isEmpty()) {
-                if (!firstMember) codeWriter.emit("\n");
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 codeWriter.emit(initializerBlock);
                 firstMember = false;
             }
 
             // Constructors.
             for (MethodSpec methodSpec : methodSpecs) {
-                if (!methodSpec.isConstructor()) continue;
-                if (!firstMember) codeWriter.emit("\n");
+                if (!methodSpec.isConstructor()) {
+                    continue;
+                }
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers);
                 firstMember = false;
             }
 
             // Methods (static and non-static).
             for (MethodSpec methodSpec : methodSpecs) {
-                if (methodSpec.isConstructor()) continue;
-                if (!firstMember) codeWriter.emit("\n");
+                if (methodSpec.isConstructor()) {
+                    continue;
+                }
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers);
                 firstMember = false;
             }
 
             // Types.
             for (TypeSpec typeSpec : typeSpecs) {
-                if (!firstMember) codeWriter.emit("\n");
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 typeSpec.emit(codeWriter, null, kind.implicitTypeModifiers);
                 firstMember = false;
             }
@@ -346,9 +377,15 @@ public final class TypeSpec {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
         return toString().equals(o.toString());
     }
 
@@ -365,10 +402,11 @@ public final class TypeSpec {
             emit(codeWriter, null, Collections.emptySet());
             return out.toString();
         } catch (IOException e) {
-            throw new AssertionError();
+            throw new UncheckedIOException(e);
         }
     }
 
+    @SuppressWarnings("ImmutableEnumChecker")
     public enum Kind {
         CLASS(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet()),
 
@@ -678,7 +716,7 @@ public final class TypeSpec {
          * possible import conflicts when this JavaFile is written.
          *
          * @param typeElement the {@link TypeElement} with nested types to avoid clashes with.
-         * @return this builder instance.
+         * @return this builder instance
          */
         public Builder avoidClashesWithNestedClasses(TypeElement typeElement) {
             checkArgument(typeElement != null, "typeElement == null");
@@ -721,7 +759,7 @@ public final class TypeSpec {
          * possible import conflicts when this JavaFile is written.
          *
          * @param clazz the {@link Class} with nested types to avoid clashes with.
-         * @return this builder instance.
+         * @return this builder instance
          */
         public Builder avoidClashesWithNestedClasses(Class<?> clazz) {
             checkArgument(clazz != null, "clazz == null");
