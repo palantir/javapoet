@@ -451,13 +451,13 @@ public final class MethodSpec {
             return addException(TypeName.get(exception));
         }
 
-        public Builder addCode(String format, Object... args) {
-            code.add(format, args);
+        public Builder addNamedCode(String format, Map<String, ?> args) {
+            code.addNamed(format, args);
             return this;
         }
 
-        public Builder addNamedCode(String format, Map<String, ?> args) {
-            code.addNamed(format, args);
+        public Builder addCode(String format, Object... args) {
+            code.add(format, args);
             return this;
         }
 

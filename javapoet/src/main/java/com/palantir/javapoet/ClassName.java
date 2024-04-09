@@ -198,36 +198,6 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
     }
 
     /**
-     * Returns a new {@link ClassName} instance for the given fully-qualified class name string. This
-     * method assumes that the input is ASCII and follows typical Java style (lowercase package
-     * names, UpperCamelCase class names) and may produce incorrect results or throw
-     * {@link IllegalArgumentException} otherwise. For that reason, {@link #get(Class)} and
-     * {@link #get(Class)} should be preferred as they can correctly create {@link ClassName}
-     * instances without such restrictions.
-     */
-    public static ClassName bestGuess(String classNameString) {
-        // Add the package name, like "java.util.concurrent", or "" for no package.
-        int p = 0;
-        while (p < classNameString.length() && Character.isLowerCase(classNameString.codePointAt(p))) {
-            p = classNameString.indexOf('.', p) + 1;
-            checkArgument(p != 0, "couldn't make a guess for %s", classNameString);
-        }
-        String packageName = p == 0 ? NO_PACKAGE : classNameString.substring(0, p - 1);
-
-        // Add class names like "Map" and "Entry".
-        ClassName className = null;
-        for (String simpleName : classNameString.substring(p).split("\\.", -1)) {
-            checkArgument(
-                    !simpleName.isEmpty() && Character.isUpperCase(simpleName.codePointAt(0)),
-                    "couldn't make a guess for %s",
-                    classNameString);
-            className = new ClassName(packageName, className, simpleName);
-        }
-
-        return className;
-    }
-
-    /**
      * Returns a class name created from the given parts. For example, calling this with package name
      * {@code "java.util"} and simple names {@code "Map"}, {@code "Entry"} yields {@link Map.Entry}.
      */
@@ -269,6 +239,36 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
                             }
                         },
                         null);
+    }
+
+    /**
+     * Returns a new {@link ClassName} instance for the given fully-qualified class name string. This
+     * method assumes that the input is ASCII and follows typical Java style (lowercase package
+     * names, UpperCamelCase class names) and may produce incorrect results or throw
+     * {@link IllegalArgumentException} otherwise. For that reason, {@link #get(Class)} and
+     * {@link #get(Class)} should be preferred as they can correctly create {@link ClassName}
+     * instances without such restrictions.
+     */
+    public static ClassName bestGuess(String classNameString) {
+        // Add the package name, like "java.util.concurrent", or "" for no package.
+        int p = 0;
+        while (p < classNameString.length() && Character.isLowerCase(classNameString.codePointAt(p))) {
+            p = classNameString.indexOf('.', p) + 1;
+            checkArgument(p != 0, "couldn't make a guess for %s", classNameString);
+        }
+        String packageName = p == 0 ? NO_PACKAGE : classNameString.substring(0, p - 1);
+
+        // Add class names like "Map" and "Entry".
+        ClassName className = null;
+        for (String simpleName : classNameString.substring(p).split("\\.", -1)) {
+            checkArgument(
+                    !simpleName.isEmpty() && Character.isUpperCase(simpleName.codePointAt(0)),
+                    "couldn't make a guess for %s",
+                    classNameString);
+            className = new ClassName(packageName, className, simpleName);
+        }
+
+        return className;
     }
 
     @Override

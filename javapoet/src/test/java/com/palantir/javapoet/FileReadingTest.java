@@ -15,13 +15,13 @@
  */
 package com.palantir.javapoet;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -92,7 +92,7 @@ public class FileReadingTest {
         byte[] bytes = ByteStreams.toByteArray(javaFile.toJavaFileObject().openInputStream());
 
         // JavaPoet always uses UTF-8.
-        assertThat(bytes).isEqualTo(javaFile.toString().getBytes(UTF_8));
+        assertThat(bytes).isEqualTo(javaFile.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class FileReadingTest {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
         StandardJavaFileManager fileManager =
-                compiler.getStandardFileManager(diagnosticCollector, Locale.getDefault(), UTF_8);
+                compiler.getStandardFileManager(diagnosticCollector, Locale.getDefault(), StandardCharsets.UTF_8);
         fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singleton(temporaryFolder.newFolder()));
         CompilationTask task = compiler.getTask(
                 null,
