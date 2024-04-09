@@ -27,7 +27,7 @@ public final class ClassNameNoPackageTest {
     @Test
     public void shouldSupportClassInDefaultPackage() {
         ClassName className = ClassName.get(ClassNameNoPackageTest.class);
-        assertThat(className.packageName()).isEqualTo("");
+        assertThat(className.packageName()).isEmpty();
         assertThat(className.simpleName()).isEqualTo("ClassNameNoPackageTest");
         assertThat(className.toString()).isEqualTo("ClassNameNoPackageTest");
     }
