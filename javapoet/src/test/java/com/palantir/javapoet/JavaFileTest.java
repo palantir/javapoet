@@ -15,7 +15,7 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.testing.compile.CompilationRule;
 import java.io.File;

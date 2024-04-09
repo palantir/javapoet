@@ -15,9 +15,9 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -56,12 +56,9 @@ public final class FileWritingTest {
         Path path = fs.getPath("/foo/bar");
         Files.createDirectories(path.getParent());
         Files.createFile(path);
-        try {
-            javaFile.writeTo(path);
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage()).isEqualTo("path /foo/bar exists but is not a directory.");
-        }
+        assertThatThrownBy(() -> javaFile.writeTo(path))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("path /foo/bar exists but is not a directory.");
     }
 
     @Test
@@ -70,12 +67,9 @@ public final class FileWritingTest {
         JavaFile javaFile = JavaFile.builder("example", type).build();
         File file = new File(tmp.newFolder("foo"), "bar");
         file.createNewFile();
-        try {
-            javaFile.writeTo(file);
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage()).isEqualTo("path " + file.getPath() + " exists but is not a directory.");
-        }
+        assertThatThrownBy(() -> javaFile.writeTo(file))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("path " + file.getPath() + " exists but is not a directory.");
     }
 
     @Test

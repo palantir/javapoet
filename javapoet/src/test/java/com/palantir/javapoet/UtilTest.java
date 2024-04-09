@@ -15,46 +15,46 @@
  */
 package com.palantir.javapoet;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
 public class UtilTest {
     @Test
     public void characterLiteral() {
-        assertEquals("a", Util.characterLiteralWithoutSingleQuotes('a'));
-        assertEquals("b", Util.characterLiteralWithoutSingleQuotes('b'));
-        assertEquals("c", Util.characterLiteralWithoutSingleQuotes('c'));
-        assertEquals("%", Util.characterLiteralWithoutSingleQuotes('%'));
+        assertThat(Util.characterLiteralWithoutSingleQuotes('a')).isEqualTo("a");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('b')).isEqualTo("b");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('c')).isEqualTo("c");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('%')).isEqualTo("%");
         // common escapes
-        assertEquals("\\b", Util.characterLiteralWithoutSingleQuotes('\b'));
-        assertEquals("\\t", Util.characterLiteralWithoutSingleQuotes('\t'));
-        assertEquals("\\n", Util.characterLiteralWithoutSingleQuotes('\n'));
-        assertEquals("\\f", Util.characterLiteralWithoutSingleQuotes('\f'));
-        assertEquals("\\r", Util.characterLiteralWithoutSingleQuotes('\r'));
-        assertEquals("\"", Util.characterLiteralWithoutSingleQuotes('"'));
-        assertEquals("\\'", Util.characterLiteralWithoutSingleQuotes('\''));
-        assertEquals("\\\\", Util.characterLiteralWithoutSingleQuotes('\\'));
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\b')).isEqualTo("\\b");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\t')).isEqualTo("\\t");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\n')).isEqualTo("\\n");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\f')).isEqualTo("\\f");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\r')).isEqualTo("\\r");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('"')).isEqualTo("\"");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\'')).isEqualTo("\\'");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\\')).isEqualTo("\\\\");
         // octal escapes
-        assertEquals("\\u0000", Util.characterLiteralWithoutSingleQuotes('\0'));
-        assertEquals("\\u0007", Util.characterLiteralWithoutSingleQuotes('\7'));
-        assertEquals("?", Util.characterLiteralWithoutSingleQuotes('\77'));
-        assertEquals("\\u007f", Util.characterLiteralWithoutSingleQuotes('\177'));
-        assertEquals("¿", Util.characterLiteralWithoutSingleQuotes('\277'));
-        assertEquals("ÿ", Util.characterLiteralWithoutSingleQuotes('\377'));
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\0')).isEqualTo("\\u0000");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\7')).isEqualTo("\\u0007");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\77')).isEqualTo("?");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\177')).isEqualTo("\\u007f");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\277')).isEqualTo("¿");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\377')).isEqualTo("ÿ");
         // unicode escapes
-        assertEquals("\\u0000", Util.characterLiteralWithoutSingleQuotes('\u0000'));
-        assertEquals("\\u0001", Util.characterLiteralWithoutSingleQuotes('\u0001'));
-        assertEquals("\\u0002", Util.characterLiteralWithoutSingleQuotes('\u0002'));
-        assertEquals("€", Util.characterLiteralWithoutSingleQuotes('\u20AC'));
-        assertEquals("☃", Util.characterLiteralWithoutSingleQuotes('\u2603'));
-        assertEquals("♠", Util.characterLiteralWithoutSingleQuotes('\u2660'));
-        assertEquals("♣", Util.characterLiteralWithoutSingleQuotes('\u2663'));
-        assertEquals("♥", Util.characterLiteralWithoutSingleQuotes('\u2665'));
-        assertEquals("♦", Util.characterLiteralWithoutSingleQuotes('\u2666'));
-        assertEquals("✵", Util.characterLiteralWithoutSingleQuotes('\u2735'));
-        assertEquals("✺", Util.characterLiteralWithoutSingleQuotes('\u273A'));
-        assertEquals("／", Util.characterLiteralWithoutSingleQuotes('\uFF0F'));
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u0000')).isEqualTo("\\u0000");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u0001')).isEqualTo("\\u0001");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u0002')).isEqualTo("\\u0002");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u20AC')).isEqualTo("€");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u2603')).isEqualTo("☃");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u2660')).isEqualTo("♠");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u2663')).isEqualTo("♣");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u2665')).isEqualTo("♥");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u2666')).isEqualTo("♦");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u2735')).isEqualTo("✵");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\u273A')).isEqualTo("✺");
+        assertThat(Util.characterLiteralWithoutSingleQuotes('\uFF0F')).isEqualTo("／");
     }
 
     @Test
@@ -72,6 +72,6 @@ public class UtilTest {
     }
 
     void stringLiteral(String expected, String value, String indent) {
-        assertEquals("\"" + expected + "\"", Util.stringLiteralWithDoubleQuotes(value, indent));
+        assertThat(Util.stringLiteralWithDoubleQuotes(value, indent)).isEqualTo("\"" + expected + "\"");
     }
 }

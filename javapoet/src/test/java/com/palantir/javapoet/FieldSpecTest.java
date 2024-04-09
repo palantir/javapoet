@@ -15,8 +15,8 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import javax.lang.model.element.Modifier;
 import org.junit.Test;
@@ -40,12 +40,9 @@ public class FieldSpecTest {
 
     @Test
     public void nullAnnotationsAddition() {
-        try {
-            FieldSpec.builder(int.class, "foo").addAnnotations(null);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected.getMessage()).isEqualTo("annotationSpecs == null");
-        }
+        assertThatThrownBy(() -> FieldSpec.builder(int.class, "foo").addAnnotations(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("annotationSpecs == null");
     }
 
     @Test

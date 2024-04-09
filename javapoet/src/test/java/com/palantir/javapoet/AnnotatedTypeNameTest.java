@@ -15,11 +15,7 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
@@ -55,12 +51,12 @@ public class AnnotatedTypeNameTest {
     @Test
     public void annotated() {
         TypeName simpleString = TypeName.get(String.class);
-        assertFalse(simpleString.isAnnotated());
-        assertEquals(simpleString, TypeName.get(String.class));
+        assertThat(simpleString.isAnnotated()).isFalse();
+        assertThat(TypeName.get(String.class)).isEqualTo(simpleString);
 
         TypeName annotated = simpleString.annotated(NEVER_NULL);
-        assertTrue(annotated.isAnnotated());
-        assertEquals(annotated, annotated.annotated());
+        assertThat(annotated.isAnnotated()).isTrue();
+        assertThat(annotated.annotated()).isEqualTo(annotated);
     }
 
     @Test
@@ -116,15 +112,10 @@ public class AnnotatedTypeNameTest {
     }
 
     private void annotatedEquivalence(TypeName type) {
-        assertFalse(type.isAnnotated());
-        assertEquals(type, type);
-        assertEquals(type.annotated(TYPE_USE_ANNOTATION), type.annotated(TYPE_USE_ANNOTATION));
-        assertNotEquals(type, type.annotated(TYPE_USE_ANNOTATION));
-        assertEquals(type.hashCode(), type.hashCode());
-        assertEquals(
-                type.annotated(TYPE_USE_ANNOTATION).hashCode(),
-                type.annotated(TYPE_USE_ANNOTATION).hashCode());
-        assertNotEquals(type.hashCode(), type.annotated(TYPE_USE_ANNOTATION).hashCode());
+        assertThat(type.isAnnotated()).isFalse();
+        assertThat(type).isNotEqualTo(type.annotated(TYPE_USE_ANNOTATION));
+        assertThat(type.hashCode())
+                .isNotEqualTo(type.annotated(TYPE_USE_ANNOTATION).hashCode());
     }
 
     // https://github.com/square/javapoet/issues/431

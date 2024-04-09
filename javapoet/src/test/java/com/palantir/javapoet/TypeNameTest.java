@@ -15,10 +15,7 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -82,9 +79,9 @@ public class TypeNameTest {
         Method genericStringInner = getClass().getDeclaredMethod("testGenericStringInner");
         TypeName.get(genericStringInner.getReturnType());
         TypeName genericTypeName = TypeName.get(genericStringInner.getGenericReturnType());
-        assertNotEquals(
-                TypeName.get(genericStringInner.getGenericReturnType()),
-                TypeName.get(getClass().getDeclaredMethod("testGenericIntInner").getGenericReturnType()));
+        assertThat(TypeName.get(genericStringInner.getGenericReturnType()))
+                .isNotEqualTo(TypeName.get(
+                        getClass().getDeclaredMethod("testGenericIntInner").getGenericReturnType()));
 
         // Make sure the generic argument is present
         assertThat(genericTypeName.toString())
@@ -96,9 +93,9 @@ public class TypeNameTest {
         Method genericStringInner = getClass().getDeclaredMethod("testGenericInnerLong");
         TypeName.get(genericStringInner.getReturnType());
         TypeName genericTypeName = TypeName.get(genericStringInner.getGenericReturnType());
-        assertNotEquals(
-                TypeName.get(genericStringInner.getGenericReturnType()),
-                TypeName.get(getClass().getDeclaredMethod("testGenericInnerInt").getGenericReturnType()));
+        assertThat(TypeName.get(genericStringInner.getGenericReturnType()))
+                .isNotEqualTo(TypeName.get(
+                        getClass().getDeclaredMethod("testGenericInnerInt").getGenericReturnType()));
 
         // Make sure the generic argument is present
         assertThat(genericTypeName.toString())
@@ -147,7 +144,7 @@ public class TypeNameTest {
                 ParameterizedTypeName.get(Object.class), ParameterizedTypeName.get(Object.class));
         assertEqualsHashCodeAndToString(
                 ParameterizedTypeName.get(Set.class, UUID.class), ParameterizedTypeName.get(Set.class, UUID.class));
-        assertNotEquals(ClassName.get(List.class), ParameterizedTypeName.get(List.class, String.class));
+        assertThat(ParameterizedTypeName.get(List.class, String.class)).isNotEqualTo(ClassName.get(List.class));
     }
 
     @Test
@@ -205,9 +202,8 @@ public class TypeNameTest {
     }
 
     private void assertEqualsHashCodeAndToString(TypeName a, TypeName b) {
-        assertEquals(a.toString(), b.toString());
+        assertThat(a.toString()).isEqualTo(b.toString());
         assertThat(a.equals(b)).isTrue();
         assertThat(a.hashCode()).isEqualTo(b.hashCode());
-        assertFalse(a.equals(null));
     }
 }

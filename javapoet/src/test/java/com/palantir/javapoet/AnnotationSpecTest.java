@@ -15,8 +15,8 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.testing.compile.CompilationRule;
 import java.lang.annotation.Annotation;
@@ -365,24 +365,20 @@ public final class AnnotationSpecTest {
 
     @Test
     public void disallowsNullMemberName() {
-        AnnotationSpec.Builder builder = AnnotationSpec.builder(HasDefaultsAnnotation.class);
-        try {
-            AnnotationSpec.Builder $L = builder.addMember(null, "$L", "");
-            fail($L.build().toString());
-        } catch (NullPointerException e) {
-            assertThat(e).hasMessageThat().isEqualTo("name == null");
-        }
+        AnnotationSpec.Builder builder =
+                AnnotationSpec.builder(HasDefaultsAnnotation.class).addMember(null, "$L", "");
+        assertThatThrownBy(() -> builder.build().toString())
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("name == null");
     }
 
     @Test
     public void requiresValidMemberName() {
-        AnnotationSpec.Builder builder = AnnotationSpec.builder(HasDefaultsAnnotation.class);
-        try {
-            AnnotationSpec.Builder $L = builder.addMember("@", "$L", "");
-            fail($L.build().toString());
-        } catch (IllegalArgumentException e) {
-            assertThat(e).hasMessageThat().isEqualTo("not a valid name: @");
-        }
+        AnnotationSpec.Builder builder =
+                AnnotationSpec.builder(HasDefaultsAnnotation.class).addMember("@", "$L", "");
+        assertThatThrownBy(() -> builder.build().toString())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("not a valid name: @");
     }
 
     @Test

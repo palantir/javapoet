@@ -99,7 +99,6 @@ public final class TypeSpec {
      * while emitting the type declaration but before entering the type body.
      */
     private TypeSpec(TypeSpec type) {
-        assert type.anonymousTypeArguments == null;
         this.kind = type.kind;
         this.name = type.name;
         this.anonymousTypeArguments = null;

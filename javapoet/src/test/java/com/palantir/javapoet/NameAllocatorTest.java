@@ -15,8 +15,8 @@
  */
 package com.palantir.javapoet;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.Test;
 
@@ -86,23 +86,17 @@ public final class NameAllocatorTest {
     public void tagReuseForbidden() throws Exception {
         NameAllocator nameAllocator = new NameAllocator();
         nameAllocator.newName("foo", 1);
-        try {
-            nameAllocator.newName("bar", 1);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("tag 1 cannot be used for both 'foo' and 'bar'");
-        }
+        assertThatThrownBy(() -> nameAllocator.newName("bar", 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("tag 1 cannot be used for both 'foo' and 'bar'");
     }
 
     @Test
     public void useBeforeAllocateForbidden() throws Exception {
         NameAllocator nameAllocator = new NameAllocator();
-        try {
-            nameAllocator.get(1);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            assertThat(expected).hasMessageThat().isEqualTo("unknown tag: 1");
-        }
+        assertThatThrownBy(() -> nameAllocator.get(1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("unknown tag: 1");
     }
 
     @Test

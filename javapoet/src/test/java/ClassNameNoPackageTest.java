@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.palantir.javapoet.ClassName;
 import org.junit.Test;
