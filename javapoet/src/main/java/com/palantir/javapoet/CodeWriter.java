@@ -418,10 +418,7 @@ final class CodeWriter {
             return join(".", className.simpleNames());
         }
 
-        // We'll have to use the fully-qualified name. Mark the type as importable for a future pass.
-        if (!javadoc) {
-            importableType(className);
-        }
+        importableType(className);
 
         return className.canonicalName;
     }
