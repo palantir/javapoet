@@ -23,6 +23,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -183,7 +184,7 @@ public final class FileWritingTest {
 
         Path fooPath = fsRoot.resolve(fs.getPath("foo", "Test.java"));
         assertThat(Files.exists(fooPath)).isTrue();
-        String source = new String(Files.readAllBytes(fooPath));
+        String source = new String(Files.readAllBytes(fooPath), StandardCharsets.UTF_8);
 
         assertThat(source)
                 .isEqualTo(""

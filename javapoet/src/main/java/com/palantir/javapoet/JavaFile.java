@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -46,17 +47,17 @@ import javax.tools.SimpleJavaFileObject;
 public final class JavaFile {
     private static final Appendable NULL_APPENDABLE = new Appendable() {
         @Override
-        public Appendable append(CharSequence charSequence) {
+        public Appendable append(CharSequence _charSequence) {
             return this;
         }
 
         @Override
-        public Appendable append(CharSequence charSequence, int start, int end) {
+        public Appendable append(CharSequence _charSequence, int _start, int _end) {
             return this;
         }
 
         @Override
-        public Appendable append(char c) {
+        public Appendable append(char _c) {
             return this;
         }
     };
@@ -133,7 +134,7 @@ public final class JavaFile {
                 directory);
         Path outputDirectory = directory;
         if (!packageName.isEmpty()) {
-            for (String packageComponent : packageName.split("\\.")) {
+            for (String packageComponent : packageName.split("\\.", -1)) {
                 outputDirectory = outputDirectory.resolve(packageComponent);
             }
             Files.createDirectories(outputDirectory);
@@ -173,6 +174,7 @@ public final class JavaFile {
             try {
                 filerSourceFile.delete();
             } catch (Exception ignored) {
+                // Ignored
             }
             throw e;
         }
@@ -238,7 +240,7 @@ public final class JavaFile {
             writeTo(result);
             return result.toString();
         } catch (IOException e) {
-            throw new AssertionError();
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -250,7 +252,7 @@ public final class JavaFile {
             private final long lastModified = System.currentTimeMillis();
 
             @Override
-            public String getCharContent(boolean ignoreEncodingErrors) {
+            public String getCharContent(boolean _ignoreEncodingErrors) {
                 return JavaFile.this.toString();
             }
 

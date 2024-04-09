@@ -16,6 +16,7 @@
 package com.palantir.javapoet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.google.testing.compile.CompilationRule;
 import java.io.File;
@@ -93,7 +94,7 @@ public final class JavaFileTest {
     @Test
     public void importStaticForCrazyFormatsWorks() {
         MethodSpec method = MethodSpec.methodBuilder("method").build();
-        JavaFile.builder(
+        JavaFile javaFile = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.classBuilder("Taco")
                                 .addStaticBlock(CodeBlock.builder()
@@ -112,8 +113,9 @@ public final class JavaFileTest {
                                         .build())
                                 .build())
                 .addStaticImport(Runtime.class, "*")
-                .build()
-                .toString(); // don't look at the generated code...
+                .build();
+
+        assertThatCode(javaFile::toString).doesNotThrowAnyException();
     }
 
     @Test

@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.Test;
 
+@SuppressWarnings("ClassCanBeStatic")
 public class TypeNameTest {
 
     private static final AnnotationSpec ANNOTATION_SPEC =

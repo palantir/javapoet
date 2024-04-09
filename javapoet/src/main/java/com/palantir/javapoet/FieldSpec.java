@@ -20,6 +20,7 @@ import static com.palantir.javapoet.Util.checkNotNull;
 import static com.palantir.javapoet.Util.checkState;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +84,7 @@ public final class FieldSpec {
             emit(codeWriter, Collections.emptySet());
             return out.toString();
         } catch (IOException e) {
-            throw new AssertionError();
+            throw new UncheckedIOException(e);
         }
     }
 

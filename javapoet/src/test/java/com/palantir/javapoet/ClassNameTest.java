@@ -145,16 +145,16 @@ public final class ClassNameTest {
         assertThat(ClassName.get(Object.class).toString()).isEqualTo("java.lang.Object");
         assertThat(ClassName.get(OuterClass.InnerClass.class).toString())
                 .isEqualTo("com.palantir.javapoet.ClassNameTest.OuterClass.InnerClass");
-        assertThat((ClassName.get(new Object() {}.getClass())).toString())
+        assertThat(ClassName.get(new Object() {}.getClass()).toString())
                 .isEqualTo("com.palantir.javapoet.ClassNameTest$1");
-        assertThat((ClassName.get(
+        assertThat(ClassName.get(
                                 new Object() {
                                     Object inner = new Object() {};
-                                }.inner.getClass()))
+                                }.inner.getClass())
                         .toString())
                 .isEqualTo("com.palantir.javapoet.ClassNameTest$2$1");
-        assertThat((ClassName.get($Outer.class)).toString()).isEqualTo("com.palantir.javapoet.ClassNameTest.$Outer");
-        assertThat((ClassName.get($Outer.$Inner.class)).toString())
+        assertThat(ClassName.get($Outer.class).toString()).isEqualTo("com.palantir.javapoet.ClassNameTest.$Outer");
+        assertThat(ClassName.get($Outer.$Inner.class).toString())
                 .isEqualTo("com.palantir.javapoet.ClassNameTest.$Outer.$Inner");
     }
 

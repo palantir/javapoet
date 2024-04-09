@@ -18,6 +18,7 @@ package com.palantir.javapoet;
 import static com.palantir.javapoet.Util.checkArgument;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +101,7 @@ public final class CodeBlock {
             new CodeWriter(out).emit(this);
             return out.toString();
         } catch (IOException e) {
-            throw new AssertionError();
+            throw new UncheckedIOException(e);
         }
     }
 

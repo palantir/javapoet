@@ -74,22 +74,22 @@ final class TestFiler implements Filer {
     }
 
     @Override
-    public JavaFileObject createClassFile(CharSequence name, Element... originatingElements) throws IOException {
+    public JavaFileObject createClassFile(CharSequence _name, Element... _originatingElements) throws IOException {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
     public FileObject createResource(
-            JavaFileManager.Location location,
-            CharSequence pkg,
-            CharSequence relativeName,
-            Element... originatingElements)
+            JavaFileManager.Location _location,
+            CharSequence _pkg,
+            CharSequence _relativeName,
+            Element... _originatingElements)
             throws IOException {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
-    public FileObject getResource(JavaFileManager.Location location, CharSequence pkg, CharSequence relativeName)
+    public FileObject getResource(JavaFileManager.Location _location, CharSequence _pkg, CharSequence _relativeName)
             throws IOException {
         throw new UnsupportedOperationException("Not implemented.");
     }

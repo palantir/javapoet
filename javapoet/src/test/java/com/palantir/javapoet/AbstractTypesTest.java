@@ -84,7 +84,7 @@ public abstract class AbstractTypesTest {
                 "}");
         Compilation compilation = javac().withProcessors(new AbstractProcessor() {
                     @Override
-                    public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
+                    public boolean process(Set<? extends TypeElement> _set, RoundEnvironment _roundEnvironment) {
                         TypeElement classFile =
                                 processingEnv.getElementUtils().getTypeElement("com.palantir.tacos.ErrorTypes");
                         List<VariableElement> fields = fieldsIn(classFile.getEnclosedElements());

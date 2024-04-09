@@ -16,6 +16,7 @@
 package com.palantir.javapoet;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -175,7 +176,7 @@ public class TypeName {
         else if (keyword.equals(CHAR.keyword)) boxed = BOXED_CHAR;
         else if (keyword.equals(FLOAT.keyword)) boxed = BOXED_FLOAT;
         else if (keyword.equals(DOUBLE.keyword)) boxed = BOXED_DOUBLE;
-        else throw new AssertionError(keyword);
+        else throw new IllegalStateException(keyword);
         return annotations.isEmpty() ? boxed : boxed.annotated(annotations);
     }
 
@@ -203,6 +204,7 @@ public class TypeName {
     }
 
     @Override
+    @SuppressWarnings("EqualsGetClass")
     public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
@@ -226,14 +228,14 @@ public class TypeName {
                 result = resultBuilder.toString();
                 cachedString = result;
             } catch (IOException e) {
-                throw new AssertionError();
+                throw new UncheckedIOException(e);
             }
         }
         return result;
     }
 
     CodeWriter emit(CodeWriter out) throws IOException {
-        if (keyword == null) throw new AssertionError();
+        if (keyword == null) throw new IllegalStateException();
 
         if (isAnnotated()) {
             out.emit("");
@@ -259,7 +261,7 @@ public class TypeName {
         return mirror.accept(
                 new SimpleTypeVisitor8<TypeName, Void>() {
                     @Override
-                    public TypeName visitPrimitive(PrimitiveType t, Void p) {
+                    public TypeName visitPrimitive(PrimitiveType t, Void _p) {
                         switch (t.getKind()) {
                             case BOOLEAN:
                                 return TypeName.BOOLEAN;
@@ -278,12 +280,12 @@ public class TypeName {
                             case DOUBLE:
                                 return TypeName.DOUBLE;
                             default:
-                                throw new AssertionError();
+                                throw new IllegalStateException();
                         }
                     }
 
                     @Override
-                    public TypeName visitDeclared(DeclaredType t, Void p) {
+                    public TypeName visitDeclared(DeclaredType t, Void _p) {
                         ClassName rawType = ClassName.get((TypeElement) t.asElement());
                         TypeMirror enclosingType = t.getEnclosingType();
                         TypeName enclosing = (enclosingType.getKind() != TypeKind.NONE)
@@ -310,17 +312,17 @@ public class TypeName {
                     }
 
                     @Override
-                    public ArrayTypeName visitArray(ArrayType t, Void p) {
+                    public ArrayTypeName visitArray(ArrayType t, Void _p) {
                         return ArrayTypeName.get(t, typeVariables);
                     }
 
                     @Override
-                    public TypeName visitTypeVariable(javax.lang.model.type.TypeVariable t, Void p) {
+                    public TypeName visitTypeVariable(javax.lang.model.type.TypeVariable t, Void _p) {
                         return TypeVariableName.get(t, typeVariables);
                     }
 
                     @Override
-                    public TypeName visitWildcard(javax.lang.model.type.WildcardType t, Void p) {
+                    public TypeName visitWildcard(javax.lang.model.type.WildcardType t, Void _p) {
                         return WildcardTypeName.get(t, typeVariables);
                     }
 
@@ -331,7 +333,7 @@ public class TypeName {
                     }
 
                     @Override
-                    protected TypeName defaultAction(TypeMirror e, Void p) {
+                    protected TypeName defaultAction(TypeMirror e, Void _p) {
                         throw new IllegalArgumentException("Unexpected type mirror: " + e);
                     }
                 },

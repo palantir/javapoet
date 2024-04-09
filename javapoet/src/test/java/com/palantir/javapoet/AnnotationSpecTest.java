@@ -28,6 +28,7 @@ import javax.lang.model.element.TypeElement;
 import org.junit.Rule;
 import org.junit.Test;
 
+@SuppressWarnings("ClassCanBeStatic")
 public final class AnnotationSpecTest {
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -46,7 +47,7 @@ public final class AnnotationSpecTest {
         WAFFLES,
         PANCAKES;
 
-        public String toString() {
+        @Override public String toString() {
             return name() + " with cherries!";
         }
         ;

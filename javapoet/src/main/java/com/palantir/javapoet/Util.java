@@ -84,6 +84,7 @@ final class Util {
         checkArgument(count == 1, "modifiers %s must contain one of %s", modifiers, Arrays.toString(mutuallyExclusive));
     }
 
+    @SuppressWarnings("UnicodeEscape")
     static String characterLiteralWithoutSingleQuotes(char c) {
         // see https://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6
         switch (c) {

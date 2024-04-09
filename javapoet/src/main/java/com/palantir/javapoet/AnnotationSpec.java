@@ -20,6 +20,7 @@ import static com.palantir.javapoet.Util.checkArgument;
 import static com.palantir.javapoet.Util.checkNotNull;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -193,7 +194,7 @@ public final class AnnotationSpec {
             codeWriter.emit("$L", this);
             return out.toString();
         } catch (IOException e) {
-            throw new AssertionError();
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -211,7 +212,7 @@ public final class AnnotationSpec {
         }
 
         public Builder addMember(String name, CodeBlock codeBlock) {
-            List<CodeBlock> values = members.computeIfAbsent(name, k -> new ArrayList<>());
+            List<CodeBlock> values = members.computeIfAbsent(name, _k -> new ArrayList<>());
             values.add(codeBlock);
             return this;
         }

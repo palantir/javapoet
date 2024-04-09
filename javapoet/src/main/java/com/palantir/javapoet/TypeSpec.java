@@ -21,6 +21,7 @@ import static com.palantir.javapoet.Util.checkState;
 import static com.palantir.javapoet.Util.requireExactlyOneOf;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public final class TypeSpec {
         this.typeSpecs = Util.immutableList(builder.typeSpecs);
         this.alwaysQualifiedNames = Util.immutableSet(builder.alwaysQualifiedNames);
 
-        nestedTypesSimpleNames = new HashSet<>(builder.typeSpecs.size());
+        nestedTypesSimpleNames = new HashSet<>();
         List<Element> originatingElementsMutable = new ArrayList<>();
         originatingElementsMutable.addAll(builder.originatingElements);
         for (TypeSpec typeSpec : builder.typeSpecs) {
@@ -365,10 +366,11 @@ public final class TypeSpec {
             emit(codeWriter, null, Collections.emptySet());
             return out.toString();
         } catch (IOException e) {
-            throw new AssertionError();
+            throw new UncheckedIOException(e);
         }
     }
 
+    @SuppressWarnings("ImmutableEnumChecker")
     public enum Kind {
         CLASS(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet()),
 

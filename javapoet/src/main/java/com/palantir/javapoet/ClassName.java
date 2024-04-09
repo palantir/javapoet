@@ -235,23 +235,23 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
                 .accept(
                         new SimpleElementVisitor8<ClassName, Void>() {
                             @Override
-                            public ClassName visitPackage(PackageElement packageElement, Void p) {
+                            public ClassName visitPackage(PackageElement packageElement, Void _p) {
                                 return new ClassName(
                                         packageElement.getQualifiedName().toString(), null, simpleName);
                             }
 
                             @Override
-                            public ClassName visitType(TypeElement enclosingClass, Void p) {
+                            public ClassName visitType(TypeElement enclosingClass, Void _p) {
                                 return ClassName.get(enclosingClass).nestedClass(simpleName);
                             }
 
                             @Override
-                            public ClassName visitUnknown(Element unknown, Void p) {
+                            public ClassName visitUnknown(Element _unknown, Void _p) {
                                 return get("", simpleName);
                             }
 
                             @Override
-                            public ClassName defaultAction(Element enclosingElement, Void p) {
+                            public ClassName defaultAction(Element _enclosingElement, Void _p) {
                                 throw new IllegalArgumentException("Unexpected type nesting: " + element);
                             }
                         },

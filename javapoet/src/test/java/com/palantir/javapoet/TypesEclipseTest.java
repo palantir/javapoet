@@ -59,7 +59,7 @@ public final class TypesEclipseTest extends AbstractTypesTest {
         private Types types;
 
         @Override
-        public Statement apply(final Statement base, Description description) {
+        public Statement apply(final Statement base, Description _description) {
             return new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
@@ -83,7 +83,7 @@ public final class TypesEclipseTest extends AbstractTypesTest {
                         }
 
                         @Override
-                        public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+                        public boolean process(Set<? extends TypeElement> _annotations, RoundEnvironment roundEnv) {
                             // just run the test on the last round after compilation is over
                             if (roundEnv.processingOver()) {
                                 try {

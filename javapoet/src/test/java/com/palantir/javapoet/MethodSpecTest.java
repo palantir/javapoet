@@ -47,6 +47,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+@SuppressWarnings({"ClassCanBeStatic", "TypeParameterUnusedInFormals", "StrictUnusedVariable", "UnusedMethod"})
 public final class MethodSpecTest {
     @Rule
     public final CompilationRule compilation = new CompilationRule();
@@ -240,7 +241,7 @@ public final class MethodSpecTest {
 
         private @interface PrivateAnnotation {}
 
-        abstract void foo(@PrivateAnnotation final String bar);
+        abstract void foo(@PrivateAnnotation String bar);
     }
 
     @Test
