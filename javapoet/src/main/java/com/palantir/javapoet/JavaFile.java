@@ -166,8 +166,7 @@ public final class JavaFile {
     public void writeTo(Filer filer) throws IOException {
         String fileName = packageName.isEmpty() ? typeSpec.name : packageName + "." + typeSpec.name;
         List<Element> originatingElements = typeSpec.originatingElements;
-        JavaFileObject filerSourceFile =
-                filer.createSourceFile(fileName, originatingElements.toArray(new Element[originatingElements.size()]));
+        JavaFileObject filerSourceFile = filer.createSourceFile(fileName, originatingElements.toArray(new Element[0]));
         try (Writer writer = filerSourceFile.openWriter()) {
             writeTo(writer);
         } catch (Exception e) {
@@ -201,7 +200,7 @@ public final class JavaFile {
 
         int importedTypesCount = 0;
         for (ClassName className : new TreeSet<>(codeWriter.importedTypes().values())) {
-            // TODO what about nested types like java.util.Map.Entry?
+            // TODO(pkoenig): what about nested types like java.util.Map.Entry?
             if (skipJavaLangImports
                     && className.packageName().equals("java.lang")
                     && !alwaysQualify.contains(className.simpleName)) {
@@ -222,9 +221,15 @@ public final class JavaFile {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
         return toString().equals(o.toString());
     }
 
@@ -257,7 +262,7 @@ public final class JavaFile {
             }
 
             @Override
-            public InputStream openInputStream() throws IOException {
+            public InputStream openInputStream() {
                 return new ByteArrayInputStream(getCharContent(true).getBytes(UTF_8));
             }
 

@@ -42,7 +42,7 @@ public class ParameterSpecTest {
     private Elements elements;
 
     @Before
-    public void setUp() {
+    public void before() {
         elements = compilation.getElements();
     }
 

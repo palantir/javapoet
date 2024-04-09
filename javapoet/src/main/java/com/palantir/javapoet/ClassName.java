@@ -72,7 +72,9 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
 
     @Override
     public ClassName withoutAnnotations() {
-        if (!isAnnotated()) return this;
+        if (!isAnnotated()) {
+            return this;
+        }
         ClassName resultEnclosingClassName =
                 enclosingClassName != null ? enclosingClassName.withoutAnnotations() : null;
         return new ClassName(packageName, resultEnclosingClassName, simpleName);
@@ -291,7 +293,9 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
             }
 
             if (className.isAnnotated()) {
-                if (charsEmitted) out.emit(" ");
+                if (charsEmitted) {
+                    out.emit(" ");
+                }
                 className.emitAnnotations(out);
             }
 

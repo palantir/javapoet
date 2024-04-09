@@ -165,18 +165,31 @@ public class TypeName {
      * {@code void}. Returns this type if boxing doesn't apply.
      */
     public TypeName box() {
-        if (keyword == null) return this; // Doesn't need boxing.
-        TypeName boxed = null;
-        if (keyword.equals(VOID.keyword)) boxed = BOXED_VOID;
-        else if (keyword.equals(BOOLEAN.keyword)) boxed = BOXED_BOOLEAN;
-        else if (keyword.equals(BYTE.keyword)) boxed = BOXED_BYTE;
-        else if (keyword.equals(SHORT.keyword)) boxed = BOXED_SHORT;
-        else if (keyword.equals(INT.keyword)) boxed = BOXED_INT;
-        else if (keyword.equals(LONG.keyword)) boxed = BOXED_LONG;
-        else if (keyword.equals(CHAR.keyword)) boxed = BOXED_CHAR;
-        else if (keyword.equals(FLOAT.keyword)) boxed = BOXED_FLOAT;
-        else if (keyword.equals(DOUBLE.keyword)) boxed = BOXED_DOUBLE;
-        else throw new IllegalStateException(keyword);
+        if (keyword == null) {
+            return this;
+        } // Doesn't need boxing.
+        TypeName boxed;
+        if (keyword.equals(VOID.keyword)) {
+            boxed = BOXED_VOID;
+        } else if (keyword.equals(BOOLEAN.keyword)) {
+            boxed = BOXED_BOOLEAN;
+        } else if (keyword.equals(BYTE.keyword)) {
+            boxed = BOXED_BYTE;
+        } else if (keyword.equals(SHORT.keyword)) {
+            boxed = BOXED_SHORT;
+        } else if (keyword.equals(INT.keyword)) {
+            boxed = BOXED_INT;
+        } else if (keyword.equals(LONG.keyword)) {
+            boxed = BOXED_LONG;
+        } else if (keyword.equals(CHAR.keyword)) {
+            boxed = BOXED_CHAR;
+        } else if (keyword.equals(FLOAT.keyword)) {
+            boxed = BOXED_FLOAT;
+        } else if (keyword.equals(DOUBLE.keyword)) {
+            boxed = BOXED_DOUBLE;
+        } else {
+            throw new IllegalStateException(keyword);
+        }
         return annotations.isEmpty() ? boxed : boxed.annotated(annotations);
     }
 
@@ -187,28 +200,47 @@ public class TypeName {
      * @throws UnsupportedOperationException if this type isn't eligible for unboxing.
      */
     public TypeName unbox() {
-        if (keyword != null) return this; // Already unboxed.
+        if (keyword != null) {
+            return this;
+        } // Already unboxed.
         TypeName thisWithoutAnnotations = withoutAnnotations();
-        TypeName unboxed = null;
-        if (thisWithoutAnnotations.equals(BOXED_VOID)) unboxed = VOID;
-        else if (thisWithoutAnnotations.equals(BOXED_BOOLEAN)) unboxed = BOOLEAN;
-        else if (thisWithoutAnnotations.equals(BOXED_BYTE)) unboxed = BYTE;
-        else if (thisWithoutAnnotations.equals(BOXED_SHORT)) unboxed = SHORT;
-        else if (thisWithoutAnnotations.equals(BOXED_INT)) unboxed = INT;
-        else if (thisWithoutAnnotations.equals(BOXED_LONG)) unboxed = LONG;
-        else if (thisWithoutAnnotations.equals(BOXED_CHAR)) unboxed = CHAR;
-        else if (thisWithoutAnnotations.equals(BOXED_FLOAT)) unboxed = FLOAT;
-        else if (thisWithoutAnnotations.equals(BOXED_DOUBLE)) unboxed = DOUBLE;
-        else throw new UnsupportedOperationException("cannot unbox " + this);
+        TypeName unboxed;
+        if (thisWithoutAnnotations.equals(BOXED_VOID)) {
+            unboxed = VOID;
+        } else if (thisWithoutAnnotations.equals(BOXED_BOOLEAN)) {
+            unboxed = BOOLEAN;
+        } else if (thisWithoutAnnotations.equals(BOXED_BYTE)) {
+            unboxed = BYTE;
+        } else if (thisWithoutAnnotations.equals(BOXED_SHORT)) {
+            unboxed = SHORT;
+        } else if (thisWithoutAnnotations.equals(BOXED_INT)) {
+            unboxed = INT;
+        } else if (thisWithoutAnnotations.equals(BOXED_LONG)) {
+            unboxed = LONG;
+        } else if (thisWithoutAnnotations.equals(BOXED_CHAR)) {
+            unboxed = CHAR;
+        } else if (thisWithoutAnnotations.equals(BOXED_FLOAT)) {
+            unboxed = FLOAT;
+        } else if (thisWithoutAnnotations.equals(BOXED_DOUBLE)) {
+            unboxed = DOUBLE;
+        } else {
+            throw new UnsupportedOperationException("cannot unbox " + this);
+        }
         return annotations.isEmpty() ? unboxed : unboxed.annotated(annotations);
     }
 
     @Override
     @SuppressWarnings("EqualsGetClass")
     public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
         return toString().equals(o.toString());
     }
 
@@ -235,7 +267,9 @@ public class TypeName {
     }
 
     CodeWriter emit(CodeWriter out) throws IOException {
-        if (keyword == null) throw new IllegalStateException();
+        if (keyword == null) {
+            throw new IllegalStateException();
+        }
 
         if (isAnnotated()) {
             out.emit("");
@@ -262,26 +296,17 @@ public class TypeName {
                 new SimpleTypeVisitor8<TypeName, Void>() {
                     @Override
                     public TypeName visitPrimitive(PrimitiveType t, Void _p) {
-                        switch (t.getKind()) {
-                            case BOOLEAN:
-                                return TypeName.BOOLEAN;
-                            case BYTE:
-                                return TypeName.BYTE;
-                            case SHORT:
-                                return TypeName.SHORT;
-                            case INT:
-                                return TypeName.INT;
-                            case LONG:
-                                return TypeName.LONG;
-                            case CHAR:
-                                return TypeName.CHAR;
-                            case FLOAT:
-                                return TypeName.FLOAT;
-                            case DOUBLE:
-                                return TypeName.DOUBLE;
-                            default:
-                                throw new IllegalStateException();
-                        }
+                        return switch (t.getKind()) {
+                            case BOOLEAN -> TypeName.BOOLEAN;
+                            case BYTE -> TypeName.BYTE;
+                            case SHORT -> TypeName.SHORT;
+                            case INT -> TypeName.INT;
+                            case LONG -> TypeName.LONG;
+                            case CHAR -> TypeName.CHAR;
+                            case FLOAT -> TypeName.FLOAT;
+                            case DOUBLE -> TypeName.DOUBLE;
+                            default -> throw new IllegalStateException();
+                        };
                     }
 
                     @Override
@@ -328,7 +353,9 @@ public class TypeName {
 
                     @Override
                     public TypeName visitNoType(NoType t, Void p) {
-                        if (t.getKind() == TypeKind.VOID) return TypeName.VOID;
+                        if (t.getKind() == TypeKind.VOID) {
+                            return TypeName.VOID;
+                        }
                         return super.visitUnknown(t, p);
                     }
 
@@ -346,18 +373,37 @@ public class TypeName {
     }
 
     static TypeName get(Type type, Map<Type, TypeVariableName> map) {
-        if (type instanceof Class<?>) {
-            Class<?> classType = (Class<?>) type;
-            if (type == void.class) return VOID;
-            if (type == boolean.class) return BOOLEAN;
-            if (type == byte.class) return BYTE;
-            if (type == short.class) return SHORT;
-            if (type == int.class) return INT;
-            if (type == long.class) return LONG;
-            if (type == char.class) return CHAR;
-            if (type == float.class) return FLOAT;
-            if (type == double.class) return DOUBLE;
-            if (classType.isArray()) return ArrayTypeName.of(get(classType.getComponentType(), map));
+        if (type instanceof Class<?> classType) {
+            if (type == void.class) {
+                return VOID;
+            }
+            if (type == boolean.class) {
+                return BOOLEAN;
+            }
+            if (type == byte.class) {
+                return BYTE;
+            }
+            if (type == short.class) {
+                return SHORT;
+            }
+            if (type == int.class) {
+                return INT;
+            }
+            if (type == long.class) {
+                return LONG;
+            }
+            if (type == char.class) {
+                return CHAR;
+            }
+            if (type == float.class) {
+                return FLOAT;
+            }
+            if (type == double.class) {
+                return DOUBLE;
+            }
+            if (classType.isArray()) {
+                return ArrayTypeName.of(get(classType.getComponentType(), map));
+            }
             return ClassName.get(classType);
 
         } else if (type instanceof ParameterizedType) {

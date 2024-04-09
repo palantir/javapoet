@@ -47,10 +47,10 @@ public final class AnnotationSpecTest {
         WAFFLES,
         PANCAKES;
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return name() + " with cherries!";
         }
-        ;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -74,7 +74,7 @@ public final class AnnotationSpecTest {
 
         Breakfast i() default Breakfast.WAFFLES;
 
-        AnnotationA j() default @AnnotationA();
+        AnnotationA j() default @AnnotationA;
 
         String k() default "maple";
 
@@ -134,8 +134,7 @@ public final class AnnotationSpecTest {
 
         TypeSpec taco = TypeSpec.classBuilder("Taco").addAnnotation(annotation).build();
         assertThat(toString(taco))
-                .isEqualTo(""
-                        + "package com.palantir.tacos;\n"
+                .isEqualTo("package com.palantir.tacos;\n"
                         + "\n"
                         + "import com.palantir.javapoet.AnnotationSpecTest;\n"
                         + "import java.lang.Double;\n"
@@ -278,8 +277,7 @@ public final class AnnotationSpecTest {
         AnnotationSpec spec = AnnotationSpec.get(annotation);
         TypeSpec taco = TypeSpec.classBuilder("Taco").addAnnotation(spec).build();
         assertThat(toString(taco))
-                .isEqualTo(""
-                        + "package com.palantir.tacos;\n"
+                .isEqualTo("package com.palantir.tacos;\n"
                         + "\n"
                         + "import com.palantir.javapoet.AnnotationSpecTest;\n"
                         + "import java.lang.Double;\n"
@@ -312,8 +310,7 @@ public final class AnnotationSpecTest {
         AnnotationSpec spec = AnnotationSpec.get(annotation, true);
         TypeSpec taco = TypeSpec.classBuilder("Taco").addAnnotation(spec).build();
         assertThat(toString(taco))
-                .isEqualTo(""
-                        + "package com.palantir.tacos;\n"
+                .isEqualTo("package com.palantir.tacos;\n"
                         + "\n"
                         + "import com.palantir.javapoet.AnnotationSpecTest;\n"
                         + "import java.lang.Double;\n"

@@ -81,7 +81,9 @@ public final class AnnotationSpec {
                 Map.Entry<String, List<CodeBlock>> entry = i.next();
                 codeWriter.emit("$L = ", entry.getKey());
                 emitAnnotationValues(codeWriter, whitespace, memberSeparator, entry.getValue());
-                if (i.hasNext()) codeWriter.emit(memberSeparator);
+                if (i.hasNext()) {
+                    codeWriter.emit(memberSeparator);
+                }
             }
             codeWriter.unindent(2);
             codeWriter.emit(whitespace + ")");
@@ -102,7 +104,9 @@ public final class AnnotationSpec {
         codeWriter.indent(2);
         boolean first = true;
         for (CodeBlock codeBlock : values) {
-            if (!first) codeWriter.emit(memberSeparator);
+            if (!first) {
+                codeWriter.emit(memberSeparator);
+            }
             codeWriter.emit(codeBlock);
             first = false;
         }
@@ -175,9 +179,15 @@ public final class AnnotationSpec {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
         return toString().equals(o.toString());
     }
 

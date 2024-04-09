@@ -155,9 +155,10 @@ public final class NameAllocator implements Cloneable {
      * of a NameAllocator to be used in the respective definition of multiples, independently-scoped,
      * inner code blocks.
      *
-     * @return A deep copy of this NameAllocator.
+     * @return A deep copy of this NameAllocator
      */
     @Override
+    @SuppressWarnings({"NoClone", "SuperClone"})
     public NameAllocator clone() {
         return new NameAllocator(new LinkedHashSet<>(this.allocatedNames), new LinkedHashMap<>(this.tagToName));
     }

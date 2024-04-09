@@ -30,6 +30,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
+@SuppressWarnings("TypeName")
 public final class ClassNameTest {
     @Rule
     public CompilationRule compilationRule = new CompilationRule();

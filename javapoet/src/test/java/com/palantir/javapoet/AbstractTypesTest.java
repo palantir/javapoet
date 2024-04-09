@@ -186,44 +186,44 @@ public abstract class AbstractTypesTest {
     }
 
     @Test
-    public void parameterizedType() throws Exception {
+    public void parameterizedType() {
         ParameterizedTypeName type = ParameterizedTypeName.get(Map.class, String.class, Long.class);
         assertThat(type.toString()).isEqualTo("java.util.Map<java.lang.String, java.lang.Long>");
     }
 
     @Test
-    public void arrayType() throws Exception {
+    public void arrayType() {
         ArrayTypeName type = ArrayTypeName.of(String.class);
         assertThat(type.toString()).isEqualTo("java.lang.String[]");
     }
 
     @Test
-    public void wildcardExtendsType() throws Exception {
+    public void wildcardExtendsType() {
         WildcardTypeName type = WildcardTypeName.subtypeOf(CharSequence.class);
         assertThat(type.toString()).isEqualTo("? extends java.lang.CharSequence");
     }
 
     @Test
-    public void wildcardExtendsObject() throws Exception {
+    public void wildcardExtendsObject() {
         WildcardTypeName type = WildcardTypeName.subtypeOf(Object.class);
         assertThat(type.toString()).isEqualTo("?");
     }
 
     @Test
-    public void wildcardSuperType() throws Exception {
+    public void wildcardSuperType() {
         WildcardTypeName type = WildcardTypeName.supertypeOf(String.class);
         assertThat(type.toString()).isEqualTo("? super java.lang.String");
     }
 
     @Test
-    public void wildcardMirrorNoBounds() throws Exception {
+    public void wildcardMirrorNoBounds() {
         WildcardType wildcard = getTypes().getWildcardType(null, null);
         TypeName type = TypeName.get(wildcard);
         assertThat(type.toString()).isEqualTo("?");
     }
 
     @Test
-    public void wildcardMirrorExtendsType() throws Exception {
+    public void wildcardMirrorExtendsType() {
         Types types = getTypes();
         Elements elements = getElements();
         TypeMirror charSequence =
@@ -234,7 +234,7 @@ public abstract class AbstractTypesTest {
     }
 
     @Test
-    public void wildcardMirrorSuperType() throws Exception {
+    public void wildcardMirrorSuperType() {
         Types types = getTypes();
         Elements elements = getElements();
         TypeMirror string = elements.getTypeElement(String.class.getName()).asType();
@@ -244,13 +244,13 @@ public abstract class AbstractTypesTest {
     }
 
     @Test
-    public void typeVariable() throws Exception {
+    public void typeVariable() {
         TypeVariableName type = TypeVariableName.get("T", CharSequence.class);
         assertThat(type.toString()).isEqualTo("T"); // (Bounds are only emitted in declaration.)
     }
 
     @Test
-    public void box() throws Exception {
+    public void box() {
         assertThat(TypeName.INT.box()).isEqualTo(ClassName.get(Integer.class));
         assertThat(TypeName.VOID.box()).isEqualTo(ClassName.get(Void.class));
         assertThat(ClassName.get(Integer.class).box()).isEqualTo(ClassName.get(Integer.class));
@@ -260,7 +260,7 @@ public abstract class AbstractTypesTest {
     }
 
     @Test
-    public void unbox() throws Exception {
+    public void unbox() {
         assertThat(TypeName.INT).isEqualTo(TypeName.INT.unbox());
         assertThat(TypeName.VOID).isEqualTo(TypeName.VOID.unbox());
         assertThat(ClassName.get(Integer.class).unbox()).isEqualTo(TypeName.INT.unbox());

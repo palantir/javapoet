@@ -153,7 +153,9 @@ final class CodeWriter {
     }
 
     public void emitJavadoc(CodeBlock javadocCodeBlock) throws IOException {
-        if (javadocCodeBlock.isEmpty()) return;
+        if (javadocCodeBlock.isEmpty()) {
+            return;
+        }
 
         emit("/**\n");
         javadoc = true;
@@ -177,9 +179,13 @@ final class CodeWriter {
      * be emitted.
      */
     public void emitModifiers(Set<Modifier> modifiers, Set<Modifier> implicitModifiers) throws IOException {
-        if (modifiers.isEmpty()) return;
+        if (modifiers.isEmpty()) {
+            return;
+        }
         for (Modifier modifier : EnumSet.copyOf(modifiers)) {
-            if (implicitModifiers.contains(modifier)) continue;
+            if (implicitModifiers.contains(modifier)) {
+                continue;
+            }
             emitAndIndent(modifier.name().toLowerCase(Locale.US));
             emitAndIndent(" ");
         }
@@ -194,14 +200,18 @@ final class CodeWriter {
      * everywhere else bounds are omitted.
      */
     public void emitTypeVariables(List<TypeVariableName> typeVariables) throws IOException {
-        if (typeVariables.isEmpty()) return;
+        if (typeVariables.isEmpty()) {
+            return;
+        }
 
         typeVariables.forEach(typeVariable -> currentTypeVariables.add(typeVariable.name));
 
         emit("<");
         boolean firstTypeVariable = true;
         for (TypeVariableName typeVariable : typeVariables) {
-            if (!firstTypeVariable) emit(", ");
+            if (!firstTypeVariable) {
+                emit(", ");
+            }
             emitAnnotations(typeVariable.annotations, true);
             emit("$L", typeVariable.name);
             boolean firstBound = true;
@@ -214,7 +224,7 @@ final class CodeWriter {
         emit(">");
     }
 
-    public void popTypeVariables(List<TypeVariableName> typeVariables) throws IOException {
+    public void popTypeVariables(List<TypeVariableName> typeVariables) {
         typeVariables.forEach(typeVariable -> currentTypeVariables.remove(typeVariable.name));
     }
 
@@ -340,9 +350,13 @@ final class CodeWriter {
 
     private boolean emitStaticImportMember(String canonical, String part) throws IOException {
         String partWithoutLeadingDot = part.substring(1);
-        if (partWithoutLeadingDot.isEmpty()) return false;
+        if (partWithoutLeadingDot.isEmpty()) {
+            return false;
+        }
         char first = partWithoutLeadingDot.charAt(0);
-        if (!Character.isJavaIdentifierStart(first)) return false;
+        if (!Character.isJavaIdentifierStart(first)) {
+            return false;
+        }
         String explicit = canonical + "." + extractMemberName(partWithoutLeadingDot);
         String wildcard = canonical + ".*";
         if (staticImports.contains(explicit) || staticImports.contains(wildcard)) {
@@ -353,14 +367,11 @@ final class CodeWriter {
     }
 
     private void emitLiteral(Object o) throws IOException {
-        if (o instanceof TypeSpec) {
-            TypeSpec typeSpec = (TypeSpec) o;
+        if (o instanceof TypeSpec typeSpec) {
             typeSpec.emit(this, null, Collections.emptySet());
-        } else if (o instanceof AnnotationSpec) {
-            AnnotationSpec annotationSpec = (AnnotationSpec) o;
+        } else if (o instanceof AnnotationSpec annotationSpec) {
             annotationSpec.emit(this, true);
-        } else if (o instanceof CodeBlock) {
-            CodeBlock codeBlock = (CodeBlock) o;
+        } else if (o instanceof CodeBlock codeBlock) {
             emit(codeBlock);
         } else {
             emitAndIndent(String.valueOf(o));
@@ -419,7 +430,7 @@ final class CodeWriter {
         if (className.packageName().isEmpty()) {
             return;
         } else if (alwaysQualify.contains(className.simpleName)) {
-            // TODO what about nested types like java.util.Map.Entry?
+            // TODO(pkoenig): what about nested types like java.util.Map.Entry?
             return;
         }
         ClassName topLevelClassName = className.topLevelClassName();
@@ -445,13 +456,15 @@ final class CodeWriter {
         }
 
         // Match the top-level class.
-        if (typeSpecStack.size() > 0 && Objects.equals(typeSpecStack.get(0).name, simpleName)) {
+        if (!typeSpecStack.isEmpty() && Objects.equals(typeSpecStack.get(0).name, simpleName)) {
             return ClassName.get(packageName, simpleName);
         }
 
         // Match an imported type.
         ClassName importedType = importedTypes.get(simpleName);
-        if (importedType != null) return importedType;
+        if (importedType != null) {
+            return importedType;
+        }
 
         // No match.
         return null;
@@ -491,7 +504,9 @@ final class CodeWriter {
             }
 
             first = false;
-            if (line.isEmpty()) continue; // Don't indent empty lines.
+            if (line.isEmpty()) {
+                continue; // Don't indent empty lines.
+            }
 
             // Emit indentation and comment prefix if necessary.
             if (trailingNewline) {

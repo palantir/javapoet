@@ -56,7 +56,7 @@ public final class MethodSpecTest {
     private Types types;
 
     @Before
-    public void setUp() {
+    public void before() {
         elements = compilation.getElements();
         types = compilation.getTypes();
     }
@@ -155,8 +155,7 @@ public final class MethodSpecTest {
         MethodSpec method =
                 MethodSpec.overriding(methodElement).addStatement("return null").build();
         assertThat(method.toString())
-                .isEqualTo(""
-                        + "@java.lang.Override\n"
+                .isEqualTo("@java.lang.Override\n"
                         + "<T, R, V extends java.lang.Throwable> T run(R param) throws V {\n"
                         + "  return null;\n"
                         + "}\n");
@@ -168,7 +167,7 @@ public final class MethodSpecTest {
         ExecutableElement exec = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
         MethodSpec method = MethodSpec.overriding(exec).build();
         assertThat(method.toString())
-                .isEqualTo("" + "@java.lang.Override\n" + "public java.lang.String toString() {\n" + "}\n");
+                .isEqualTo("@java.lang.Override\n" + "public java.lang.String toString() {\n" + "}\n");
     }
 
     @Test
@@ -179,8 +178,7 @@ public final class MethodSpecTest {
         ExecutableElement exec = findFirst(methods, "spliterator");
         MethodSpec method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString())
-                .isEqualTo(""
-                        + "@java.lang.Override\n"
+                .isEqualTo("@java.lang.Override\n"
                         + "public java.util.Spliterator<java.lang.Object> spliterator() {\n"
                         + "}\n");
     }
@@ -193,22 +191,19 @@ public final class MethodSpecTest {
         ExecutableElement exec = findFirst(methods, "call");
         MethodSpec method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString())
-                .isEqualTo(""
-                        + "@java.lang.Override\n"
+                .isEqualTo("@java.lang.Override\n"
                         + "public java.lang.Integer call() throws java.lang.Exception {\n"
                         + "}\n");
         exec = findFirst(methods, "compareTo");
         method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString())
-                .isEqualTo(""
-                        + "@java.lang.Override\n"
+                .isEqualTo("@java.lang.Override\n"
                         + "public int compareTo(" + ExtendsOthers.class.getCanonicalName() + " arg0) {\n"
                         + "}\n");
         exec = findFirst(methods, "fail");
         method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString())
-                .isEqualTo(""
-                        + "@java.lang.Override\n"
+                .isEqualTo("@java.lang.Override\n"
                         + "public void fail() throws java.lang.IllegalStateException {\n"
                         + "}\n");
     }
@@ -286,8 +281,7 @@ public final class MethodSpecTest {
                 .addJavadoc("Gets the best Taco\n")
                 .build();
         assertThat(methodSpec.toString())
-                .isEqualTo(""
-                        + "/**\n"
+                .isEqualTo("/**\n"
                         + " * Gets the best Taco\n"
                         + " */\n"
                         + "private void getTaco(double money) {\n"
@@ -306,8 +300,7 @@ public final class MethodSpecTest {
                 .addJavadoc("Gets the best Taco money can buy.\n")
                 .build();
         assertThat(methodSpec.toString())
-                .isEqualTo(""
-                        + "/**\n"
+                .isEqualTo("/**\n"
                         + " * Gets the best Taco money can buy.\n"
                         + " *\n"
                         + " * @param money the amount required to buy the taco.\n"
@@ -328,8 +321,7 @@ public final class MethodSpecTest {
                         .build())
                 .build();
         assertThat(methodSpec.toString())
-                .isEqualTo(""
-                        + "/**\n"
+                .isEqualTo("/**\n"
                         + " * @param money the amount required to buy the taco.\n"
                         + " * @param count the number of Tacos to buy.\n"
                         + " */\n"
@@ -372,7 +364,7 @@ public final class MethodSpecTest {
                 .setName("revisedMethod")
                 .build();
 
-        assertThat(methodSpec.toString()).isEqualTo("" + "void revisedMethod() {\n" + "}\n");
+        assertThat(methodSpec.toString()).isEqualTo("void revisedMethod() {\n" + "}\n");
     }
 
     @Test
@@ -416,7 +408,7 @@ public final class MethodSpecTest {
                 .addCode("codeWithNoNewline();")
                 .build();
 
-        assertThat(methodSpec.toString()).isEqualTo("" + "void method() {\n" + "  codeWithNoNewline();\n" + "}\n");
+        assertThat(methodSpec.toString()).isEqualTo("void method() {\n" + "  codeWithNoNewline();\n" + "}\n");
     }
 
     /** Ensures that we don't add a duplicate newline if one is already present. */
@@ -426,7 +418,7 @@ public final class MethodSpecTest {
                 .addCode("codeWithNoNewline();\n") // Have a newline already, so ensure we're not adding one
                 .build();
 
-        assertThat(methodSpec.toString()).isEqualTo("" + "void method() {\n" + "  codeWithNoNewline();\n" + "}\n");
+        assertThat(methodSpec.toString()).isEqualTo("void method() {\n" + "  codeWithNoNewline();\n" + "}\n");
     }
 
     @Test
@@ -442,8 +434,7 @@ public final class MethodSpecTest {
                 .build();
 
         assertThat(methodSpec.toString())
-                .isEqualTo(""
-                        + "void method() {\n"
+                .isEqualTo("void method() {\n"
                         + "  if (valueField > 5) {\n"
                         + "  } else if (valueField == 5) {\n"
                         + "  }\n"
@@ -463,8 +454,7 @@ public final class MethodSpecTest {
                 .build();
 
         assertThat(methodSpec.toString())
-                .isEqualTo(""
-                        + "void method() {\n" + "  do {\n"
+                .isEqualTo("void method() {\n" + "  do {\n"
                         + "    valueField--;\n"
                         + "  } while (valueField > 5);\n"
                         + "}\n");

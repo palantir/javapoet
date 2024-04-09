@@ -23,7 +23,7 @@ import org.junit.Test;
 public final class NameAllocatorTest {
 
     @Test
-    public void usage() throws Exception {
+    public void usage() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("foo", 1)).isEqualTo("foo");
         assertThat(nameAllocator.newName("bar", 2)).isEqualTo("bar");
@@ -32,7 +32,7 @@ public final class NameAllocatorTest {
     }
 
     @Test
-    public void nameCollision() throws Exception {
+    public void nameCollision() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("foo")).isEqualTo("foo");
         assertThat(nameAllocator.newName("foo")).isEqualTo("foo_");
@@ -40,7 +40,7 @@ public final class NameAllocatorTest {
     }
 
     @Test
-    public void nameCollisionWithTag() throws Exception {
+    public void nameCollisionWithTag() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("foo", 1)).isEqualTo("foo");
         assertThat(nameAllocator.newName("foo", 2)).isEqualTo("foo_");
@@ -51,39 +51,39 @@ public final class NameAllocatorTest {
     }
 
     @Test
-    public void characterMappingSubstitute() throws Exception {
+    public void characterMappingSubstitute() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("a-b", 1)).isEqualTo("a_b");
     }
 
     @Test
-    public void characterMappingSurrogate() throws Exception {
+    public void characterMappingSurrogate() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("a\uD83C\uDF7Ab", 1)).isEqualTo("a_b");
     }
 
     @Test
-    public void characterMappingInvalidStartButValidPart() throws Exception {
+    public void characterMappingInvalidStartButValidPart() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("1ab", 1)).isEqualTo("_1ab");
         assertThat(nameAllocator.newName("a-1", 2)).isEqualTo("a_1");
     }
 
     @Test
-    public void characterMappingInvalidStartIsInvalidPart() throws Exception {
+    public void characterMappingInvalidStartIsInvalidPart() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("&ab", 1)).isEqualTo("_ab");
     }
 
     @Test
-    public void javaKeyword() throws Exception {
+    public void javaKeyword() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("public", 1)).isEqualTo("public_");
         assertThat(nameAllocator.get(1)).isEqualTo("public_");
     }
 
     @Test
-    public void tagReuseForbidden() throws Exception {
+    public void tagReuseForbidden() {
         NameAllocator nameAllocator = new NameAllocator();
         nameAllocator.newName("foo", 1);
         assertThatThrownBy(() -> nameAllocator.newName("bar", 1))
@@ -92,7 +92,7 @@ public final class NameAllocatorTest {
     }
 
     @Test
-    public void useBeforeAllocateForbidden() throws Exception {
+    public void useBeforeAllocateForbidden() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThatThrownBy(() -> nameAllocator.get(1))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -100,7 +100,7 @@ public final class NameAllocatorTest {
     }
 
     @Test
-    public void cloneUsage() throws Exception {
+    public void cloneUsage() {
         NameAllocator outterAllocator = new NameAllocator();
         outterAllocator.newName("foo", 1);
 

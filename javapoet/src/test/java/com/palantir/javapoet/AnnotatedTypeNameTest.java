@@ -26,10 +26,10 @@ import org.junit.Test;
 public class AnnotatedTypeNameTest {
 
     private static final String NN = NeverNull.class.getCanonicalName();
-    private final AnnotationSpec NEVER_NULL =
+    private static final AnnotationSpec NEVER_NULL =
             AnnotationSpec.builder(NeverNull.class).build();
     private static final String TUA = TypeUseAnnotation.class.getCanonicalName();
-    private final AnnotationSpec TYPE_USE_ANNOTATION =
+    private static final AnnotationSpec TYPE_USE_ANNOTATION =
             AnnotationSpec.builder(TypeUseAnnotation.class).build();
 
     @Target(ElementType.TYPE_USE)
@@ -203,8 +203,7 @@ public class AnnotatedTypeNameTest {
                 .addParameter(ParameterSpec.builder(type, "p").build())
                 .varargs()
                 .build();
-        assertThat(varargsMethod.toString())
-                .isEqualTo("" + "void m(java.lang.Object @" + TUA + " []... p) {\n" + "}\n");
+        assertThat(varargsMethod.toString()).isEqualTo("void m(java.lang.Object @" + TUA + " []... p) {\n" + "}\n");
     }
 
     // https://github.com/square/javapoet/issues/614
@@ -216,7 +215,6 @@ public class AnnotatedTypeNameTest {
                 .addParameter(ParameterSpec.builder(type, "p").build())
                 .varargs()
                 .build();
-        assertThat(varargsMethod.toString())
-                .isEqualTo("" + "void m(java.lang.Object[] @" + TUA + " ... p) {\n" + "}\n");
+        assertThat(varargsMethod.toString()).isEqualTo("void m(java.lang.Object[] @" + TUA + " ... p) {\n" + "}\n");
     }
 }

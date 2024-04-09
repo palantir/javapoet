@@ -44,7 +44,9 @@ final class TestFiler implements Filer {
         @Override
         public OutputStream openOutputStream() throws IOException {
             Path parent = path.getParent();
-            if (!Files.exists(parent)) fileSystemProvider.createDirectory(parent);
+            if (!Files.exists(parent)) {
+                fileSystemProvider.createDirectory(parent);
+            }
             return fileSystemProvider.newOutputStream(path);
         }
     }
@@ -54,7 +56,7 @@ final class TestFiler implements Filer {
     private final FileSystemProvider fileSystemProvider;
     private final Map<Path, Set<Element>> originatingElementsMap;
 
-    public TestFiler(FileSystem fileSystem, Path fsRoot) {
+    TestFiler(FileSystem fileSystem, Path fsRoot) {
         separator = fileSystem.getSeparator();
         fileSystemRoot = fsRoot;
         fileSystemProvider = fileSystem.provider();
@@ -66,7 +68,7 @@ final class TestFiler implements Filer {
     }
 
     @Override
-    public JavaFileObject createSourceFile(CharSequence name, Element... originatingElements) throws IOException {
+    public JavaFileObject createSourceFile(CharSequence name, Element... originatingElements) {
         String relative = name.toString().replace(".", separator) + ".java"; // Assumes well-formed.
         Path path = fileSystemRoot.resolve(relative);
         originatingElementsMap.put(path, Util.immutableSet(Arrays.asList(originatingElements)));
@@ -74,7 +76,7 @@ final class TestFiler implements Filer {
     }
 
     @Override
-    public JavaFileObject createClassFile(CharSequence _name, Element... _originatingElements) throws IOException {
+    public JavaFileObject createClassFile(CharSequence _name, Element... _originatingElements) {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
@@ -83,14 +85,12 @@ final class TestFiler implements Filer {
             JavaFileManager.Location _location,
             CharSequence _pkg,
             CharSequence _relativeName,
-            Element... _originatingElements)
-            throws IOException {
+            Element... _originatingElements) {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
-    public FileObject getResource(JavaFileManager.Location _location, CharSequence _pkg, CharSequence _relativeName)
-            throws IOException {
+    public FileObject getResource(JavaFileManager.Location _location, CharSequence _pkg, CharSequence _relativeName) {
         throw new UnsupportedOperationException("Not implemented.");
     }
 }

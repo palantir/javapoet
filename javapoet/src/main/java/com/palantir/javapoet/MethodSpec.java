@@ -103,7 +103,9 @@ public final class MethodSpec {
         boolean firstParameter = true;
         for (Iterator<ParameterSpec> i = parameters.iterator(); i.hasNext(); ) {
             ParameterSpec parameter = i.next();
-            if (!firstParameter) codeWriter.emit(",").emitWrappingSpace();
+            if (!firstParameter) {
+                codeWriter.emit(",").emitWrappingSpace();
+            }
             parameter.emit(codeWriter, !i.hasNext() && varargs);
             firstParameter = false;
         }
@@ -119,7 +121,9 @@ public final class MethodSpec {
             codeWriter.emitWrappingSpace().emit("throws");
             boolean firstException = true;
             for (TypeName exception : exceptions) {
-                if (!firstException) codeWriter.emit(",");
+                if (!firstException) {
+                    codeWriter.emit(",");
+                }
                 codeWriter.emitWrappingSpace().emit("$T", exception);
                 firstException = false;
             }
@@ -149,7 +153,9 @@ public final class MethodSpec {
         for (ParameterSpec parameterSpec : parameters) {
             if (!parameterSpec.javadoc.isEmpty()) {
                 // Emit a new line before @param section only if the method javadoc is present.
-                if (emitTagNewline && !javadoc.isEmpty()) builder.add("\n");
+                if (emitTagNewline && !javadoc.isEmpty()) {
+                    builder.add("\n");
+                }
                 emitTagNewline = false;
                 builder.add("@param $L $L", parameterSpec.name, parameterSpec.javadoc);
             }
@@ -167,9 +173,15 @@ public final class MethodSpec {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
         return toString().equals(o.toString());
     }
 
@@ -274,8 +286,8 @@ public final class MethodSpec {
             builder.parameters.set(i, parameter.toBuilder(type, parameter.name).build());
         }
         builder.exceptions.clear();
-        for (int i = 0, size = resolvedThrownTypes.size(); i < size; i++) {
-            builder.addException(TypeName.get(resolvedThrownTypes.get(i)));
+        for (TypeMirror resolvedThrownType : resolvedThrownTypes) {
+            builder.addException(TypeName.get(resolvedThrownType));
         }
 
         return builder;
