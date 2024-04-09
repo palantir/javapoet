@@ -31,7 +31,18 @@ import javax.lang.model.util.SimpleElementVisitor8;
 
 /** A fully-qualified class name for top-level and member classes. */
 public final class ClassName extends TypeName implements Comparable<ClassName> {
+
     public static final ClassName OBJECT = ClassName.get(Object.class);
+
+    static final ClassName BOXED_VOID = ClassName.get(Void.class);
+    static final ClassName BOXED_BOOLEAN = ClassName.get(Boolean.class);
+    static final ClassName BOXED_BYTE = ClassName.get(Byte.class);
+    static final ClassName BOXED_SHORT = ClassName.get(Short.class);
+    static final ClassName BOXED_INT = ClassName.get(Integer.class);
+    static final ClassName BOXED_LONG = ClassName.get(Long.class);
+    static final ClassName BOXED_CHAR = ClassName.get(Character.class);
+    static final ClassName BOXED_FLOAT = ClassName.get(Float.class);
+    static final ClassName BOXED_DOUBLE = ClassName.get(Double.class);
 
     /** The name representing the default Java package. */
     private static final String NO_PACKAGE = "";

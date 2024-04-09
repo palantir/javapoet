@@ -45,7 +45,6 @@ allprojects {
         ]
         options.errorprone {
             disable('AnnotateFormatMethod')
-            disable('ClassInitializationDeadlock')
             disable('MissingSummary')
             disable('PreferSafeLoggableExceptions')
             disable('PreferSafeLoggingPreconditions')

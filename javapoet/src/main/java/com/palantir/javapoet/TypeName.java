@@ -76,17 +76,6 @@ public class TypeName {
     public static final TypeName CHAR = new TypeName("char");
     public static final TypeName FLOAT = new TypeName("float");
     public static final TypeName DOUBLE = new TypeName("double");
-    public static final ClassName OBJECT = ClassName.get("java.lang", "Object");
-
-    private static final ClassName BOXED_VOID = ClassName.get("java.lang", "Void");
-    private static final ClassName BOXED_BOOLEAN = ClassName.get("java.lang", "Boolean");
-    private static final ClassName BOXED_BYTE = ClassName.get("java.lang", "Byte");
-    private static final ClassName BOXED_SHORT = ClassName.get("java.lang", "Short");
-    private static final ClassName BOXED_INT = ClassName.get("java.lang", "Integer");
-    private static final ClassName BOXED_LONG = ClassName.get("java.lang", "Long");
-    private static final ClassName BOXED_CHAR = ClassName.get("java.lang", "Character");
-    private static final ClassName BOXED_FLOAT = ClassName.get("java.lang", "Float");
-    private static final ClassName BOXED_DOUBLE = ClassName.get("java.lang", "Double");
 
     /** The name of this type if it is a keyword, or null. */
     private final String keyword;
@@ -150,14 +139,14 @@ public class TypeName {
      */
     public boolean isBoxedPrimitive() {
         TypeName thisWithoutAnnotations = withoutAnnotations();
-        return thisWithoutAnnotations.equals(BOXED_BOOLEAN)
-                || thisWithoutAnnotations.equals(BOXED_BYTE)
-                || thisWithoutAnnotations.equals(BOXED_SHORT)
-                || thisWithoutAnnotations.equals(BOXED_INT)
-                || thisWithoutAnnotations.equals(BOXED_LONG)
-                || thisWithoutAnnotations.equals(BOXED_CHAR)
-                || thisWithoutAnnotations.equals(BOXED_FLOAT)
-                || thisWithoutAnnotations.equals(BOXED_DOUBLE);
+        return thisWithoutAnnotations.equals(ClassName.BOXED_BOOLEAN)
+                || thisWithoutAnnotations.equals(ClassName.BOXED_BYTE)
+                || thisWithoutAnnotations.equals(ClassName.BOXED_SHORT)
+                || thisWithoutAnnotations.equals(ClassName.BOXED_INT)
+                || thisWithoutAnnotations.equals(ClassName.BOXED_LONG)
+                || thisWithoutAnnotations.equals(ClassName.BOXED_CHAR)
+                || thisWithoutAnnotations.equals(ClassName.BOXED_FLOAT)
+                || thisWithoutAnnotations.equals(ClassName.BOXED_DOUBLE);
     }
 
     /**
@@ -170,23 +159,23 @@ public class TypeName {
         } // Doesn't need boxing.
         TypeName boxed;
         if (keyword.equals(VOID.keyword)) {
-            boxed = BOXED_VOID;
+            boxed = ClassName.BOXED_VOID;
         } else if (keyword.equals(BOOLEAN.keyword)) {
-            boxed = BOXED_BOOLEAN;
+            boxed = ClassName.BOXED_BOOLEAN;
         } else if (keyword.equals(BYTE.keyword)) {
-            boxed = BOXED_BYTE;
+            boxed = ClassName.BOXED_BYTE;
         } else if (keyword.equals(SHORT.keyword)) {
-            boxed = BOXED_SHORT;
+            boxed = ClassName.BOXED_SHORT;
         } else if (keyword.equals(INT.keyword)) {
-            boxed = BOXED_INT;
+            boxed = ClassName.BOXED_INT;
         } else if (keyword.equals(LONG.keyword)) {
-            boxed = BOXED_LONG;
+            boxed = ClassName.BOXED_LONG;
         } else if (keyword.equals(CHAR.keyword)) {
-            boxed = BOXED_CHAR;
+            boxed = ClassName.BOXED_CHAR;
         } else if (keyword.equals(FLOAT.keyword)) {
-            boxed = BOXED_FLOAT;
+            boxed = ClassName.BOXED_FLOAT;
         } else if (keyword.equals(DOUBLE.keyword)) {
-            boxed = BOXED_DOUBLE;
+            boxed = ClassName.BOXED_DOUBLE;
         } else {
             throw new IllegalStateException(keyword);
         }
@@ -205,23 +194,23 @@ public class TypeName {
         } // Already unboxed.
         TypeName thisWithoutAnnotations = withoutAnnotations();
         TypeName unboxed;
-        if (thisWithoutAnnotations.equals(BOXED_VOID)) {
+        if (thisWithoutAnnotations.equals(ClassName.BOXED_VOID)) {
             unboxed = VOID;
-        } else if (thisWithoutAnnotations.equals(BOXED_BOOLEAN)) {
+        } else if (thisWithoutAnnotations.equals(ClassName.BOXED_BOOLEAN)) {
             unboxed = BOOLEAN;
-        } else if (thisWithoutAnnotations.equals(BOXED_BYTE)) {
+        } else if (thisWithoutAnnotations.equals(ClassName.BOXED_BYTE)) {
             unboxed = BYTE;
-        } else if (thisWithoutAnnotations.equals(BOXED_SHORT)) {
+        } else if (thisWithoutAnnotations.equals(ClassName.BOXED_SHORT)) {
             unboxed = SHORT;
-        } else if (thisWithoutAnnotations.equals(BOXED_INT)) {
+        } else if (thisWithoutAnnotations.equals(ClassName.BOXED_INT)) {
             unboxed = INT;
-        } else if (thisWithoutAnnotations.equals(BOXED_LONG)) {
+        } else if (thisWithoutAnnotations.equals(ClassName.BOXED_LONG)) {
             unboxed = LONG;
-        } else if (thisWithoutAnnotations.equals(BOXED_CHAR)) {
+        } else if (thisWithoutAnnotations.equals(ClassName.BOXED_CHAR)) {
             unboxed = CHAR;
-        } else if (thisWithoutAnnotations.equals(BOXED_FLOAT)) {
+        } else if (thisWithoutAnnotations.equals(ClassName.BOXED_FLOAT)) {
             unboxed = FLOAT;
-        } else if (thisWithoutAnnotations.equals(BOXED_DOUBLE)) {
+        } else if (thisWithoutAnnotations.equals(ClassName.BOXED_DOUBLE)) {
             unboxed = DOUBLE;
         } else {
             throw new UnsupportedOperationException("cannot unbox " + this);
