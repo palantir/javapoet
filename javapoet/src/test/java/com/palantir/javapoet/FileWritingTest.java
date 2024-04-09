@@ -185,19 +185,22 @@ public final class FileWritingTest {
         String source = Files.readString(fooPath);
 
         assertThat(source)
-                .isEqualTo("package foo;\n"
-                        + "\n"
-                        + "import java.lang.String;\n"
-                        + "import java.lang.System;\n"
-                        + "import java.util.Date;\n"
-                        + "\n"
-                        + "class Test {\n"
-                        + "\tDate madeFreshDate;\n"
-                        + "\n"
-                        + "\tpublic static void main(String[] args) {\n"
-                        + "\t\tSystem.out.println(\"Hello World!\");\n"
-                        + "\t}\n"
-                        + "}\n");
+                .isEqualTo(
+                        """
+                        package foo;
+
+                        import java.lang.String;
+                        import java.lang.System;
+                        import java.util.Date;
+
+                        class Test {
+                        \tDate madeFreshDate;
+
+                        \tpublic static void main(String[] args) {
+                        \t\tSystem.out.println("Hello World!");
+                        \t}
+                        }
+                        """);
     }
 
     /**
@@ -214,7 +217,14 @@ public final class FileWritingTest {
 
         Path fooPath = fsRoot.resolve(fs.getPath("foo", "Taco.java"));
         assertThat(Files.readString(fooPath))
-                .isEqualTo("// Pi\u00f1ata\u00a1\n" + "package foo;\n" + "\n" + "class Taco {\n" + "}\n");
+                .isEqualTo(
+                        """
+                        // Pi\u00f1ata\u00a1
+                        package foo;
+
+                        class Taco {
+                        }
+                        """);
     }
 
     @Test
