@@ -30,11 +30,11 @@ public class CodeWriterTest {
         assertThat(out.toString())
                 .isEqualTo(
                         """
-                /**
-                 * A
-                 *
-                 * B
-                 */
-                """);
+                        /**
+                         * A
+                         *
+                         * B
+                         */
+                        """);
     }
 }

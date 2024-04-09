@@ -212,9 +212,12 @@ public final class MethodSpecTest {
         exec = findFirst(methods, "compareTo");
         method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString())
-                .isEqualTo("@java.lang.Override\n"
-                        + "public int compareTo(" + ExtendsOthers.class.getCanonicalName() + " arg0) {\n"
-                        + "}\n");
+                .isEqualTo(
+                        """
+                        @java.lang.Override
+                        public int compareTo(com.palantir.javapoet.MethodSpecTest.ExtendsOthers arg0) {
+                        }
+                        """);
         exec = findFirst(methods, "fail");
         method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString())
@@ -392,10 +395,11 @@ public final class MethodSpecTest {
                 .build();
 
         assertThat(methodSpec.toString())
-                .isEqualTo("""
-                void revisedMethod() {
-                }
-                """);
+                .isEqualTo(
+                        """
+                        void revisedMethod() {
+                        }
+                        """);
     }
 
     @Test
@@ -442,10 +446,10 @@ public final class MethodSpecTest {
         assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
-                void method() {
-                  codeWithNoNewline();
-                }
-                """);
+                        void method() {
+                          codeWithNoNewline();
+                        }
+                        """);
     }
 
     /** Ensures that we don't add a duplicate newline if one is already present. */
@@ -458,10 +462,10 @@ public final class MethodSpecTest {
         assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
-                void method() {
-                  codeWithNoNewline();
-                }
-                """);
+                        void method() {
+                          codeWithNoNewline();
+                        }
+                        """);
     }
 
     @Test
