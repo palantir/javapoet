@@ -17,7 +17,6 @@ package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
 import static com.palantir.javapoet.Util.checkNotNull;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -28,6 +27,7 @@ import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -102,6 +102,11 @@ public final class JavaFile {
     }
 
     /** Writes this to {@code directory} as UTF-8 using the standard directory structure. */
+    public void writeTo(File directory) throws IOException {
+        writeTo(directory.toPath());
+    }
+
+    /** Writes this to {@code directory} as UTF-8 using the standard directory structure. */
     public void writeTo(Path directory) throws IOException {
         writeToPath(directory);
     }
@@ -114,12 +119,38 @@ public final class JavaFile {
         writeToPath(directory, charset);
     }
 
+    /** Writes this to {@code filer}. */
+    public void writeTo(Filer filer) throws IOException {
+        String fileName = packageName.isEmpty() ? typeSpec.name : packageName + "." + typeSpec.name;
+        List<Element> originatingElements = typeSpec.originatingElements;
+        JavaFileObject filerSourceFile = filer.createSourceFile(fileName, originatingElements.toArray(new Element[0]));
+        try (Writer writer = filerSourceFile.openWriter()) {
+            writeTo(writer);
+        } catch (Exception e) {
+            try {
+                filerSourceFile.delete();
+            } catch (Exception ignored) {
+                // Ignored
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * Writes this to {@code directory} as UTF-8 using the standard directory structure.
+     * Returns the {@link File} instance to which source is actually written.
+     */
+    public File writeToFile(File directory) throws IOException {
+        final Path outputPath = writeToPath(directory.toPath());
+        return outputPath.toFile();
+    }
+
     /**
      * Writes this to {@code directory} as UTF-8 using the standard directory structure.
      * Returns the {@link Path} instance to which source is actually written.
      */
     public Path writeToPath(Path directory) throws IOException {
-        return writeToPath(directory, UTF_8);
+        return writeToPath(directory, StandardCharsets.UTF_8);
     }
 
     /**
@@ -146,37 +177,6 @@ public final class JavaFile {
         }
 
         return outputPath;
-    }
-
-    /** Writes this to {@code directory} as UTF-8 using the standard directory structure. */
-    public void writeTo(File directory) throws IOException {
-        writeTo(directory.toPath());
-    }
-
-    /**
-     * Writes this to {@code directory} as UTF-8 using the standard directory structure.
-     * Returns the {@link File} instance to which source is actually written.
-     */
-    public File writeToFile(File directory) throws IOException {
-        final Path outputPath = writeToPath(directory.toPath());
-        return outputPath.toFile();
-    }
-
-    /** Writes this to {@code filer}. */
-    public void writeTo(Filer filer) throws IOException {
-        String fileName = packageName.isEmpty() ? typeSpec.name : packageName + "." + typeSpec.name;
-        List<Element> originatingElements = typeSpec.originatingElements;
-        JavaFileObject filerSourceFile = filer.createSourceFile(fileName, originatingElements.toArray(new Element[0]));
-        try (Writer writer = filerSourceFile.openWriter()) {
-            writeTo(writer);
-        } catch (Exception e) {
-            try {
-                filerSourceFile.delete();
-            } catch (Exception ignored) {
-                // Ignored
-            }
-            throw e;
-        }
     }
 
     private void emit(CodeWriter codeWriter) throws IOException {
@@ -263,7 +263,7 @@ public final class JavaFile {
 
             @Override
             public InputStream openInputStream() {
-                return new ByteArrayInputStream(getCharContent(true).getBytes(UTF_8));
+                return new ByteArrayInputStream(getCharContent(true).getBytes(StandardCharsets.UTF_8));
             }
 
             @Override

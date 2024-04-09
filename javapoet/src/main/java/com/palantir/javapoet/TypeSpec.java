@@ -588,16 +588,6 @@ public final class TypeSpec {
             return this;
         }
 
-        private Class<?> getRawType(Type type) {
-            if (type instanceof Class<?>) {
-                return (Class<?>) type;
-            } else if (type instanceof ParameterizedType) {
-                return getRawType(((ParameterizedType) type).getRawType());
-            } else {
-                return null;
-            }
-        }
-
         public Builder addSuperinterface(TypeMirror superinterface) {
             return addSuperinterface(superinterface, true);
         }
@@ -893,6 +883,16 @@ public final class TypeSpec {
                     "anonymous type has too many supertypes");
 
             return new TypeSpec(this);
+        }
+
+        private static Class<?> getRawType(Type type) {
+            if (type instanceof Class<?>) {
+                return (Class<?>) type;
+            } else if (type instanceof ParameterizedType) {
+                return getRawType(((ParameterizedType) type).getRawType());
+            } else {
+                return null;
+            }
         }
     }
 }

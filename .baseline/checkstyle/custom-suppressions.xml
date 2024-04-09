@@ -9,7 +9,6 @@
     <suppress checks="HiddenField" />
     <suppress checks="LocalVariableName" />
     <suppress checks="MethodLength" />
-    <suppress checks="OverloadMethodsDeclarationOrder" />
     <suppress checks="PackageDeclaration" files = "ClassNameNoPackageTest"/>
     <suppress checks="ParameterAssignment" />
     <suppress checks="ParameterName" />

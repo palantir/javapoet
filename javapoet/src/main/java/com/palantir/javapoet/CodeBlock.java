@@ -234,6 +234,12 @@ public final class CodeBlock {
             return this;
         }
 
+        public Builder add(CodeBlock codeBlock) {
+            formatParts.addAll(codeBlock.formatParts);
+            args.addAll(codeBlock.args);
+            return this;
+        }
+
         /**
          * Add code with positional or relative arguments.
          *
@@ -440,12 +446,6 @@ public final class CodeBlock {
 
         public Builder addStatement(CodeBlock codeBlock) {
             return addStatement("$L", codeBlock);
-        }
-
-        public Builder add(CodeBlock codeBlock) {
-            formatParts.addAll(codeBlock.formatParts);
-            args.addAll(codeBlock.args);
-            return this;
         }
 
         public Builder indent() {
