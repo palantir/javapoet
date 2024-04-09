@@ -339,9 +339,9 @@ public final class MethodSpecTest {
                 .addException(timeoutException)
                 .addException(ioException)
                 .build();
-        assertThat(methodSpec.exceptions).isEqualTo(Arrays.asList(ioException, timeoutException));
+        assertThat(methodSpec.exceptions).containsExactlyElementsOf(Arrays.asList(ioException, timeoutException));
         assertThat(methodSpec.toBuilder().addException(ioException).build().exceptions)
-                .isEqualTo(Arrays.asList(ioException, timeoutException));
+                .containsExactlyElementsOf(Arrays.asList(ioException, timeoutException));
     }
 
     @Test
