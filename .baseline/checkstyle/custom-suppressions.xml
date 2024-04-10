@@ -13,5 +13,4 @@
     <suppress checks="ParameterAssignment" />
     <suppress checks="ParameterName" />
     <suppress checks="SummaryJavadoc" />
-    <suppress checks="VisibilityModifier" />
 </suppressions>

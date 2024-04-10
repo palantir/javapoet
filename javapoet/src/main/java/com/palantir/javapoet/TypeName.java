@@ -80,7 +80,7 @@ public class TypeName {
     /** The name of this type if it is a keyword, or null. */
     private final String keyword;
 
-    public final List<AnnotationSpec> annotations;
+    private final List<AnnotationSpec> annotations;
 
     /** Lazily-initialized toString of this type name. */
     private String cachedString;
@@ -97,6 +97,10 @@ public class TypeName {
     // Package-private constructor to prevent third-party subclasses.
     TypeName(List<AnnotationSpec> annotations) {
         this(null, annotations);
+    }
+
+    public List<AnnotationSpec> annotations() {
+        return annotations;
     }
 
     public final TypeName annotated(AnnotationSpec... annotations) {
@@ -427,7 +431,7 @@ public class TypeName {
 
     /** Returns the array component of {@code type}, or null if {@code type} is not an array. */
     static TypeName arrayComponent(TypeName type) {
-        return type instanceof ArrayTypeName ? ((ArrayTypeName) type).componentType : null;
+        return type instanceof ArrayTypeName ? ((ArrayTypeName) type).componentType() : null;
     }
 
     /** Returns {@code type} as an array, or null if {@code type} is not an array. */

@@ -33,11 +33,11 @@ import javax.lang.model.element.VariableElement;
 
 /** A generated parameter declaration. */
 public final class ParameterSpec {
-    public final String name;
-    public final List<AnnotationSpec> annotations;
-    public final Set<Modifier> modifiers;
-    public final TypeName type;
-    public final CodeBlock javadoc;
+    private final String name;
+    private final List<AnnotationSpec> annotations;
+    private final Set<Modifier> modifiers;
+    private final TypeName type;
+    private final CodeBlock javadoc;
 
     private ParameterSpec(Builder builder) {
         this.name = checkNotNull(builder.name, "name == null");
@@ -47,8 +47,24 @@ public final class ParameterSpec {
         this.javadoc = builder.javadoc.build();
     }
 
-    public boolean hasModifier(Modifier modifier) {
-        return modifiers.contains(modifier);
+    public String name() {
+        return name;
+    }
+
+    public List<AnnotationSpec> annotations() {
+        return annotations;
+    }
+
+    public Set<Modifier> modifiers() {
+        return modifiers;
+    }
+
+    public TypeName type() {
+        return type;
+    }
+
+    public CodeBlock javadoc() {
+        return javadoc;
     }
 
     void emit(CodeWriter codeWriter, boolean varargs) throws IOException {
@@ -148,8 +164,8 @@ public final class ParameterSpec {
         private final String name;
         private final CodeBlock.Builder javadoc = CodeBlock.builder();
 
-        public final List<AnnotationSpec> annotations = new ArrayList<>();
-        public final List<Modifier> modifiers = new ArrayList<>();
+        private final List<AnnotationSpec> annotations = new ArrayList<>();
+        private final List<Modifier> modifiers = new ArrayList<>();
 
         private Builder(TypeName type, String name) {
             this.type = type;

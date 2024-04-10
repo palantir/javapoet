@@ -134,7 +134,7 @@ public abstract class AbstractTypesTest {
                 .isEqualTo(TypeVariableName.get("Intersection", number, runnable));
         assertThat(TypeName.get(typeVariables.get(5).asType()))
                 .isEqualTo(TypeVariableName.get("IntersectionOfInterfaces", runnable, serializable));
-        assertThat(((TypeVariableName) TypeName.get(typeVariables.get(4).asType())).bounds)
+        assertThat(((TypeVariableName) TypeName.get(typeVariables.get(4).asType())).bounds())
                 .containsExactly(number, runnable);
     }
 
@@ -147,13 +147,14 @@ public abstract class AbstractTypesTest {
         String className = Recursive.class.getCanonicalName();
         assertThat(typeName.toString()).isEqualTo(className + "<T>");
 
-        TypeVariableName typeVariableName = (TypeVariableName) typeName.typeArguments.get(0);
+        TypeVariableName typeVariableName =
+                (TypeVariableName) typeName.typeArguments().get(0);
 
-        assertThatThrownBy(() -> typeVariableName.bounds.set(0, null))
+        assertThatThrownBy(() -> typeVariableName.bounds().set(0, null))
                 .isInstanceOf(UnsupportedOperationException.class);
 
         assertThat(typeVariableName.toString()).isEqualTo("T");
-        assertThat(typeVariableName.bounds.toString())
+        assertThat(typeVariableName.bounds().toString())
                 .isEqualTo("[java.util.Map<java.util.List<T>, java.util.Set<T[]>>]");
     }
 

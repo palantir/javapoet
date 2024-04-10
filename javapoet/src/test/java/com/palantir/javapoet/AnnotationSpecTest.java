@@ -23,7 +23,6 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Arrays;
 import javax.lang.model.element.TypeElement;
 import org.junit.Rule;
 import org.junit.Test;
@@ -389,17 +388,6 @@ public final class AnnotationSpecTest {
         assertThatThrownBy(() -> builder.build().toString())
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("not a valid name: @");
-    }
-
-    @Test
-    public void modifyMembers() {
-        AnnotationSpec.Builder builder =
-                AnnotationSpec.builder(SuppressWarnings.class).addMember("value", "$S", "Foo");
-
-        builder.members.clear();
-        builder.members.put("value", Arrays.asList(CodeBlock.of("$S", "Bar")));
-
-        assertThat(builder.build().toString()).isEqualTo("@java.lang.SuppressWarnings(\"Bar\")");
     }
 
     private String toString(TypeSpec typeSpec) {

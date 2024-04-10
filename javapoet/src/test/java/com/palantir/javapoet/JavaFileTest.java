@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.google.testing.compile.CompilationRule;
-import java.io.File;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -844,29 +843,6 @@ public final class JavaFileTest {
 
                         class Taco extends com.taco.bell.A {
                           A a;
-                        }
-                        """);
-    }
-
-    @Test
-    public void modifyStaticImports() {
-        JavaFile.Builder builder = JavaFile.builder(
-                        "com.palantir.tacos", TypeSpec.classBuilder("Taco").build())
-                .addStaticImport(File.class, "separator");
-
-        builder.staticImports.clear();
-        builder.staticImports.add(File.class.getCanonicalName() + ".separatorChar");
-
-        String source = builder.build().toString();
-
-        assertThat(source)
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
-
-                        import static java.io.File.separatorChar;
-
-                        class Taco {
                         }
                         """);
     }

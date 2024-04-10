@@ -62,10 +62,10 @@ public final class JavaFile {
         }
     };
 
-    public final CodeBlock fileComment;
-    public final String packageName;
-    public final TypeSpec typeSpec;
-    public final boolean skipJavaLangImports;
+    private final CodeBlock fileComment;
+    private final String packageName;
+    private final TypeSpec typeSpec;
+    private final boolean skipJavaLangImports;
     private final Set<String> staticImports;
     private final Set<String> alwaysQualify;
     private final String indent;
@@ -83,9 +83,17 @@ public final class JavaFile {
         this.alwaysQualify = Util.immutableSet(alwaysQualifiedNames);
     }
 
+    public String packageName() {
+        return packageName;
+    }
+
+    public TypeSpec typeSpec() {
+        return typeSpec;
+    }
+
     private void fillAlwaysQualifiedNames(TypeSpec spec, Set<String> alwaysQualifiedNames) {
-        alwaysQualifiedNames.addAll(spec.alwaysQualifiedNames);
-        for (TypeSpec nested : spec.typeSpecs) {
+        alwaysQualifiedNames.addAll(spec.alwaysQualifiedNames());
+        for (TypeSpec nested : spec.typeSpecs()) {
             fillAlwaysQualifiedNames(nested, alwaysQualifiedNames);
         }
     }
@@ -121,8 +129,8 @@ public final class JavaFile {
 
     /** Writes this to {@code filer}. */
     public void writeTo(Filer filer) throws IOException {
-        String fileName = packageName.isEmpty() ? typeSpec.name : packageName + "." + typeSpec.name;
-        List<Element> originatingElements = typeSpec.originatingElements;
+        String fileName = packageName.isEmpty() ? typeSpec.name() : packageName + "." + typeSpec.name();
+        List<Element> originatingElements = typeSpec.originatingElements();
         JavaFileObject filerSourceFile = filer.createSourceFile(fileName, originatingElements.toArray(new Element[0]));
         try (Writer writer = filerSourceFile.openWriter()) {
             writeTo(writer);
@@ -171,7 +179,7 @@ public final class JavaFile {
             Files.createDirectories(outputDirectory);
         }
 
-        Path outputPath = outputDirectory.resolve(typeSpec.name + ".java");
+        Path outputPath = outputDirectory.resolve(typeSpec.name() + ".java");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(outputPath), charset)) {
             writeTo(writer);
         }
@@ -203,7 +211,7 @@ public final class JavaFile {
             // TODO(pkoenig): what about nested types like java.util.Map.Entry?
             if (skipJavaLangImports
                     && className.packageName().equals("java.lang")
-                    && !alwaysQualify.contains(className.simpleName)) {
+                    && !alwaysQualify.contains(className.simpleName())) {
                 continue;
             }
             codeWriter.emit("import $L;\n", className.withoutAnnotations());
@@ -250,8 +258,8 @@ public final class JavaFile {
     }
 
     public JavaFileObject toJavaFileObject() {
-        URI uri =
-                URI.create((packageName.isEmpty() ? typeSpec.name : packageName.replace('.', '/') + '/' + typeSpec.name)
+        URI uri = URI.create(
+                (packageName.isEmpty() ? typeSpec.name() : packageName.replace('.', '/') + '/' + typeSpec.name())
                         + Kind.SOURCE.extension);
         return new SimpleJavaFileObject(uri, Kind.SOURCE) {
             private final long lastModified = System.currentTimeMillis();
@@ -294,7 +302,7 @@ public final class JavaFile {
         private boolean skipJavaLangImports;
         private String indent = "  ";
 
-        public final Set<String> staticImports = new TreeSet<>();
+        private final Set<String> staticImports = new TreeSet<>();
 
         private Builder(String packageName, TypeSpec typeSpec) {
             this.packageName = packageName;
@@ -320,7 +328,7 @@ public final class JavaFile {
             checkArgument(names.length > 0, "names array is empty");
             for (String name : names) {
                 checkArgument(name != null, "null entry in names array: %s", Arrays.toString(names));
-                staticImports.add(className.canonicalName + "." + name);
+                staticImports.add(className.canonicalName() + "." + name);
             }
             return this;
         }

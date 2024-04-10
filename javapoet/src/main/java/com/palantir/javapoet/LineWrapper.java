@@ -158,7 +158,7 @@ final class LineWrapper {
     static final class RecordingAppendable implements Appendable {
         private final Appendable delegate;
 
-        char lastChar = Character.MIN_VALUE;
+        private char lastChar = Character.MIN_VALUE;
 
         RecordingAppendable(Appendable delegate) {
             this.delegate = delegate;

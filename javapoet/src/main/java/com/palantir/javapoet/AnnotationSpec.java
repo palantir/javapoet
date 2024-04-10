@@ -45,12 +45,20 @@ import javax.lang.model.util.SimpleAnnotationValueVisitor8;
 public final class AnnotationSpec {
     public static final String VALUE = "value";
 
-    public final TypeName type;
-    public final Map<String, List<CodeBlock>> members;
+    private final TypeName type;
+    private final Map<String, List<CodeBlock>> members;
 
     private AnnotationSpec(Builder builder) {
         this.type = builder.type;
         this.members = Util.immutableMultimap(builder.members);
+    }
+
+    public TypeName type() {
+        return type;
+    }
+
+    public Map<String, List<CodeBlock>> members() {
+        return members;
     }
 
     void emit(CodeWriter codeWriter, boolean inline) throws IOException {
@@ -211,7 +219,7 @@ public final class AnnotationSpec {
     public static final class Builder {
         private final TypeName type;
 
-        public final Map<String, List<CodeBlock>> members = new LinkedHashMap<>();
+        private final Map<String, List<CodeBlock>> members = new LinkedHashMap<>();
 
         private Builder(TypeName type) {
             this.type = type;
@@ -270,7 +278,7 @@ public final class AnnotationSpec {
      * Annotation value visitor adding members to the given builder instance.
      */
     private static class Visitor extends SimpleAnnotationValueVisitor8<Builder, String> {
-        final Builder builder;
+        private final Builder builder;
 
         Visitor(Builder builder) {
             super(builder);

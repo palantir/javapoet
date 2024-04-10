@@ -67,13 +67,13 @@ public class ParameterSpecTest {
     @Test
     public void receiverParameterInstanceMethod() {
         ParameterSpec.Builder builder = ParameterSpec.builder(int.class, "this");
-        assertThat(builder.build().name).isEqualTo("this");
+        assertThat(builder.build().name()).isEqualTo("this");
     }
 
     @Test
     public void receiverParameterNestedClass() {
         ParameterSpec.Builder builder = ParameterSpec.builder(int.class, "Foo.this");
-        assertThat(builder.build().name).isEqualTo("Foo.this");
+        assertThat(builder.build().name()).isEqualTo("Foo.this");
     }
 
     @Test
@@ -128,24 +128,5 @@ public class ParameterSpecTest {
         assertThatThrownBy(() -> ParameterSpec.builder(int.class, "foo").addModifiers(modifiers))
                 .isInstanceOf(Exception.class)
                 .hasMessage("unexpected parameter modifier: public");
-    }
-
-    @Test
-    public void modifyAnnotations() {
-        ParameterSpec.Builder builder = ParameterSpec.builder(int.class, "foo")
-                .addAnnotation(Override.class)
-                .addAnnotation(SuppressWarnings.class);
-
-        builder.annotations.remove(1);
-        assertThat(builder.build().annotations).hasSize(1);
-    }
-
-    @Test
-    public void modifyModifiers() {
-        ParameterSpec.Builder builder =
-                ParameterSpec.builder(int.class, "foo").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
-
-        builder.modifiers.remove(1);
-        assertThat(builder.build().modifiers).containsExactly(Modifier.PUBLIC);
     }
 }

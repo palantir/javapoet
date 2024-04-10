@@ -44,22 +44,4 @@ public class FieldSpecTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("annotationSpecs == null");
     }
-
-    @Test
-    public void modifyAnnotations() {
-        FieldSpec.Builder builder = FieldSpec.builder(int.class, "foo")
-                .addAnnotation(Override.class)
-                .addAnnotation(SuppressWarnings.class);
-
-        builder.annotations.remove(1);
-        assertThat(builder.build().annotations).hasSize(1);
-    }
-
-    @Test
-    public void modifyModifiers() {
-        FieldSpec.Builder builder = FieldSpec.builder(int.class, "foo").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
-
-        builder.modifiers.remove(1);
-        assertThat(builder.build().modifiers).containsExactly(Modifier.PUBLIC);
-    }
 }

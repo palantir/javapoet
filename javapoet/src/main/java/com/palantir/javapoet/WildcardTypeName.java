@@ -29,8 +29,8 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 
 public final class WildcardTypeName extends TypeName {
-    public final List<TypeName> upperBounds;
-    public final List<TypeName> lowerBounds;
+    private final List<TypeName> upperBounds;
+    private final List<TypeName> lowerBounds;
 
     private WildcardTypeName(List<TypeName> upperBounds, List<TypeName> lowerBounds) {
         this(upperBounds, lowerBounds, new ArrayList<>());
@@ -48,6 +48,14 @@ public final class WildcardTypeName extends TypeName {
         for (TypeName lowerBound : this.lowerBounds) {
             checkArgument(!lowerBound.isPrimitive() && lowerBound != VOID, "invalid lower bound: %s", lowerBound);
         }
+    }
+
+    public List<TypeName> upperBounds() {
+        return upperBounds;
+    }
+
+    public List<TypeName> lowerBounds() {
+        return lowerBounds;
     }
 
     @Override

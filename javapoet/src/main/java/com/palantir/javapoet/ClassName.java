@@ -48,18 +48,18 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
     private static final String NO_PACKAGE = "";
 
     /** The package name of this class, or "" if this is in the default package. */
-    final String packageName;
+    private final String packageName;
 
     /** The enclosing class, or null if this is not enclosed in another class. */
-    final ClassName enclosingClassName;
+    private final ClassName enclosingClassName;
 
     /** This class name, like "Entry" for java.util.Map.Entry. */
-    final String simpleName;
+    private final String simpleName;
 
     private List<String> simpleNames;
 
     /** The full class name like "java.util.Map.Entry". */
-    final String canonicalName;
+    private final String canonicalName;
 
     private ClassName(String packageName, ClassName enclosingClassName, String simpleName) {
         this(packageName, enclosingClassName, simpleName, Collections.emptyList());
