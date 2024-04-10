@@ -140,13 +140,13 @@ public final class ParameterizedTypeName extends TypeName {
     /** Returns a parameterized type equivalent to {@code type}. */
     static ParameterizedTypeName get(ParameterizedType type, Map<Type, TypeVariableName> map) {
         ClassName rawType = ClassName.get((Class<?>) type.getRawType());
-        ParameterizedType ownerType = (type.getOwnerType() instanceof ParameterizedType)
-                        && !Modifier.isStatic(((Class<?>) type.getRawType()).getModifiers())
-                ? (ParameterizedType) type.getOwnerType()
-                : null;
         List<TypeName> typeArguments = TypeName.list(type.getActualTypeArguments(), map);
-        return (ownerType != null)
-                ? get(ownerType, map).nestedClass(rawType.simpleName(), typeArguments)
-                : new ParameterizedTypeName(null, rawType, typeArguments);
+
+        if (type.getOwnerType() instanceof ParameterizedType parameterizedOwnerType
+                && !Modifier.isStatic(((Class<?>) type.getRawType()).getModifiers())) {
+            return get(parameterizedOwnerType, map).nestedClass(rawType.simpleName(), typeArguments);
+        } else {
+            return new ParameterizedTypeName(null, rawType, typeArguments);
+        }
     }
 }
