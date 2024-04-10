@@ -56,6 +56,7 @@ public final class TypeSpec {
     private final List<TypeVariableName> typeVariables;
     private final TypeName superclass;
     private final List<TypeName> superinterfaces;
+    private final List<TypeName> permittedSubclasses;
     private final Map<String, TypeSpec> enumConstants;
     private final List<FieldSpec> fieldSpecs;
     private final CodeBlock staticBlock;
@@ -76,6 +77,7 @@ public final class TypeSpec {
         this.typeVariables = Util.immutableList(builder.typeVariables);
         this.superclass = builder.superclass;
         this.superinterfaces = Util.immutableList(builder.superinterfaces);
+        this.permittedSubclasses = Util.immutableList(builder.permittedSubclasses);
         this.enumConstants = Util.immutableMap(builder.enumConstants);
         this.fieldSpecs = Util.immutableList(builder.fieldSpecs);
         this.staticBlock = builder.staticBlock.build();
@@ -109,6 +111,7 @@ public final class TypeSpec {
         this.typeVariables = Collections.emptyList();
         this.superclass = null;
         this.superinterfaces = Collections.emptyList();
+        this.permittedSubclasses = Collections.emptyList();
         this.enumConstants = Collections.emptyMap();
         this.fieldSpecs = Collections.emptyList();
         this.staticBlock = type.staticBlock;
@@ -240,6 +243,7 @@ public final class TypeSpec {
         builder.typeVariables.addAll(typeVariables);
         builder.superclass = superclass;
         builder.superinterfaces.addAll(superinterfaces);
+        builder.permittedSubclasses.addAll(permittedSubclasses);
         builder.enumConstants.putAll(enumConstants);
         builder.fieldSpecs.addAll(fieldSpecs);
         builder.methodSpecs.addAll(methodSpecs);
@@ -318,6 +322,18 @@ public final class TypeSpec {
                     codeWriter.emit(" implements");
                     boolean firstType = true;
                     for (TypeName type : implementsTypes) {
+                        if (!firstType) {
+                            codeWriter.emit(",");
+                        }
+                        codeWriter.emit(" $T", type);
+                        firstType = false;
+                    }
+                }
+
+                if (!permittedSubclasses.isEmpty()) {
+                    codeWriter.emit(" permits");
+                    boolean firstType = true;
+                    for (TypeName type : permittedSubclasses) {
                         if (!firstType) {
                             codeWriter.emit(",");
                         }
@@ -528,6 +544,7 @@ public final class TypeSpec {
         private final List<Modifier> modifiers = new ArrayList<>();
         private final List<TypeVariableName> typeVariables = new ArrayList<>();
         private final List<TypeName> superinterfaces = new ArrayList<>();
+        private final List<TypeName> permittedSubclasses = new ArrayList<>();
         private final List<FieldSpec> fieldSpecs = new ArrayList<>();
         private final List<MethodSpec> methodSpecs = new ArrayList<>();
         private final List<TypeSpec> typeSpecs = new ArrayList<>();
@@ -663,6 +680,51 @@ public final class TypeSpec {
         public Builder addSuperinterface(TypeMirror superinterface, boolean avoidNestedTypeNameClashes) {
             addSuperinterface(TypeName.get(superinterface));
             if (avoidNestedTypeNameClashes && superinterface instanceof DeclaredType declaredType) {
+                TypeElement superInterfaceElement = (TypeElement) declaredType.asElement();
+                avoidClashesWithNestedClasses(superInterfaceElement);
+            }
+            return this;
+        }
+
+        public Builder addPermittedSubclasses(Iterable<? extends TypeName> permittedSubclasses) {
+            checkArgument(permittedSubclasses != null, "permittedSubclasses == null");
+            for (TypeName permittedSubclass : permittedSubclasses) {
+                addPermittedSubclass(permittedSubclass);
+            }
+            return this;
+        }
+
+        public Builder addPermittedSubclass(TypeName permittedSubclass) {
+            checkState(
+                    this.kind == Kind.CLASS || this.kind == Kind.INTERFACE,
+                    "only classes and interfaces can have permitted subclasses, not " + this.kind);
+            checkArgument(permittedSubclass != null, "permittedSubclass == null");
+            this.permittedSubclasses.add(permittedSubclass);
+            return this;
+        }
+
+        public Builder addPermittedSubclass(Type permittedSubclass) {
+            return addSuperinterface(permittedSubclass, true);
+        }
+
+        public Builder addPermittedSubclass(Type permittedSubclass, boolean avoidNestedTypeNameClashes) {
+            addPermittedSubclass(TypeName.get(permittedSubclass));
+            if (avoidNestedTypeNameClashes) {
+                Class<?> clazz = getRawType(permittedSubclass);
+                if (clazz != null) {
+                    avoidClashesWithNestedClasses(clazz);
+                }
+            }
+            return this;
+        }
+
+        public Builder addPermittedSubclass(TypeMirror permittedSubclass) {
+            return addSuperinterface(permittedSubclass, true);
+        }
+
+        public Builder addPermittedSubclass(TypeMirror permittedSubclass, boolean avoidNestedTypeNameClashes) {
+            addPermittedSubclass(TypeName.get(permittedSubclass));
+            if (avoidNestedTypeNameClashes && permittedSubclass instanceof DeclaredType declaredType) {
                 TypeElement superInterfaceElement = (TypeElement) declaredType.asElement();
                 avoidClashesWithNestedClasses(superInterfaceElement);
             }
@@ -850,6 +912,10 @@ public final class TypeSpec {
                 checkArgument(superinterface != null, "superinterfaces contains null");
             }
 
+            for (TypeName superinterface : permittedSubclasses) {
+                checkArgument(superinterface != null, "permittedSubclasses contains null");
+            }
+
             if (!typeVariables.isEmpty()) {
                 checkState(anonymousTypeArguments == null, "typevariables are forbidden on anonymous types.");
                 for (TypeVariableName typeVariableName : typeVariables) {
@@ -950,6 +1016,12 @@ public final class TypeSpec {
             checkArgument(
                     anonymousTypeArguments == null || interestingSupertypeCount <= 1,
                     "anonymous type has too many supertypes");
+
+            boolean isSealed = modifiers.contains(Modifier.SEALED);
+            checkArgument(
+                    isSealed || permittedSubclasses.isEmpty(),
+                    "non-sealed type %s cannot declare permitted subclasses",
+                    name);
 
             return new TypeSpec(this);
         }

@@ -695,14 +695,16 @@ public final class TypeSpecTest {
     }
 
     @Test
-    public void classImplementsExtends() {
+    public void classImplementsExtendsPermits() {
         ClassName taco = ClassName.get(tacosPackage, "Taco");
         ClassName food = ClassName.get("com.palantir.tacos", "Food");
         TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
-                .addModifiers(Modifier.ABSTRACT)
+                .addModifiers(Modifier.ABSTRACT, Modifier.SEALED)
                 .superclass(ParameterizedTypeName.get(ClassName.get(AbstractSet.class), food))
                 .addSuperinterface(Serializable.class)
                 .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Comparable.class), taco))
+                .addPermittedSubclass(ClassName.bestGuess("com.palantir.tacos.BeefTaco"))
+                .addPermittedSubclass(ClassName.bestGuess("com.palantir.tacos.ChickenTaco"))
                 .build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
@@ -713,7 +715,8 @@ public final class TypeSpecTest {
                         import java.lang.Comparable;
                         import java.util.AbstractSet;
 
-                        abstract class Taco extends AbstractSet<Food> implements Serializable, Comparable<Taco> {
+                        abstract sealed class Taco extends AbstractSet<Food> implements Serializable, Comparable<Taco> \
+                        permits BeefTaco, ChickenTaco {
                         }
                         """);
     }
@@ -769,11 +772,14 @@ public final class TypeSpecTest {
     }
 
     @Test
-    public void interfaceExtends() {
+    public void interfaceExtendsPermits() {
         ClassName taco = ClassName.get(tacosPackage, "Taco");
         TypeSpec typeSpec = TypeSpec.interfaceBuilder("Taco")
+                .addModifiers(Modifier.SEALED)
                 .addSuperinterface(Serializable.class)
                 .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Comparable.class), taco))
+                .addPermittedSubclass(ClassName.bestGuess("com.palantir.tacos.BeefTaco"))
+                .addPermittedSubclass(ClassName.bestGuess("com.palantir.tacos.ChickenTaco"))
                 .build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
@@ -783,7 +789,7 @@ public final class TypeSpecTest {
                         import java.io.Serializable;
                         import java.lang.Comparable;
 
-                        interface Taco extends Serializable, Comparable<Taco> {
+                        sealed interface Taco extends Serializable, Comparable<Taco> permits BeefTaco, ChickenTaco {
                         }
                         """);
     }
@@ -2195,6 +2201,49 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void nullPermittedSubclassesAddition() {
+        assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addPermittedSubclasses(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("permittedSubclasses == null");
+    }
+
+    @Test
+    public void nullPermittedSubclassAddition() {
+        assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addPermittedSubclass((TypeName) null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("permittedSubclass == null");
+    }
+
+    @Test
+    public void nullInPermittedSubclassIterableAddition() {
+        List<TypeName> permittedSublclasses = new ArrayList<>();
+        permittedSublclasses.add(TypeName.get(List.class));
+        permittedSublclasses.add(null);
+
+        assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addPermittedSubclasses(permittedSublclasses))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("permittedSubclass == null");
+    }
+
+    @Test
+    public void multiplePermittedSubclassesAddition() {
+        TypeSpec taco = TypeSpec.classBuilder("Taco")
+                .addModifiers(Modifier.SEALED)
+                .addPermittedSubclasses(Arrays.asList(
+                        ClassName.bestGuess("com.palantir.tacos.BeefTaco"),
+                        ClassName.bestGuess("com.palantir.tacos.ChickenTaco")))
+                .build();
+        assertThat(toString(taco))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        sealed class Taco permits BeefTaco, ChickenTaco {
+                        }
+                        """);
+    }
+
+    @Test
     public void nullModifiersAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco")
                         .addModifiers((Modifier) null)
@@ -2444,6 +2493,14 @@ public final class TypeSpecTest {
         assertThatThrownBy(() -> TypeSpec.enumBuilder("E").superclass(ClassName.get(Object.class)))
                 .isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> TypeSpec.interfaceBuilder("I").superclass(ClassName.get(Object.class)))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    public void permittedSubclassOnlyValidForClassesAndInterfaces() {
+        assertThatThrownBy(() -> TypeSpec.annotationBuilder("A").addPermittedSubclass(ClassName.get(Object.class)))
+                .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> TypeSpec.enumBuilder("E").addPermittedSubclass(ClassName.get(Object.class)))
                 .isInstanceOf(IllegalStateException.class);
     }
 
