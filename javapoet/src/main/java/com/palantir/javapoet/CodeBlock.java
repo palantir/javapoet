@@ -68,9 +68,9 @@ public final class CodeBlock {
     private static final Pattern LOWERCASE = Pattern.compile("[a-z]+[\\w_]*");
 
     /** A heterogeneous list containing string literals and value placeholders. */
-    final List<String> formatParts;
+    private final List<String> formatParts;
 
-    final List<Object> args;
+    private final List<Object> args;
 
     private CodeBlock(Builder builder) {
         this.formatParts = Util.immutableList(builder.formatParts);
@@ -93,6 +93,14 @@ public final class CodeBlock {
             return false;
         }
         return toString().equals(o.toString());
+    }
+
+    List<String> formatParts() {
+        return formatParts;
+    }
+
+    List<Object> args() {
+        return args;
     }
 
     @Override
@@ -163,8 +171,8 @@ public final class CodeBlock {
     }
 
     public static final class Builder {
-        final List<String> formatParts = new ArrayList<>();
-        final List<Object> args = new ArrayList<>();
+        private final List<String> formatParts = new ArrayList<>();
+        private final List<Object> args = new ArrayList<>();
 
         private Builder() {}
 
@@ -362,16 +370,16 @@ public final class CodeBlock {
                 return o.toString();
             }
             if (o instanceof ParameterSpec) {
-                return ((ParameterSpec) o).name;
+                return ((ParameterSpec) o).name();
             }
             if (o instanceof FieldSpec) {
-                return ((FieldSpec) o).name;
+                return ((FieldSpec) o).name();
             }
             if (o instanceof MethodSpec) {
-                return ((MethodSpec) o).name;
+                return ((MethodSpec) o).name();
             }
             if (o instanceof TypeSpec) {
-                return ((TypeSpec) o).name;
+                return ((TypeSpec) o).name();
             }
             throw new IllegalArgumentException("expected name but was " + o);
         }

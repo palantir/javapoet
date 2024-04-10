@@ -69,6 +69,7 @@ final class CodeWriter {
      * line of a statement is indented normally and subsequent wrapped lines are double-indented. This
      * is -1 when the currently-written line isn't part of a statement.
      */
+    @SuppressWarnings("VisibilityModifier")
     int statementLine = -1;
 
     CodeWriter(Appendable out) {
@@ -204,7 +205,7 @@ final class CodeWriter {
             return;
         }
 
-        typeVariables.forEach(typeVariable -> currentTypeVariables.add(typeVariable.name));
+        typeVariables.forEach(typeVariable -> currentTypeVariables.add(typeVariable.name()));
 
         emit("<");
         boolean firstTypeVariable = true;
@@ -212,10 +213,10 @@ final class CodeWriter {
             if (!firstTypeVariable) {
                 emit(", ");
             }
-            emitAnnotations(typeVariable.annotations, true);
-            emit("$L", typeVariable.name);
+            emitAnnotations(typeVariable.annotations(), true);
+            emit("$L", typeVariable.name());
             boolean firstBound = true;
-            for (TypeName bound : typeVariable.bounds) {
+            for (TypeName bound : typeVariable.bounds()) {
                 emit(firstBound ? " extends $T" : " & $T", bound);
                 firstBound = false;
             }
@@ -225,7 +226,7 @@ final class CodeWriter {
     }
 
     public void popTypeVariables(List<TypeVariableName> typeVariables) {
-        typeVariables.forEach(typeVariable -> currentTypeVariables.remove(typeVariable.name));
+        typeVariables.forEach(typeVariable -> currentTypeVariables.remove(typeVariable.name()));
     }
 
     public CodeWriter emit(String s) throws IOException {
@@ -243,31 +244,34 @@ final class CodeWriter {
     public CodeWriter emit(CodeBlock codeBlock, boolean ensureTrailingNewline) throws IOException {
         int a = 0;
         ClassName deferredTypeName = null; // used by "import static" logic
-        ListIterator<String> partIterator = codeBlock.formatParts.listIterator();
+        ListIterator<String> partIterator = codeBlock.formatParts().listIterator();
         while (partIterator.hasNext()) {
             String part = partIterator.next();
             switch (part) {
                 case "$L":
-                    emitLiteral(codeBlock.args.get(a++));
+                    emitLiteral(codeBlock.args().get(a++));
                     break;
 
                 case "$N":
-                    emitAndIndent((String) codeBlock.args.get(a++));
+                    emitAndIndent((String) codeBlock.args().get(a++));
                     break;
 
                 case "$S":
-                    String string = (String) codeBlock.args.get(a++);
+                    String string = (String) codeBlock.args().get(a++);
                     // Emit null as a literal null: no quotes.
                     emitAndIndent(string != null ? stringLiteralWithDoubleQuotes(string, indent) : "null");
                     break;
 
                 case "$T":
-                    TypeName typeName = (TypeName) codeBlock.args.get(a++);
+                    TypeName typeName = (TypeName) codeBlock.args().get(a++);
                     // defer "typeName.emit(this)" if next format part will be handled by the default case
                     if (typeName instanceof ClassName && partIterator.hasNext()) {
-                        if (!codeBlock.formatParts.get(partIterator.nextIndex()).startsWith("$")) {
+                        if (!codeBlock
+                                .formatParts()
+                                .get(partIterator.nextIndex())
+                                .startsWith("$")) {
                             ClassName candidate = (ClassName) typeName;
-                            if (staticImportClassNames.contains(candidate.canonicalName)) {
+                            if (staticImportClassNames.contains(candidate.canonicalName())) {
                                 checkState(deferredTypeName == null, "pending type for static import?!");
                                 deferredTypeName = candidate;
                                 break;
@@ -314,7 +318,7 @@ final class CodeWriter {
                     // handle deferred type
                     if (deferredTypeName != null) {
                         if (part.startsWith(".")) {
-                            if (emitStaticImportMember(deferredTypeName.canonicalName, part)) {
+                            if (emitStaticImportMember(deferredTypeName.canonicalName(), part)) {
                                 // okay, static import hit and all was emitted, so clean-up and jump to next part
                                 deferredTypeName = null;
                                 break;
@@ -387,7 +391,7 @@ final class CodeWriter {
         // If the top level simple name is masked by a current type variable, use the canonical name.
         String topLevelSimpleName = className.topLevelClassName().simpleName();
         if (currentTypeVariables.contains(topLevelSimpleName)) {
-            return className.canonicalName;
+            return className.canonicalName();
         }
 
         // Find the shortest suffix of className that resolves to className. This uses both local type
@@ -397,7 +401,7 @@ final class CodeWriter {
             ClassName resolved = resolve(c.simpleName());
             nameResolved = resolved != null;
 
-            if (resolved != null && Objects.equals(resolved.canonicalName, c.canonicalName)) {
+            if (resolved != null && Objects.equals(resolved.canonicalName(), c.canonicalName())) {
                 int suffixOffset = c.simpleNames().size() - 1;
                 return join(
                         ".",
@@ -409,7 +413,7 @@ final class CodeWriter {
 
         // If the name resolved but wasn't a match, we're stuck with the fully qualified name.
         if (nameResolved) {
-            return className.canonicalName;
+            return className.canonicalName();
         }
 
         // If the class is in the same package, we're done.
@@ -423,13 +427,13 @@ final class CodeWriter {
             importableType(className);
         }
 
-        return className.canonicalName;
+        return className.canonicalName();
     }
 
     private void importableType(ClassName className) {
         if (className.packageName().isEmpty()) {
             return;
-        } else if (alwaysQualify.contains(className.simpleName)) {
+        } else if (alwaysQualify.contains(className.simpleName())) {
             // TODO(pkoenig): what about nested types like java.util.Map.Entry?
             return;
         }
@@ -450,13 +454,13 @@ final class CodeWriter {
         // Match a child of the current (potentially nested) class.
         for (int i = typeSpecStack.size() - 1; i >= 0; i--) {
             TypeSpec typeSpec = typeSpecStack.get(i);
-            if (typeSpec.nestedTypesSimpleNames.contains(simpleName)) {
+            if (typeSpec.nestedTypesSimpleNames().contains(simpleName)) {
                 return stackClassName(i, simpleName);
             }
         }
 
         // Match the top-level class.
-        if (!typeSpecStack.isEmpty() && Objects.equals(typeSpecStack.get(0).name, simpleName)) {
+        if (!typeSpecStack.isEmpty() && Objects.equals(typeSpecStack.get(0).name(), simpleName)) {
             return ClassName.get(packageName, simpleName);
         }
 
@@ -472,9 +476,9 @@ final class CodeWriter {
 
     /** Returns the class named {@code simpleName} when nested in the class at {@code stackDepth}. */
     private ClassName stackClassName(int stackDepth, String simpleName) {
-        ClassName className = ClassName.get(packageName, typeSpecStack.get(0).name);
+        ClassName className = ClassName.get(packageName, typeSpecStack.get(0).name());
         for (int i = 1; i <= stackDepth; i++) {
-            className = className.nestedClass(typeSpecStack.get(i).name);
+            className = className.nestedClass(typeSpecStack.get(i).name());
         }
         return className.nestedClass(simpleName);
     }

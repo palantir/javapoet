@@ -31,8 +31,8 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 
 public final class TypeVariableName extends TypeName {
-    public final String name;
-    public final List<TypeName> bounds;
+    private final String name;
+    private final List<TypeName> bounds;
 
     private TypeVariableName(String name, List<TypeName> bounds) {
         this(name, bounds, new ArrayList<>());
@@ -41,11 +41,19 @@ public final class TypeVariableName extends TypeName {
     private TypeVariableName(String name, List<TypeName> bounds, List<AnnotationSpec> annotations) {
         super(annotations);
         this.name = checkNotNull(name, "name == null");
-        this.bounds = bounds;
+        this.bounds = Util.immutableList(bounds);
 
         for (TypeName bound : this.bounds) {
             checkArgument(!bound.isPrimitive() && bound != VOID, "invalid bound: %s", bound);
         }
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public List<TypeName> bounds() {
+        return bounds;
     }
 
     @Override
@@ -70,7 +78,13 @@ public final class TypeVariableName extends TypeName {
         List<TypeName> newBounds = new ArrayList<>();
         newBounds.addAll(this.bounds);
         newBounds.addAll(bounds);
-        return new TypeVariableName(name, newBounds, annotations);
+        return new TypeVariableName(name, newBounds, annotations());
+    }
+
+    @Override
+    CodeWriter emit(CodeWriter out) throws IOException {
+        emitAnnotations(out);
+        return out.emitAndIndent(name);
     }
 
     private static TypeVariableName of(String name, List<TypeName> bounds) {
@@ -78,12 +92,6 @@ public final class TypeVariableName extends TypeName {
         List<TypeName> boundsNoObject = new ArrayList<>(bounds);
         boundsNoObject.remove(ClassName.OBJECT);
         return new TypeVariableName(name, Collections.unmodifiableList(boundsNoObject));
-    }
-
-    @Override
-    CodeWriter emit(CodeWriter out) throws IOException {
-        emitAnnotations(out);
-        return out.emitAndIndent(name);
     }
 
     /** Returns type variable named {@code name} without bounds. */
@@ -118,16 +126,15 @@ public final class TypeVariableName extends TypeName {
         TypeParameterElement element = (TypeParameterElement) mirror.asElement();
         TypeVariableName typeVariableName = typeVariables.get(element);
         if (typeVariableName == null) {
-            // Since the bounds field is public, we need to make it an unmodifiableList. But we control
-            // the List that that wraps, which means we can change it before returning.
             List<TypeName> bounds = new ArrayList<>();
-            List<TypeName> visibleBounds = Collections.unmodifiableList(bounds);
-            typeVariableName = new TypeVariableName(element.getSimpleName().toString(), visibleBounds);
-            typeVariables.put(element, typeVariableName);
             for (TypeMirror typeMirror : element.getBounds()) {
+                typeVariableName = new TypeVariableName(element.getSimpleName().toString(), bounds);
+                typeVariables.put(element, typeVariableName);
                 bounds.add(TypeName.get(typeMirror, typeVariables));
             }
             bounds.remove(ClassName.OBJECT);
+            typeVariableName = new TypeVariableName(element.getSimpleName().toString(), bounds);
+            typeVariables.put(element, typeVariableName);
         }
         return typeVariableName;
     }

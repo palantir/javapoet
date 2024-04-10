@@ -268,7 +268,7 @@ public final class MethodSpecTest {
                 .addMethod(MethodSpec.overriding(fooElement).build())
                 .build();
         JavaFileObject jfo =
-                JavaFile.builder(implClassName.packageName, type).build().toJavaFileObject();
+                JavaFile.builder("com.palantir.javapoet", type).build().toJavaFileObject();
         Compilation compilation = javac().compile(jfo);
         assertThat(compilation).succeeded();
     }
@@ -366,8 +366,8 @@ public final class MethodSpecTest {
                 .addException(timeoutException)
                 .addException(ioException)
                 .build();
-        assertThat(methodSpec.exceptions).containsExactlyElementsOf(Arrays.asList(ioException, timeoutException));
-        assertThat(methodSpec.toBuilder().addException(ioException).build().exceptions)
+        assertThat(methodSpec.exceptions()).containsExactlyElementsOf(Arrays.asList(ioException, timeoutException));
+        assertThat(methodSpec.toBuilder().addException(ioException).build().exceptions())
                 .containsExactlyElementsOf(Arrays.asList(ioException, timeoutException));
     }
 
@@ -396,41 +396,6 @@ public final class MethodSpecTest {
                 void revisedMethod() {
                 }
                 """);
-    }
-
-    @Test
-    public void modifyAnnotations() {
-        MethodSpec.Builder builder =
-                MethodSpec.methodBuilder("foo").addAnnotation(Override.class).addAnnotation(SuppressWarnings.class);
-
-        builder.annotations.remove(1);
-        assertThat(builder.build().annotations).hasSize(1);
-    }
-
-    @Test
-    public void modifyModifiers() {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("foo").addModifiers(Modifier.PUBLIC, Modifier.STATIC);
-
-        builder.modifiers.remove(1);
-        assertThat(builder.build().modifiers).containsExactly(Modifier.PUBLIC);
-    }
-
-    @Test
-    public void modifyParameters() {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("foo").addParameter(int.class, "source");
-
-        builder.parameters.remove(0);
-        assertThat(builder.build().parameters).isEmpty();
-    }
-
-    @Test
-    public void modifyTypeVariables() {
-        TypeVariableName t = TypeVariableName.get("T");
-        MethodSpec.Builder builder =
-                MethodSpec.methodBuilder("foo").addTypeVariable(t).addTypeVariable(TypeVariableName.get("V"));
-
-        builder.typeVariables.remove(1);
-        assertThat(builder.build().typeVariables).containsExactly(t);
     }
 
     @Test

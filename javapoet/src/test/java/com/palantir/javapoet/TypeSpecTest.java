@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.testing.compile.CompilationRule;
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -1252,7 +1251,7 @@ public final class TypeSpecTest {
                         .addOriginatingElement(innerElement)
                         .build())
                 .build();
-        assertThat(outer.originatingElements).containsExactly(outerElement, innerElement);
+        assertThat(outer.originatingElements()).containsExactly(outerElement, innerElement);
     }
 
     @Test
@@ -2570,8 +2569,8 @@ public final class TypeSpecTest {
 
         TypeSpec recreatedTaco = taco.toBuilder().build();
         assertThat(toString(taco)).isEqualTo(toString(recreatedTaco));
-        assertThat(taco.originatingElements).containsExactlyElementsOf(recreatedTaco.originatingElements);
-        assertThat(taco.alwaysQualifiedNames).containsExactlyElementsOf(recreatedTaco.alwaysQualifiedNames);
+        assertThat(taco.originatingElements()).containsExactlyElementsOf(recreatedTaco.originatingElements());
+        assertThat(taco.alwaysQualifiedNames()).containsExactlyElementsOf(recreatedTaco.alwaysQualifiedNames());
 
         TypeSpec initializersAdded = taco.toBuilder()
                 .addInitializerBlock(CodeBlock.builder()
@@ -2720,91 +2719,11 @@ public final class TypeSpecTest {
     @Test
     public void classNameFactories() {
         ClassName className = ClassName.get("com.example", "Example");
-        assertThat(TypeSpec.classBuilder(className).build().name).isEqualTo("Example");
-        assertThat(TypeSpec.interfaceBuilder(className).build().name).isEqualTo("Example");
-        assertThat(TypeSpec.enumBuilder(className).addEnumConstant("A").build().name)
+        assertThat(TypeSpec.classBuilder(className).build().name()).isEqualTo("Example");
+        assertThat(TypeSpec.interfaceBuilder(className).build().name()).isEqualTo("Example");
+        assertThat(TypeSpec.enumBuilder(className).addEnumConstant("A").build().name())
                 .isEqualTo("Example");
-        assertThat(TypeSpec.annotationBuilder(className).build().name).isEqualTo("Example");
-    }
-
-    @Test
-    public void modifyAnnotations() {
-        TypeSpec.Builder builder =
-                TypeSpec.classBuilder("Taco").addAnnotation(Override.class).addAnnotation(SuppressWarnings.class);
-
-        builder.annotations.remove(1);
-        assertThat(builder.build().annotations).hasSize(1);
-    }
-
-    @Test
-    public void modifyModifiers() {
-        TypeSpec.Builder builder = TypeSpec.classBuilder("Taco").addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-
-        builder.modifiers.remove(1);
-        assertThat(builder.build().modifiers).containsExactly(Modifier.PUBLIC);
-    }
-
-    @Test
-    public void modifyFields() {
-        TypeSpec.Builder builder = TypeSpec.classBuilder("Taco").addField(int.class, "source");
-
-        builder.fieldSpecs.remove(0);
-        assertThat(builder.build().fieldSpecs).isEmpty();
-    }
-
-    @Test
-    public void modifyTypeVariables() {
-        TypeVariableName t = TypeVariableName.get("T");
-        TypeSpec.Builder builder =
-                TypeSpec.classBuilder("Taco").addTypeVariable(t).addTypeVariable(TypeVariableName.get("V"));
-
-        builder.typeVariables.remove(1);
-        assertThat(builder.build().typeVariables).containsExactly(t);
-    }
-
-    @Test
-    public void modifySuperinterfaces() {
-        TypeSpec.Builder builder = TypeSpec.classBuilder("Taco").addSuperinterface(File.class);
-
-        builder.superinterfaces.clear();
-        assertThat(builder.build().superinterfaces).isEmpty();
-    }
-
-    @Test
-    public void modifyMethods() {
-        TypeSpec.Builder builder = TypeSpec.classBuilder("Taco")
-                .addMethod(MethodSpec.methodBuilder("bell").build());
-
-        builder.methodSpecs.clear();
-        assertThat(builder.build().methodSpecs).isEmpty();
-    }
-
-    @Test
-    public void modifyTypes() {
-        TypeSpec.Builder builder = TypeSpec.classBuilder("Taco")
-                .addType(TypeSpec.classBuilder("Bell").build());
-
-        builder.typeSpecs.clear();
-        assertThat(builder.build().typeSpecs).isEmpty();
-    }
-
-    @Test
-    public void modifyEnumConstants() {
-        TypeSpec constantType = TypeSpec.anonymousClassBuilder("").build();
-        TypeSpec.Builder builder = TypeSpec.enumBuilder("Taco")
-                .addEnumConstant("BELL", constantType)
-                .addEnumConstant("WUT", TypeSpec.anonymousClassBuilder("").build());
-
-        builder.enumConstants.remove("WUT");
-        assertThat(builder.build().enumConstants).containsExactlyEntriesOf(Map.of("BELL", constantType));
-    }
-
-    @Test
-    public void modifyOriginatingElements() {
-        TypeSpec.Builder builder = TypeSpec.classBuilder("Taco").addOriginatingElement(Mockito.mock(Element.class));
-
-        builder.originatingElements.clear();
-        assertThat(builder.build().originatingElements).isEmpty();
+        assertThat(TypeSpec.annotationBuilder(className).build().name()).isEqualTo("Example");
     }
 
     @Test

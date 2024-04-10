@@ -47,24 +47,24 @@ import javax.lang.model.util.ElementFilter;
 
 /** A generated class, interface, or enum declaration. */
 public final class TypeSpec {
-    public final Kind kind;
-    public final String name;
-    public final CodeBlock anonymousTypeArguments;
-    public final CodeBlock javadoc;
-    public final List<AnnotationSpec> annotations;
-    public final Set<Modifier> modifiers;
-    public final List<TypeVariableName> typeVariables;
-    public final TypeName superclass;
-    public final List<TypeName> superinterfaces;
-    public final Map<String, TypeSpec> enumConstants;
-    public final List<FieldSpec> fieldSpecs;
-    public final CodeBlock staticBlock;
-    public final CodeBlock initializerBlock;
-    public final List<MethodSpec> methodSpecs;
-    public final List<TypeSpec> typeSpecs;
-    final Set<String> nestedTypesSimpleNames;
-    public final List<Element> originatingElements;
-    public final Set<String> alwaysQualifiedNames;
+    private final Kind kind;
+    private final String name;
+    private final CodeBlock anonymousTypeArguments;
+    private final CodeBlock javadoc;
+    private final List<AnnotationSpec> annotations;
+    private final Set<Modifier> modifiers;
+    private final List<TypeVariableName> typeVariables;
+    private final TypeName superclass;
+    private final List<TypeName> superinterfaces;
+    private final Map<String, TypeSpec> enumConstants;
+    private final List<FieldSpec> fieldSpecs;
+    private final CodeBlock staticBlock;
+    private final CodeBlock initializerBlock;
+    private final List<MethodSpec> methodSpecs;
+    private final List<TypeSpec> typeSpecs;
+    private final Set<String> nestedTypesSimpleNames;
+    private final List<Element> originatingElements;
+    private final Set<String> alwaysQualifiedNames;
 
     private TypeSpec(Builder builder) {
         this.kind = builder.kind;
@@ -120,8 +120,76 @@ public final class TypeSpec {
         this.alwaysQualifiedNames = Collections.emptySet();
     }
 
-    public boolean hasModifier(Modifier modifier) {
-        return modifiers.contains(modifier);
+    public Kind kind() {
+        return kind;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public CodeBlock anonymousTypeArguments() {
+        return anonymousTypeArguments;
+    }
+
+    public CodeBlock javadoc() {
+        return javadoc;
+    }
+
+    public List<AnnotationSpec> annotations() {
+        return annotations;
+    }
+
+    public Set<Modifier> modifiers() {
+        return modifiers;
+    }
+
+    public List<TypeVariableName> typeVariables() {
+        return typeVariables;
+    }
+
+    public TypeName superclass() {
+        return superclass;
+    }
+
+    public List<TypeName> superinterfaces() {
+        return superinterfaces;
+    }
+
+    public Map<String, TypeSpec> enumConstants() {
+        return enumConstants;
+    }
+
+    public List<FieldSpec> fieldSpecs() {
+        return fieldSpecs;
+    }
+
+    public CodeBlock staticBlock() {
+        return staticBlock;
+    }
+
+    public CodeBlock initializerBlock() {
+        return initializerBlock;
+    }
+
+    public List<MethodSpec> methodSpecs() {
+        return methodSpecs;
+    }
+
+    public List<TypeSpec> typeSpecs() {
+        return typeSpecs;
+    }
+
+    public Set<String> nestedTypesSimpleNames() {
+        return nestedTypesSimpleNames;
+    }
+
+    public List<Element> originatingElements() {
+        return originatingElements;
+    }
+
+    public Set<String> alwaysQualifiedNames() {
+        return alwaysQualifiedNames;
     }
 
     public static Builder classBuilder(String name) {
@@ -194,7 +262,7 @@ public final class TypeSpec {
                 codeWriter.emitJavadoc(javadoc);
                 codeWriter.emitAnnotations(annotations, false);
                 codeWriter.emit("$L", enumName);
-                if (!anonymousTypeArguments.formatParts.isEmpty()) {
+                if (!anonymousTypeArguments.formatParts().isEmpty()) {
                     codeWriter.emit("(");
                     codeWriter.emit(anonymousTypeArguments);
                     codeWriter.emit(")");
@@ -290,7 +358,7 @@ public final class TypeSpec {
 
             // Static fields.
             for (FieldSpec fieldSpec : fieldSpecs) {
-                if (!fieldSpec.hasModifier(Modifier.STATIC)) {
+                if (!fieldSpec.modifiers().contains(Modifier.STATIC)) {
                     continue;
                 }
                 if (!firstMember) {
@@ -310,7 +378,7 @@ public final class TypeSpec {
 
             // Non-static fields.
             for (FieldSpec fieldSpec : fieldSpecs) {
-                if (fieldSpec.hasModifier(Modifier.STATIC)) {
+                if (fieldSpec.modifiers().contains(Modifier.STATIC)) {
                     continue;
                 }
                 if (!firstMember) {
@@ -455,16 +523,16 @@ public final class TypeSpec {
         private final CodeBlock.Builder staticBlock = CodeBlock.builder();
         private final CodeBlock.Builder initializerBlock = CodeBlock.builder();
 
-        public final Map<String, TypeSpec> enumConstants = new LinkedHashMap<>();
-        public final List<AnnotationSpec> annotations = new ArrayList<>();
-        public final List<Modifier> modifiers = new ArrayList<>();
-        public final List<TypeVariableName> typeVariables = new ArrayList<>();
-        public final List<TypeName> superinterfaces = new ArrayList<>();
-        public final List<FieldSpec> fieldSpecs = new ArrayList<>();
-        public final List<MethodSpec> methodSpecs = new ArrayList<>();
-        public final List<TypeSpec> typeSpecs = new ArrayList<>();
-        public final List<Element> originatingElements = new ArrayList<>();
-        public final Set<String> alwaysQualifiedNames = new LinkedHashSet<>();
+        private final Map<String, TypeSpec> enumConstants = new LinkedHashMap<>();
+        private final List<AnnotationSpec> annotations = new ArrayList<>();
+        private final List<Modifier> modifiers = new ArrayList<>();
+        private final List<TypeVariableName> typeVariables = new ArrayList<>();
+        private final List<TypeName> superinterfaces = new ArrayList<>();
+        private final List<FieldSpec> fieldSpecs = new ArrayList<>();
+        private final List<MethodSpec> methodSpecs = new ArrayList<>();
+        private final List<TypeSpec> typeSpecs = new ArrayList<>();
+        private final List<Element> originatingElements = new ArrayList<>();
+        private final Set<String> alwaysQualifiedNames = new LinkedHashSet<>();
 
         private Builder(Kind kind, String name, CodeBlock anonymousTypeArguments) {
             checkArgument(name == null || SourceVersion.isName(name), "not a valid name: %s", name);
@@ -799,61 +867,62 @@ public final class TypeSpec {
 
             for (FieldSpec fieldSpec : fieldSpecs) {
                 if (kind == Kind.INTERFACE || kind == Kind.ANNOTATION) {
-                    requireExactlyOneOf(fieldSpec.modifiers, Modifier.PUBLIC, Modifier.PRIVATE);
+                    requireExactlyOneOf(fieldSpec.modifiers(), Modifier.PUBLIC, Modifier.PRIVATE);
                     Set<Modifier> check = EnumSet.of(Modifier.STATIC, Modifier.FINAL);
                     checkState(
-                            fieldSpec.modifiers.containsAll(check),
+                            fieldSpec.modifiers().containsAll(check),
                             "%s %s.%s requires modifiers %s",
                             kind,
                             name,
-                            fieldSpec.name,
+                            fieldSpec.name(),
                             check);
                 }
             }
 
             for (MethodSpec methodSpec : methodSpecs) {
                 if (kind == Kind.INTERFACE) {
-                    requireExactlyOneOf(methodSpec.modifiers, Modifier.PUBLIC, Modifier.PRIVATE);
-                    if (methodSpec.modifiers.contains(Modifier.PRIVATE)) {
+                    requireExactlyOneOf(methodSpec.modifiers(), Modifier.PUBLIC, Modifier.PRIVATE);
+                    if (methodSpec.modifiers().contains(Modifier.PRIVATE)) {
                         checkState(
-                                !methodSpec.hasModifier(Modifier.DEFAULT),
+                                !methodSpec.modifiers().contains(Modifier.DEFAULT),
                                 "%s %s.%s cannot be private and default",
                                 kind,
                                 name,
-                                methodSpec.name);
+                                methodSpec.name());
                         checkState(
-                                !methodSpec.hasModifier(Modifier.ABSTRACT),
+                                !methodSpec.modifiers().contains(Modifier.ABSTRACT),
                                 "%s %s.%s cannot be private and abstract",
                                 kind,
                                 name,
-                                methodSpec.name);
+                                methodSpec.name());
                     } else {
-                        requireExactlyOneOf(methodSpec.modifiers, Modifier.ABSTRACT, Modifier.STATIC, Modifier.DEFAULT);
+                        requireExactlyOneOf(
+                                methodSpec.modifiers(), Modifier.ABSTRACT, Modifier.STATIC, Modifier.DEFAULT);
                     }
                 } else if (kind == Kind.ANNOTATION) {
                     checkState(
-                            methodSpec.modifiers.equals(kind.implicitMethodModifiers),
+                            methodSpec.modifiers().equals(kind.implicitMethodModifiers),
                             "%s %s.%s requires modifiers %s",
                             kind,
                             name,
-                            methodSpec.name,
+                            methodSpec.name(),
                             kind.implicitMethodModifiers);
                 }
                 if (kind != Kind.ANNOTATION) {
                     checkState(
-                            methodSpec.defaultValue == null,
+                            methodSpec.defaultValue() == null,
                             "%s %s.%s cannot have a default value",
                             kind,
                             name,
-                            methodSpec.name);
+                            methodSpec.name());
                 }
                 if (kind != Kind.INTERFACE) {
                     checkState(
-                            !methodSpec.hasModifier(Modifier.DEFAULT),
+                            !methodSpec.modifiers().contains(Modifier.DEFAULT),
                             "%s %s.%s cannot be default",
                             kind,
                             name,
-                            methodSpec.name);
+                            methodSpec.name());
                 }
             }
 
@@ -870,10 +939,10 @@ public final class TypeSpec {
             boolean isAbstract = modifiers.contains(Modifier.ABSTRACT) || kind != Kind.CLASS;
             for (MethodSpec methodSpec : methodSpecs) {
                 checkArgument(
-                        isAbstract || !methodSpec.hasModifier(Modifier.ABSTRACT),
+                        isAbstract || !methodSpec.modifiers().contains(Modifier.ABSTRACT),
                         "non-abstract type %s cannot declare abstract method %s",
                         name,
-                        methodSpec.name);
+                        methodSpec.name());
             }
 
             boolean superclassIsObject = superclass.equals(ClassName.OBJECT);

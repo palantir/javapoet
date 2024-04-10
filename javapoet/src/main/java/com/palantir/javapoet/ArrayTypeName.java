@@ -28,7 +28,7 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.ArrayType;
 
 public final class ArrayTypeName extends TypeName {
-    public final TypeName componentType;
+    private final TypeName componentType;
 
     private ArrayTypeName(TypeName componentType) {
         this(componentType, new ArrayList<>());
@@ -37,6 +37,10 @@ public final class ArrayTypeName extends TypeName {
     private ArrayTypeName(TypeName componentType, List<AnnotationSpec> annotations) {
         super(annotations);
         this.componentType = checkNotNull(componentType, "rawType == null");
+    }
+
+    public TypeName componentType() {
+        return componentType;
     }
 
     @Override

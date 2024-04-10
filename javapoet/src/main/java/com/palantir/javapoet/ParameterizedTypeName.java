@@ -30,8 +30,8 @@ import java.util.Map;
 
 public final class ParameterizedTypeName extends TypeName {
     private final ParameterizedTypeName enclosingType;
-    public final ClassName rawType;
-    public final List<TypeName> typeArguments;
+    private final ClassName rawType;
+    private final List<TypeName> typeArguments;
 
     ParameterizedTypeName(ParameterizedTypeName enclosingType, ClassName rawType, List<TypeName> typeArguments) {
         this(enclosingType, rawType, typeArguments, new ArrayList<>());
@@ -52,6 +52,18 @@ public final class ParameterizedTypeName extends TypeName {
             checkArgument(
                     !typeArgument.isPrimitive() && typeArgument != VOID, "invalid type parameter: %s", typeArgument);
         }
+    }
+
+    public ParameterizedTypeName enclosingType() {
+        return enclosingType;
+    }
+
+    public ClassName rawType() {
+        return rawType;
+    }
+
+    public List<TypeName> typeArguments() {
+        return typeArguments;
     }
 
     @Override
