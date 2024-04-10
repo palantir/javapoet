@@ -144,8 +144,8 @@ public final class AnnotationSpec {
                     }
                     continue;
                 }
-                if (value instanceof Annotation) {
-                    builder.addMember(method.getName(), "$L", get((Annotation) value));
+                if (value instanceof Annotation annotationValue) {
+                    builder.addMember(method.getName(), "$L", get(annotationValue));
                     continue;
                 }
                 builder.addMemberForValue(method.getName(), value);
@@ -247,20 +247,20 @@ public final class AnnotationSpec {
             if (value instanceof Class<?>) {
                 return addMember(memberName, "$T.class", value);
             }
-            if (value instanceof Enum) {
-                return addMember(memberName, "$T.$L", value.getClass(), ((Enum<?>) value).name());
+            if (value instanceof Enum<?> enumValue) {
+                return addMember(memberName, "$T.$L", value.getClass(), enumValue.name());
             }
-            if (value instanceof String) {
-                return addMember(memberName, "$S", value);
+            if (value instanceof String stringValue) {
+                return addMember(memberName, "$S", stringValue);
             }
-            if (value instanceof Float) {
-                return addMember(memberName, "$Lf", value);
+            if (value instanceof Float floatValue) {
+                return addMember(memberName, "$Lf", floatValue);
             }
-            if (value instanceof Long) {
-                return addMember(memberName, "$LL", value);
+            if (value instanceof Long longValue) {
+                return addMember(memberName, "$LL", longValue);
             }
-            if (value instanceof Character) {
-                return addMember(memberName, "'$L'", characterLiteralWithoutSingleQuotes((char) value));
+            if (value instanceof Character charValue) {
+                return addMember(memberName, "'$L'", characterLiteralWithoutSingleQuotes(charValue));
             }
             return addMember(memberName, "$L", value);
         }

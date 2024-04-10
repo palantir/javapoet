@@ -366,20 +366,20 @@ public final class CodeBlock {
         }
 
         private String argToName(Object o) {
-            if (o instanceof CharSequence) {
-                return o.toString();
+            if (o instanceof CharSequence charSequence) {
+                return charSequence.toString();
             }
-            if (o instanceof ParameterSpec) {
-                return ((ParameterSpec) o).name();
+            if (o instanceof ParameterSpec parameterSpec) {
+                return parameterSpec.name();
             }
-            if (o instanceof FieldSpec) {
-                return ((FieldSpec) o).name();
+            if (o instanceof FieldSpec fieldSpec) {
+                return fieldSpec.name();
             }
-            if (o instanceof MethodSpec) {
-                return ((MethodSpec) o).name();
+            if (o instanceof MethodSpec methodSpec) {
+                return methodSpec.name();
             }
-            if (o instanceof TypeSpec) {
-                return ((TypeSpec) o).name();
+            if (o instanceof TypeSpec typeSpec) {
+                return typeSpec.name();
             }
             throw new IllegalArgumentException("expected name but was " + o);
         }
@@ -393,17 +393,17 @@ public final class CodeBlock {
         }
 
         private TypeName argToType(Object o) {
-            if (o instanceof TypeName) {
+            if (o instanceof TypeName typeName) {
                 return (TypeName) o;
             }
-            if (o instanceof TypeMirror) {
-                return TypeName.get((TypeMirror) o);
+            if (o instanceof TypeMirror typeMirror) {
+                return TypeName.get(typeMirror);
             }
-            if (o instanceof Element) {
-                return TypeName.get(((Element) o).asType());
+            if (o instanceof Element element) {
+                return TypeName.get(element.asType());
             }
-            if (o instanceof Type) {
-                return TypeName.get((Type) o);
+            if (o instanceof Type type) {
+                return TypeName.get(type);
             }
             throw new IllegalArgumentException("expected type but was " + o);
         }

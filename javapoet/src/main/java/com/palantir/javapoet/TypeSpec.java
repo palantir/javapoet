@@ -620,8 +620,8 @@ public final class TypeSpec {
 
         public Builder superclass(TypeMirror superclass, boolean avoidNestedTypeNameClashes) {
             superclass(TypeName.get(superclass));
-            if (avoidNestedTypeNameClashes && superclass instanceof DeclaredType) {
-                TypeElement superInterfaceElement = (TypeElement) ((DeclaredType) superclass).asElement();
+            if (avoidNestedTypeNameClashes && superclass instanceof DeclaredType declaredType) {
+                TypeElement superInterfaceElement = (TypeElement) declaredType.asElement();
                 avoidClashesWithNestedClasses(superInterfaceElement);
             }
             return this;
@@ -662,8 +662,8 @@ public final class TypeSpec {
 
         public Builder addSuperinterface(TypeMirror superinterface, boolean avoidNestedTypeNameClashes) {
             addSuperinterface(TypeName.get(superinterface));
-            if (avoidNestedTypeNameClashes && superinterface instanceof DeclaredType) {
-                TypeElement superInterfaceElement = (TypeElement) ((DeclaredType) superinterface).asElement();
+            if (avoidNestedTypeNameClashes && superinterface instanceof DeclaredType declaredType) {
+                TypeElement superInterfaceElement = (TypeElement) declaredType.asElement();
                 avoidClashesWithNestedClasses(superInterfaceElement);
             }
             return this;
@@ -782,13 +782,13 @@ public final class TypeSpec {
                 alwaysQualify(nestedType.getSimpleName().toString());
             }
             TypeMirror superclass = typeElement.getSuperclass();
-            if (!(superclass instanceof NoType) && superclass instanceof DeclaredType) {
-                TypeElement superclassElement = (TypeElement) ((DeclaredType) superclass).asElement();
+            if (!(superclass instanceof NoType) && superclass instanceof DeclaredType declaredType) {
+                TypeElement superclassElement = (TypeElement) declaredType.asElement();
                 avoidClashesWithNestedClasses(superclassElement);
             }
             for (TypeMirror superinterface : typeElement.getInterfaces()) {
-                if (superinterface instanceof DeclaredType) {
-                    TypeElement superinterfaceElement = (TypeElement) ((DeclaredType) superinterface).asElement();
+                if (superinterface instanceof DeclaredType declaredType) {
+                    TypeElement superinterfaceElement = (TypeElement) declaredType.asElement();
                     avoidClashesWithNestedClasses(superinterfaceElement);
                 }
             }
@@ -955,10 +955,10 @@ public final class TypeSpec {
         }
 
         private static Class<?> getRawType(Type type) {
-            if (type instanceof Class<?>) {
-                return (Class<?>) type;
-            } else if (type instanceof ParameterizedType) {
-                return getRawType(((ParameterizedType) type).getRawType());
+            if (type instanceof Class<?> classType) {
+                return classType;
+            } else if (type instanceof ParameterizedType parameterizedType) {
+                return getRawType(parameterizedType.getRawType());
             } else {
                 return null;
             }

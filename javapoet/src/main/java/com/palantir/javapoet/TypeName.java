@@ -399,17 +399,17 @@ public class TypeName {
             }
             return ClassName.get(classType);
 
-        } else if (type instanceof ParameterizedType) {
-            return ParameterizedTypeName.get((ParameterizedType) type, map);
+        } else if (type instanceof ParameterizedType parameterizedType) {
+            return ParameterizedTypeName.get(parameterizedType, map);
 
-        } else if (type instanceof WildcardType) {
-            return WildcardTypeName.get((WildcardType) type, map);
+        } else if (type instanceof WildcardType wildcardType) {
+            return WildcardTypeName.get(wildcardType, map);
 
-        } else if (type instanceof TypeVariable<?>) {
-            return TypeVariableName.get((TypeVariable<?>) type, map);
+        } else if (type instanceof TypeVariable<?> typeVariable) {
+            return TypeVariableName.get(typeVariable, map);
 
-        } else if (type instanceof GenericArrayType) {
-            return ArrayTypeName.get((GenericArrayType) type, map);
+        } else if (type instanceof GenericArrayType genericArrayType) {
+            return ArrayTypeName.get(genericArrayType, map);
 
         } else {
             throw new IllegalArgumentException("unexpected type: " + type);
