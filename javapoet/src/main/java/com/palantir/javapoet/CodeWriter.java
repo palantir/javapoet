@@ -29,7 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -187,7 +186,7 @@ final class CodeWriter {
             if (implicitModifiers.contains(modifier)) {
                 continue;
             }
-            emitAndIndent(modifier.name().toLowerCase(Locale.US));
+            emitAndIndent(modifier.toString());
             emitAndIndent(" ");
         }
     }

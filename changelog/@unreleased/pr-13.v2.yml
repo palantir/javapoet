@@ -1,0 +1,5 @@
+type: feature
+feature:
+  description: Add support for permitted subclasses.
+  links:
+  - https://github.com/palantir/javapoet/pull/13
