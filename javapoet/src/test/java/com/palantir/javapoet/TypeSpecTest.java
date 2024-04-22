@@ -922,12 +922,12 @@ public final class TypeSpecTest {
         assertThat(toString(anno))
                 .isEqualTo(
                         """
-                                package com.palantir.tacos;
+                        package com.palantir.tacos;
 
-                                @interface Anno {
-                                  int FOO = 101;
-                                }
-                                """);
+                        @interface Anno {
+                          int FOO = 101;
+                        }
+                        """);
     }
 
     @Test
@@ -1298,7 +1298,7 @@ public final class TypeSpecTest {
     @Test
     public void javadoc() {
         TypeSpec taco = TypeSpec.classBuilder("Taco")
-                .addJavadoc("A hard or soft tortilla, loosely folded and filled with whatever {@link \n")
+                .addJavadoc("A hard or soft tortilla, loosely folded and filled with whatever\n")
                 .addJavadoc("{@link $T random} tex-mex stuff we could find in the pantry\n", Random.class)
                 .addJavadoc(CodeBlock.of("and some {@link $T} cheese.\n", String.class))
                 .addField(FieldSpec.builder(boolean.class, "soft")
@@ -1307,10 +1307,10 @@ public final class TypeSpecTest {
                 .addMethod(MethodSpec.methodBuilder("refold")
                         .addJavadoc(
                                 """
-                                        Folds the back of this taco to reduce sauce leakage.
+                                Folds the back of this taco to reduce sauce leakage.
 
-                                        <p>For {@link $T#KOREAN}, the front may also be folded.
-                                        """,
+                                <p>For {@link $T#KOREAN}, the front may also be folded.
+                                """,
                                 Locale.class)
                         .addParameter(Locale.class, "locale")
                         .build())
@@ -1322,12 +1322,14 @@ public final class TypeSpecTest {
                         """
                         package com.palantir.tacos;
 
+                        import java.lang.String;
                         import java.util.Locale;
+                        import java.util.Random;
 
                         /**
-                         * A hard or soft tortilla, loosely folded and filled with whatever {@link\s
-                         * {@link java.util.Random random} tex-mex stuff we could find in the pantry
-                         * and some {@link java.lang.String} cheese.
+                         * A hard or soft tortilla, loosely folded and filled with whatever
+                         * {@link Random random} tex-mex stuff we could find in the pantry
+                         * and some {@link String} cheese.
                          */
                         class Taco {
                           /**
@@ -1864,10 +1866,12 @@ public final class TypeSpecTest {
     @Test
     public void classToString() {
         TypeSpec type = TypeSpec.classBuilder("Taco").build();
-        assertThat(type.toString()).isEqualTo("""
-                class Taco {
-                }
-                """);
+        assertThat(type.toString())
+                .isEqualTo(
+                        """
+                        class Taco {
+                        }
+                        """);
     }
 
     @Test
@@ -1893,20 +1897,22 @@ public final class TypeSpecTest {
     public void interfaceClassToString() {
         TypeSpec type = TypeSpec.interfaceBuilder("Taco").build();
         assertThat(type.toString())
-                .isEqualTo("""
-                interface Taco {
-                }
-                """);
+                .isEqualTo(
+                        """
+                        interface Taco {
+                        }
+                        """);
     }
 
     @Test
     public void annotationDeclarationToString() {
         TypeSpec type = TypeSpec.annotationBuilder("Taco").build();
         assertThat(type.toString())
-                .isEqualTo("""
-                @interface Taco {
-                }
-                """);
+                .isEqualTo(
+                        """
+                        @interface Taco {
+                        }
+                        """);
     }
 
     private String toString(TypeSpec typeSpec) {

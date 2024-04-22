@@ -303,11 +303,11 @@ public final class JavaFileTest {
         assertThat(source)
                 .isEqualTo(
                         """
-                package com.palantir.tacos;
+                        package com.palantir.tacos;
 
-                class Taco {
-                }
-                """);
+                        class Taco {
+                        }
+                        """);
     }
 
     @Test
@@ -597,11 +597,11 @@ public final class JavaFileTest {
         assertThat(source)
                 .isEqualTo(
                         """
-                                package com.palantir.tacos;
+                        package com.palantir.tacos;
 
-                                class Taco extends com.taco.bell.Taco {
-                                }
-                                """);
+                        class Taco extends com.taco.bell.Taco {
+                        }
+                        """);
     }
 
     @Test
@@ -755,11 +755,11 @@ public final class JavaFileTest {
         assertThat(source)
                 .isEqualTo(
                         """
-                package hello;
+                        package hello;
 
-                class World implements Test {
-                }
-                """);
+                        class World implements Test {
+                        }
+                        """);
     }
 
     @Test
