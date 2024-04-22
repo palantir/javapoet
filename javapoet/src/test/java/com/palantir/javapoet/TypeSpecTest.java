@@ -695,6 +695,34 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void classSealed() {
+        TypeSpec typeSpec =
+                TypeSpec.classBuilder("Taco").addModifiers(Modifier.SEALED).build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        sealed class Taco {
+                        }
+                        """);
+    }
+
+    @Test
+    public void classNonSealed() {
+        TypeSpec typeSpec =
+                TypeSpec.classBuilder("Taco").addModifiers(Modifier.NON_SEALED).build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        non-sealed class Taco {
+                        }
+                        """);
+    }
+
+    @Test
     public void classImplementsExtendsPermits() {
         ClassName taco = ClassName.get(tacosPackage, "Taco");
         ClassName food = ClassName.get("com.palantir.tacos", "Food");
@@ -767,6 +795,35 @@ public final class TypeSpecTest {
                           LEAN_GROUND_BEEF,
 
                           SHREDDED_CHEESE
+                        }
+                        """);
+    }
+
+    @Test
+    public void interfaceSealed() {
+        TypeSpec typeSpec =
+                TypeSpec.interfaceBuilder("Taco").addModifiers(Modifier.SEALED).build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        sealed interface Taco {
+                        }
+                        """);
+    }
+
+    @Test
+    public void interfaceNonSealed() {
+        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Taco")
+                .addModifiers(Modifier.NON_SEALED)
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        non-sealed interface Taco {
                         }
                         """);
     }

@@ -290,7 +290,7 @@ public final class TypeSpec {
                 if (kind == Kind.ANNOTATION) {
                     codeWriter.emit("$L $L", "@interface", name);
                 } else {
-                    codeWriter.emit("$L $L", kind.name().toLowerCase(Locale.US), name);
+                    codeWriter.emit("$L $L", kind.toString(), name);
                 }
                 codeWriter.emitTypeVariables(typeVariables);
 
@@ -526,6 +526,11 @@ public final class TypeSpec {
             this.implicitMethodModifiers = implicitMethodModifiers;
             this.implicitTypeModifiers = implicitTypeModifiers;
             this.asMemberModifiers = asMemberModifiers;
+        }
+
+        @Override
+        public String toString() {
+            return name().toLowerCase(Locale.ROOT);
         }
     }
 
