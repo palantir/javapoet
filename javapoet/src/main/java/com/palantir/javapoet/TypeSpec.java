@@ -351,6 +351,18 @@ public final class TypeSpec {
                 }
             }
 
+            if (!permittedSubclasses.isEmpty()) {
+                codeWriter.emit(" permits");
+                boolean firstType = true;
+                for (TypeName type : permittedSubclasses) {
+                    if (!firstType) {
+                        codeWriter.emit(",");
+                    }
+                    codeWriter.emit(" $T", type);
+                    firstType = false;
+                }
+            }
+
             codeWriter.popType();
             codeWriter.emit(" {\n");
         }

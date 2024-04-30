@@ -605,6 +605,42 @@ public final class JavaFileTest {
     }
 
     @Test
+    public void recordWithCompactConstructor() {
+        ParameterSpec name =
+                ParameterSpec.builder(ClassName.get(String.class), "name").build();
+        String source = JavaFile.builder(
+                        "com.palantir.tacos",
+                        TypeSpec.recordBuilder("Taco")
+                                .addRecordComponent(name)
+                                .compactConstructor(MethodSpec.constructorBuilder()
+                                        .addModifiers(Modifier.PUBLIC)
+                                        .addCode(CodeBlock.builder()
+                                                .beginControlFlow("if ($N.isEmpty())", name)
+                                                .addStatement(
+                                                        "throw new $T()", ClassName.get(IllegalArgumentException.class))
+                                                .endControlFlow()
+                                                .build())
+                                        .build())
+                                .build())
+                .skipJavaLangImports(true)
+                .build()
+                .toString();
+        assertThat(source)
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        record Taco(String name) {
+                          public Taco {
+                            if (name.isEmpty()) {
+                              throw new IllegalArgumentException();
+                            }
+                          }
+                        }
+                        """);
+    }
+
+    @Test
     public void skipJavaLangImportsWithConflictingClassLast() {
         // Whatever is used first wins! In this case the Float in java.lang is imported.
         String source = JavaFile.builder(
