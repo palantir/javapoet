@@ -195,16 +195,20 @@ public final class MethodSpec {
         codeWriter.emit(CodeBlock.of("($Z"));
 
         boolean firstParameter = true;
-        for (Iterator<ParameterSpec> i = parameters.iterator(); i.hasNext(); ) {
-            ParameterSpec parameter = i.next();
+        for (Iterator<ParameterSpec> parameterSpec = parameters.iterator(); parameterSpec.hasNext(); ) {
+            ParameterSpec parameter = parameterSpec.next();
             if (!firstParameter) {
                 codeWriter.emit(",").emitWrappingSpace();
             }
-            parameter.emit(codeWriter, !i.hasNext() && varargs);
+            parameter.emit(codeWriter, isVarargs(varargs, parameterSpec));
             firstParameter = false;
         }
 
         codeWriter.emit(")");
+    }
+
+    private static boolean isVarargs(boolean varargs, Iterator<ParameterSpec> parameterSpec) {
+        return !parameterSpec.hasNext() && varargs;
     }
 
     private CodeBlock javadocWithParameters() {

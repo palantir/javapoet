@@ -908,6 +908,30 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void recordWithJavadoc() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .addRecordComponent(ParameterSpec.builder(String.class, "id")
+                        .addJavadoc("Id of the taco.")
+                        .build())
+                .addJavadoc("A taco class that stores the id of a taco.")
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.lang.String;
+
+                        /**
+                         * A taco class that stores the id of a taco.
+                         * @param id Id of the taco.
+                         */
+                        record Taco(String id) {
+                        }
+                        """);
+    }
+
+    @Test
     public void nestedClasses() {
         ClassName taco = ClassName.get(tacosPackage, "Combo", "Taco");
         ClassName topping = ClassName.get(tacosPackage, "Combo", "Taco", "Topping");
