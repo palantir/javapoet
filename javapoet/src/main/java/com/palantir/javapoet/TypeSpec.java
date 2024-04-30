@@ -66,6 +66,9 @@ public final class TypeSpec {
     private final Set<String> nestedTypesSimpleNames;
     private final List<Element> originatingElements;
     private final Set<String> alwaysQualifiedNames;
+    private final List<ParameterSpec> recordComponents;
+    private final boolean varargs;
+    private final MethodSpec compactConstructor;
 
     private TypeSpec(Builder builder) {
         this.kind = builder.kind;
@@ -85,6 +88,9 @@ public final class TypeSpec {
         this.methodSpecs = Util.immutableList(builder.methodSpecs);
         this.typeSpecs = Util.immutableList(builder.typeSpecs);
         this.alwaysQualifiedNames = Util.immutableSet(builder.alwaysQualifiedNames);
+        this.recordComponents = Util.immutableList(builder.recordComponents);
+        this.varargs = builder.varargs;
+        this.compactConstructor = builder.compactConstructor;
 
         nestedTypesSimpleNames = new HashSet<>();
         List<Element> originatingElementsMutable = new ArrayList<>();
@@ -121,6 +127,9 @@ public final class TypeSpec {
         this.originatingElements = Collections.emptyList();
         this.nestedTypesSimpleNames = Collections.emptySet();
         this.alwaysQualifiedNames = Collections.emptySet();
+        this.recordComponents = Collections.emptyList();
+        this.varargs = false;
+        this.compactConstructor = null;
     }
 
     public Kind kind() {
@@ -263,101 +272,102 @@ public final class TypeSpec {
         return builder;
     }
 
+    /**
+     * Emits the header of the type spec and returns if the body should be emitted.
+     */
+    private boolean emitHeader(CodeWriter codeWriter, String enumName, Set<Modifier> implicitModifiers)
+            throws IOException {
+        if (enumName != null) {
+            codeWriter.emitJavadoc(javadoc);
+            codeWriter.emitAnnotations(annotations, false);
+            codeWriter.emit("$L", enumName);
+            if (!anonymousTypeArguments.formatParts().isEmpty()) {
+                codeWriter.emit("(");
+                codeWriter.emit(anonymousTypeArguments);
+                codeWriter.emit(")");
+            }
+            if (fieldSpecs.isEmpty() && methodSpecs.isEmpty() && typeSpecs.isEmpty()) {
+                return false; // Avoid unnecessary braces "{}".
+            }
+            codeWriter.emit(" {\n");
+        } else if (anonymousTypeArguments != null) {
+            TypeName supertype = !superinterfaces.isEmpty() ? superinterfaces.get(0) : superclass;
+            codeWriter.emit("new $T(", supertype);
+            codeWriter.emit(anonymousTypeArguments);
+            codeWriter.emit(") {\n");
+        } else {
+            // Push an empty type (specifically without nested types) for type-resolution.
+            codeWriter.pushType(new TypeSpec(this));
+
+            codeWriter.emitJavadoc(
+                    kind == Kind.RECORD ? MethodSpec.makeJavadocWithParameters(javadoc, recordComponents) : javadoc);
+            codeWriter.emitAnnotations(annotations, false);
+            codeWriter.emitModifiers(modifiers, Util.union(implicitModifiers, kind.asMemberModifiers));
+            if (kind == Kind.ANNOTATION) {
+                codeWriter.emit("$L $L", "@interface", name);
+            } else {
+                codeWriter.emit("$L $L", kind.name().toLowerCase(Locale.US), name);
+            }
+            codeWriter.emitTypeVariables(typeVariables);
+
+            // Record components.
+            if (kind == Kind.RECORD) {
+                MethodSpec.emitParameters(codeWriter, recordComponents, varargs);
+            }
+
+            List<TypeName> extendsTypes;
+            List<TypeName> implementsTypes;
+            if (kind == Kind.INTERFACE) {
+                extendsTypes = superinterfaces;
+                implementsTypes = Collections.emptyList();
+            } else {
+                extendsTypes = superclass.equals(ClassName.OBJECT)
+                        ? Collections.emptyList()
+                        : Collections.singletonList(superclass);
+                implementsTypes = superinterfaces;
+            }
+
+            if (!extendsTypes.isEmpty()) {
+                codeWriter.emit(" extends");
+                boolean firstType = true;
+                for (TypeName type : extendsTypes) {
+                    if (!firstType) {
+                        codeWriter.emit(",");
+                    }
+                    codeWriter.emit(" $T", type);
+                    firstType = false;
+                }
+            }
+
+            if (!implementsTypes.isEmpty()) {
+                codeWriter.emit(" implements");
+                boolean firstType = true;
+                for (TypeName type : implementsTypes) {
+                    if (!firstType) {
+                        codeWriter.emit(",");
+                    }
+                    codeWriter.emit(" $T", type);
+                    firstType = false;
+                }
+            }
+
+            codeWriter.popType();
+            codeWriter.emit(" {\n");
+        }
+
+        return true;
+    }
+
     void emit(CodeWriter codeWriter, String enumName, Set<Modifier> implicitModifiers) throws IOException {
-        // Nested classes interrupt wrapped line indentation. Stash the current wrapping state and put
+        // Nested classes interrupt wrapped line indentation.
+        // Stash the current wrapping state and put
         // it back afterwards when this type is complete.
         int previousStatementLine = codeWriter.statementLine;
         codeWriter.statementLine = -1;
 
         try {
-            if (enumName != null) {
-                codeWriter.emitJavadoc(javadoc);
-                codeWriter.emitAnnotations(annotations, false);
-                codeWriter.emit("$L", enumName);
-                if (!anonymousTypeArguments.formatParts().isEmpty()) {
-                    codeWriter.emit("(");
-                    codeWriter.emit(anonymousTypeArguments);
-                    codeWriter.emit(")");
-                }
-                if (fieldSpecs.isEmpty() && methodSpecs.isEmpty() && typeSpecs.isEmpty()) {
-                    return; // Avoid unnecessary braces "{}".
-                }
-                codeWriter.emit(" {\n");
-            } else if (anonymousTypeArguments != null) {
-                TypeName supertype = !superinterfaces.isEmpty() ? superinterfaces.get(0) : superclass;
-                codeWriter.emit("new $T(", supertype);
-                codeWriter.emit(anonymousTypeArguments);
-                codeWriter.emit(") {\n");
-            } else {
-                // Push an empty type (specifically without nested types) for type-resolution.
-                codeWriter.pushType(new TypeSpec(this));
-
-                codeWriter.emitJavadoc(javadoc);
-                codeWriter.emitAnnotations(annotations, false);
-                codeWriter.emitModifiers(modifiers, Util.union(implicitModifiers, kind.asMemberModifiers));
-                if (kind == Kind.ANNOTATION) {
-                    codeWriter.emit("$L $L", "@interface", name);
-                } else {
-                    codeWriter.emit("$L $L", kind.toString(), name);
-                }
-                codeWriter.emitTypeVariables(typeVariables);
-
-                List<TypeName> extendsTypes;
-                List<TypeName> implementsTypes;
-                if (kind == Kind.INTERFACE) {
-                    extendsTypes = superinterfaces;
-                    implementsTypes = Collections.emptyList();
-                } else if (kind == Kind.RECORD) {
-                    extendsTypes = Collections.emptyList();
-                    implementsTypes = superinterfaces;
-                    // Record constructor
-                    emitRecordConstructor(codeWriter);
-                } else {
-                    extendsTypes = superclass.equals(ClassName.OBJECT)
-                            ? Collections.emptyList()
-                            : Collections.singletonList(superclass);
-                    implementsTypes = superinterfaces;
-                }
-
-                if (!extendsTypes.isEmpty()) {
-                    codeWriter.emit(" extends");
-                    boolean firstType = true;
-                    for (TypeName type : extendsTypes) {
-                        if (!firstType) {
-                            codeWriter.emit(",");
-                        }
-                        codeWriter.emit(" $T", type);
-                        firstType = false;
-                    }
-                }
-
-                if (!implementsTypes.isEmpty()) {
-                    codeWriter.emit(" implements");
-                    boolean firstType = true;
-                    for (TypeName type : implementsTypes) {
-                        if (!firstType) {
-                            codeWriter.emit(",");
-                        }
-                        codeWriter.emit(" $T", type);
-                        firstType = false;
-                    }
-                }
-
-                if (!permittedSubclasses.isEmpty()) {
-                    codeWriter.emit(" permits");
-                    boolean firstType = true;
-                    for (TypeName type : permittedSubclasses) {
-                        if (!firstType) {
-                            codeWriter.emit(",");
-                        }
-                        codeWriter.emit(" $T", type);
-                        firstType = false;
-                    }
-                }
-
-                codeWriter.popType();
-
-                codeWriter.emit(" {\n");
+            if (!emitHeader(codeWriter, enumName, implicitModifiers)) {
+                return;
             }
 
             codeWriter.pushType(this);
@@ -406,58 +416,50 @@ public final class TypeSpec {
             }
 
             // Non-static fields.
-            // If kind RECORD, ignore generate Non-static field, records remove the need for them.
-            if (!(Kind.RECORD == kind)) {
-                for (FieldSpec fieldSpec : fieldSpecs) {
-                    if (fieldSpec.modifiers().contains(Modifier.STATIC)) {
-                        continue;
-                    }
-                    if (!firstMember) {
-                        codeWriter.emit("\n");
-                    }
-                    fieldSpec.emit(codeWriter, kind.implicitFieldModifiers);
-                    firstMember = false;
+            for (FieldSpec fieldSpec : fieldSpecs) {
+                if (fieldSpec.modifiers().contains(Modifier.STATIC)) {
+                    continue;
                 }
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
+                fieldSpec.emit(codeWriter, kind.implicitFieldModifiers);
+                firstMember = false;
             }
 
             // Initializer block.
             if (!initializerBlock.isEmpty()) {
-                if (!firstMember) {
-                    codeWriter.emit("\n");
-                }
+                if (!firstMember) codeWriter.emit("\n");
                 codeWriter.emit(initializerBlock);
+                firstMember = false;
+            }
+
+            // Compact constructor.
+            if (compactConstructor != null) {
+                if (!firstMember) codeWriter.emit("\n");
+                compactConstructor.emit(codeWriter, name, kind.implicitMethodModifiers, true);
                 firstMember = false;
             }
 
             // Constructors.
             for (MethodSpec methodSpec : methodSpecs) {
-                if (!methodSpec.isConstructor()) {
-                    continue;
-                }
-                if (!firstMember) {
-                    codeWriter.emit("\n");
-                }
-                methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers);
+                if (!methodSpec.isConstructor()) continue;
+                if (!firstMember) codeWriter.emit("\n");
+                methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers, false);
                 firstMember = false;
             }
 
             // Methods (static and non-static).
             for (MethodSpec methodSpec : methodSpecs) {
-                if (methodSpec.isConstructor()) {
-                    continue;
-                }
-                if (!firstMember) {
-                    codeWriter.emit("\n");
-                }
-                methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers);
+                if (methodSpec.isConstructor()) continue;
+                if (!firstMember) codeWriter.emit("\n");
+                methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers, false);
                 firstMember = false;
             }
 
             // Types.
             for (TypeSpec typeSpec : typeSpecs) {
-                if (!firstMember) {
-                    codeWriter.emit("\n");
-                }
+                if (!firstMember) codeWriter.emit("\n");
                 typeSpec.emit(codeWriter, null, kind.implicitTypeModifiers);
                 firstMember = false;
             }
@@ -473,28 +475,6 @@ public final class TypeSpec {
         } finally {
             codeWriter.statementLine = previousStatementLine;
         }
-    }
-
-    /**
-     * Emits the constructor parameters for a record type. i.e. {@code (String name, int count)}.
-     */
-    private void emitRecordConstructor(CodeWriter codeWriter) throws IOException {
-        codeWriter.emit("(");
-        // Only include non-static fields in the constructor.
-        List<FieldSpec> nonStaticFields = fieldSpecs.stream()
-                .filter(field -> !field.modifiers().contains(Modifier.STATIC))
-                .toList();
-        boolean firstParameter = true;
-        for (FieldSpec fieldSpec : nonStaticFields) {
-            ParameterSpec parameter =
-                    ParameterSpec.builder(fieldSpec.type(), fieldSpec.name()).build();
-            if (!firstParameter) {
-                codeWriter.emit(",").emitWrappingSpace();
-            }
-            parameter.emit(codeWriter, false);
-            firstParameter = false;
-        }
-        codeWriter.emit(")");
     }
 
     @Override
@@ -595,6 +575,10 @@ public final class TypeSpec {
         private final List<TypeSpec> typeSpecs = new ArrayList<>();
         private final List<Element> originatingElements = new ArrayList<>();
         private final Set<String> alwaysQualifiedNames = new LinkedHashSet<>();
+
+        private final List<ParameterSpec> recordComponents = new ArrayList<>();
+        private boolean varargs;
+        private MethodSpec compactConstructor;
 
         private Builder(Kind kind, String name, CodeBlock anonymousTypeArguments) {
             checkArgument(name == null || SourceVersion.isName(name), "not a valid name: %s", name);
@@ -728,6 +712,52 @@ public final class TypeSpec {
                 TypeElement superInterfaceElement = (TypeElement) declaredType.asElement();
                 avoidClashesWithNestedClasses(superInterfaceElement);
             }
+            return this;
+        }
+
+        public Builder addRecordComponents(Iterable<ParameterSpec> parameterSpecs) {
+            checkArgument(parameterSpecs != null, "fieldSpecs == null");
+            for (ParameterSpec parameterSpec : parameterSpecs) {
+                addRecordComponent(parameterSpec);
+            }
+            return this;
+        }
+
+        public Builder addRecordComponent(ParameterSpec parameterSpec) {
+            recordComponents.add(parameterSpec);
+            return this;
+        }
+
+        public Builder varargs() {
+            return varargs(true);
+        }
+
+        public Builder varargs(boolean varargs) {
+            this.varargs = varargs;
+            return this;
+        }
+
+        /**
+         * Sets the compact constructor for this builder. Its parameters are solely used for javadoc
+         * generation.
+         */
+        public Builder compactConstructor(MethodSpec methodSpec) {
+            if (kind != Kind.RECORD) {
+                throw new UnsupportedOperationException(kind + " can't have compact constructors");
+            }
+
+            checkState(compactConstructor == null, "%s already has a compact constructor", name);
+
+            checkState(methodSpec.name().equals(MethodSpec.CONSTRUCTOR), "compact constructor is not a constructor");
+            EnumSet<Modifier> possibleModifiers = EnumSet.of(Modifier.PUBLIC, Modifier.PROTECTED, Modifier.PRIVATE);
+            checkState(
+                    possibleModifiers.containsAll(methodSpec.modifiers()),
+                    "compact constructor has non-access modifiers");
+            checkState(methodSpec.modifiers().size() <= 1, "compact constructor has too many access modifiers");
+            checkState(methodSpec.typeVariables().isEmpty(), "compact constructor has type variables");
+            checkState(methodSpec.exceptions().isEmpty(), "compact constructor has exceptions");
+            checkState(methodSpec.defaultValue() == null, "compact constructor has a default value");
+            compactConstructor = methodSpec;
             return this;
         }
 
@@ -953,6 +983,17 @@ public final class TypeSpec {
                 }
             }
 
+            if (kind == Kind.RECORD) {
+                checkState(!modifiers.contains(Modifier.ABSTRACT), "abstract record");
+            }
+
+            if (!recordComponents.isEmpty()) {
+                checkState(kind == Kind.RECORD, "%s is not record", this.name);
+                for (ParameterSpec recordComponent : recordComponents) {
+                    checkState(recordComponent != null, "recordComponents contain null");
+                    checkState(recordComponent.modifiers().isEmpty(), "recordComponents has modifier");
+                }
+            }
             for (TypeName superinterface : superinterfaces) {
                 checkArgument(superinterface != null, "superinterfaces contains null");
             }
@@ -987,6 +1028,15 @@ public final class TypeSpec {
                             name,
                             fieldSpec.name(),
                             check);
+                }
+
+                if (kind == Kind.RECORD) {
+                    checkState(
+                            fieldSpec.modifiers().contains(Modifier.STATIC),
+                            "%s %s.%s must be static",
+                            kind,
+                            name,
+                            fieldSpec.name());
                 }
             }
 
@@ -1035,6 +1085,14 @@ public final class TypeSpec {
                             name,
                             methodSpec.name());
                 }
+                if (kind == Kind.RECORD) {
+                    checkState(
+                            !methodSpec.modifiers().contains(Modifier.NATIVE),
+                            "%s %s.%s cannot be native",
+                            kind,
+                            name,
+                            methodSpec.name());
+                }
             }
 
             for (TypeSpec typeSpec : typeSpecs) {
@@ -1047,7 +1105,7 @@ public final class TypeSpec {
                         kind.implicitTypeModifiers);
             }
 
-            boolean isAbstract = modifiers.contains(Modifier.ABSTRACT) || kind != Kind.CLASS;
+            boolean isAbstract = modifiers.contains(Modifier.ABSTRACT) || (kind != Kind.CLASS && kind != Kind.RECORD);
             for (MethodSpec methodSpec : methodSpecs) {
                 checkArgument(
                         isAbstract || !methodSpec.modifiers().contains(Modifier.ABSTRACT),

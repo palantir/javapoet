@@ -42,7 +42,7 @@ import javax.lang.model.util.Types;
 
 /** A generated constructor or method declaration. */
 public final class MethodSpec {
-    private static final String CONSTRUCTOR = "<init>";
+    public static final String CONSTRUCTOR = "<init>";
 
     private final String name;
     private final CodeBlock javadoc;
@@ -133,7 +133,8 @@ public final class MethodSpec {
                 && TypeName.asArray(parameters.get(parameters.size() - 1).type()) != null;
     }
 
-    void emit(CodeWriter codeWriter, String enclosingName, Set<Modifier> implicitModifiers) throws IOException {
+    void emit(CodeWriter codeWriter, String enclosingName, Set<Modifier> implicitModifiers, boolean compactConstructor)
+            throws IOException {
         codeWriter.emitJavadoc(javadocWithParameters());
         codeWriter.emitAnnotations(annotations, false);
         codeWriter.emitModifiers(modifiers, implicitModifiers);
@@ -143,23 +144,16 @@ public final class MethodSpec {
             codeWriter.emit(" ");
         }
 
-        if (isConstructor()) {
-            codeWriter.emit("$L($Z", enclosingName);
+        if (compactConstructor) {
+            codeWriter.emit("$L", enclosingName);
         } else {
-            codeWriter.emit("$T $L($Z", returnType, name);
-        }
-
-        boolean firstParameter = true;
-        for (Iterator<ParameterSpec> i = parameters.iterator(); i.hasNext(); ) {
-            ParameterSpec parameter = i.next();
-            if (!firstParameter) {
-                codeWriter.emit(",").emitWrappingSpace();
+            if (isConstructor()) {
+                codeWriter.emit("$L", enclosingName);
+            } else {
+                codeWriter.emit("$T $L", returnType, name);
             }
-            parameter.emit(codeWriter, !i.hasNext() && varargs);
-            firstParameter = false;
+            emitParameters(codeWriter, parameters, varargs);
         }
-
-        codeWriter.emit(")");
 
         if (defaultValue != null && !defaultValue.isEmpty()) {
             codeWriter.emit(" default ");
@@ -196,7 +190,28 @@ public final class MethodSpec {
         codeWriter.popTypeVariables(typeVariables);
     }
 
+    static void emitParameters(CodeWriter codeWriter, Iterable<ParameterSpec> parameters, boolean varargs)
+            throws IOException {
+        codeWriter.emit(CodeBlock.of("($Z"));
+
+        boolean firstParameter = true;
+        for (Iterator<ParameterSpec> i = parameters.iterator(); i.hasNext(); ) {
+            ParameterSpec parameter = i.next();
+            if (!firstParameter) {
+                codeWriter.emit(",").emitWrappingSpace();
+            }
+            parameter.emit(codeWriter, !i.hasNext() && varargs);
+            firstParameter = false;
+        }
+
+        codeWriter.emit(")");
+    }
+
     private CodeBlock javadocWithParameters() {
+        return makeJavadocWithParameters(javadoc, parameters);
+    }
+
+    static CodeBlock makeJavadocWithParameters(CodeBlock javadoc, Iterable<ParameterSpec> parameters) {
         CodeBlock.Builder builder = javadoc.toBuilder();
         boolean emitTagNewline = true;
         for (ParameterSpec parameterSpec : parameters) {
@@ -236,7 +251,7 @@ public final class MethodSpec {
         StringBuilder out = new StringBuilder();
         try {
             CodeWriter codeWriter = new CodeWriter(out);
-            emit(codeWriter, "Constructor", Collections.emptySet());
+            emit(codeWriter, "Constructor", Collections.emptySet(), false);
             return out.toString();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

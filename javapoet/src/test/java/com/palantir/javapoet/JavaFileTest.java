@@ -410,8 +410,8 @@ public final class JavaFileTest {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addField(
-                                        FieldSpec.builder(String.class, "name").build())
+                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
+                                        .build())
                                 .build())
                 .skipJavaLangImports(true)
                 .build()
@@ -427,14 +427,41 @@ public final class JavaFileTest {
     }
 
     @Test
+    public void recordOneFieldWithGeneric() {
+        String source = JavaFile.builder(
+                        "com.palantir.tacos",
+                        TypeSpec.recordBuilder("Taco")
+                                .addTypeVariable(TypeVariableName.get("T"))
+                                .addRecordComponent(ParameterSpec.builder(
+                                                ParameterizedTypeName.get(
+                                                        ClassName.get(List.class), TypeVariableName.get("T")),
+                                                "names")
+                                        .build())
+                                .build())
+                .skipJavaLangImports(true)
+                .build()
+                .toString();
+        assertThat(source)
+                .isEqualTo(
+                        """
+                               package com.palantir.tacos;
+
+                               import java.util.List;
+
+                               record Taco<T>(List<T> names) {
+                               }
+                               """);
+    }
+
+    @Test
     public void recordTwoField() {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addField(
-                                        FieldSpec.builder(String.class, "name").build())
-                                .addField(
-                                        FieldSpec.builder(Integer.class, "code").build())
+                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
+                                        .build())
+                                .addRecordComponent(ParameterSpec.builder(Integer.class, "code")
+                                        .build())
                                 .build())
                 .skipJavaLangImports(true)
                 .build()
@@ -454,8 +481,8 @@ public final class JavaFileTest {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addField(
-                                        FieldSpec.builder(String.class, "name").build())
+                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
+                                        .build())
                                 .addSuperinterface(Serializable.class)
                                 .build())
                 .skipJavaLangImports(true)
@@ -478,8 +505,8 @@ public final class JavaFileTest {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addField(
-                                        FieldSpec.builder(String.class, "name").build())
+                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
+                                        .build())
                                 .addAnnotation(Deprecated.class)
                                 .build())
                 .skipJavaLangImports(true)
@@ -501,8 +528,8 @@ public final class JavaFileTest {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addField(
-                                        FieldSpec.builder(String.class, "name").build())
+                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
+                                        .build())
                                 .addMethod(MethodSpec.methodBuilder("name")
                                         .returns(String.class)
                                         .addStatement("return name")
@@ -525,14 +552,40 @@ public final class JavaFileTest {
     }
 
     @Test
-    public void recordTwoFieldWhereOneIsStatic() {
+    public void recordWithVarArgs() {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addField(
-                                        FieldSpec.builder(String.class, "name").build())
-                                .addField(FieldSpec.builder(Integer.class, "CODE")
-                                        .addModifiers(Modifier.STATIC)
+                                .addRecordComponent(ParameterSpec.builder(String.class, "id")
+                                        .build())
+                                .addRecordComponent(
+                                        ParameterSpec.builder(ArrayTypeName.of(ClassName.get(String.class)), "names")
+                                                .build())
+                                .varargs()
+                                .build())
+                .skipJavaLangImports(true)
+                .build()
+                .toString();
+        assertThat(source)
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        record Taco(String id, String... names) {
+                        }
+                        """);
+    }
+
+    @Test
+    public void secondaryConstructorRecord() {
+        String source = JavaFile.builder(
+                        "com.palantir.tacos",
+                        TypeSpec.recordBuilder("Taco")
+                                .addRecordComponent(ParameterSpec.builder(ClassName.get(String.class), "name")
+                                        .build())
+                                .addMethod(MethodSpec.constructorBuilder()
+                                        .addParameter(TypeName.INT, "number")
+                                        .addCode("this.name = $T.toString(number);", ClassName.get(Integer.class))
                                         .build())
                                 .build())
                 .skipJavaLangImports(true)
@@ -544,7 +597,9 @@ public final class JavaFileTest {
                         package com.palantir.tacos;
 
                         record Taco(String name) {
-                          static Integer CODE;
+                          Taco(int number) {
+                            this.name = Integer.toString(number);
+                          }
                         }
                         """);
     }
