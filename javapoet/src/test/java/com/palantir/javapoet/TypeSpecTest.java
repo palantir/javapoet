@@ -38,6 +38,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -927,6 +928,26 @@ public final class TypeSpecTest {
                          * @param id Id of the taco.
                          */
                         record Taco(String id) {
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordWithAnnotationOnParam() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .addRecordComponent(ParameterSpec.builder(String.class, "id")
+                        .addAnnotation(NotNull.class)
+                        .build())
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.lang.String;
+                        import org.jetbrains.annotations.NotNull;
+
+                        record Taco(@NotNull String id) {
                         }
                         """);
     }
