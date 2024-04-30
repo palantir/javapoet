@@ -429,37 +429,51 @@ public final class TypeSpec {
 
             // Initializer block.
             if (!initializerBlock.isEmpty()) {
-                if (!firstMember) codeWriter.emit("\n");
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 codeWriter.emit(initializerBlock);
                 firstMember = false;
             }
 
             // Compact constructor.
             if (compactConstructor != null) {
-                if (!firstMember) codeWriter.emit("\n");
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 compactConstructor.emit(codeWriter, name, kind.implicitMethodModifiers, true);
                 firstMember = false;
             }
 
             // Constructors.
             for (MethodSpec methodSpec : methodSpecs) {
-                if (!methodSpec.isConstructor()) continue;
-                if (!firstMember) codeWriter.emit("\n");
+                if (!methodSpec.isConstructor()) {
+                    continue;
+                }
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers, false);
                 firstMember = false;
             }
 
             // Methods (static and non-static).
             for (MethodSpec methodSpec : methodSpecs) {
-                if (methodSpec.isConstructor()) continue;
-                if (!firstMember) codeWriter.emit("\n");
+                if (methodSpec.isConstructor()) {
+                    continue;
+                }
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers, false);
                 firstMember = false;
             }
 
             // Types.
             for (TypeSpec typeSpec : typeSpecs) {
-                if (!firstMember) codeWriter.emit("\n");
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
                 typeSpec.emit(codeWriter, null, kind.implicitTypeModifiers);
                 firstMember = false;
             }
