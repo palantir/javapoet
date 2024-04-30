@@ -852,6 +852,62 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void recordOneField() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .addRecordComponent(ParameterSpec.builder(String.class, "name").build())
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                               package com.palantir.tacos;
+
+                               import java.lang.String;
+
+                               record Taco(String name) {
+                               }
+                               """);
+    }
+
+    @Test
+    public void recordTwoFields() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .addRecordComponent(ParameterSpec.builder(String.class, "name").build())
+                .addRecordComponent(ParameterSpec.builder(Integer.class, "size").build())
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                               package com.palantir.tacos;
+
+                               import java.lang.Integer;
+                               import java.lang.String;
+
+                               record Taco(String name, Integer size) {
+                               }
+                               """);
+    }
+
+    @Test
+    public void recordWithVarArgs() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .addRecordComponent(ParameterSpec.builder(String.class, "id").build())
+                .addRecordComponent(ParameterSpec.builder(ArrayTypeName.of(ClassName.get(String.class)), "names")
+                        .build())
+                .varargs()
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.lang.String;
+
+                        record Taco(String id, String... names) {
+                        }
+                        """);
+    }
+
+    @Test
     public void nestedClasses() {
         ClassName taco = ClassName.get(tacosPackage, "Combo", "Taco");
         ClassName topping = ClassName.get(tacosPackage, "Combo", "Taco", "Topping");
