@@ -398,11 +398,11 @@ public final class JavaFileTest {
         assertThat(source)
                 .isEqualTo(
                         """
-                               package com.palantir.tacos;
+                        package com.palantir.tacos;
 
-                               record Taco() {
-                               }
-                               """);
+                        record Taco() {
+                        }
+                        """);
     }
 
     @Test
@@ -425,13 +425,13 @@ public final class JavaFileTest {
         assertThat(source)
                 .isEqualTo(
                         """
-                               package com.palantir.tacos;
+                        package com.palantir.tacos;
 
-                               import java.util.List;
+                        import java.util.List;
 
-                               record Taco<T>(List<T> names) {
-                               }
-                               """);
+                        record Taco<T>(List<T> names) {
+                        }
+                        """);
     }
 
     @Test
@@ -451,13 +451,13 @@ public final class JavaFileTest {
         assertThat(source)
                 .isEqualTo(
                         """
-                               package com.palantir.tacos;
+                        package com.palantir.tacos;
 
-                               import java.io.Serializable;
+                        import java.io.Serializable;
 
-                               record Taco(String name) implements Serializable {
-                               }
-                               """);
+                        record Taco(String name) implements Serializable {
+                        }
+                        """);
     }
 
     @Test
@@ -477,12 +477,12 @@ public final class JavaFileTest {
         assertThat(source)
                 .isEqualTo(
                         """
-                               package com.palantir.tacos;
+                        package com.palantir.tacos;
 
-                               @Deprecated
-                               record Taco(String name) {
-                               }
-                               """);
+                        @Deprecated
+                        record Taco(String name) {
+                        }
+                        """);
     }
 
     @Test
