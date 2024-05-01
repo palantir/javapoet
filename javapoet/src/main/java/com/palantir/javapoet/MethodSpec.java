@@ -53,7 +53,6 @@ public final class MethodSpec {
     private final List<TypeName> exceptions;
     private final CodeBlock code;
     private final CodeBlock defaultValue;
-
     private final boolean compactConstructor;
 
     private MethodSpec(Builder builder) {
