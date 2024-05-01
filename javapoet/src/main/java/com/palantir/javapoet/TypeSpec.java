@@ -266,108 +266,6 @@ public final class TypeSpec {
         return builder;
     }
 
-    private boolean emitHeader(CodeWriter codeWriter, String enumName, Set<Modifier> implicitModifiers)
-            throws IOException {
-        if (enumName != null) {
-            codeWriter.emitJavadoc(javadoc);
-            codeWriter.emitAnnotations(annotations, false);
-            codeWriter.emit("$L", enumName);
-            if (!anonymousTypeArguments.formatParts().isEmpty()) {
-                codeWriter.emit("(");
-                codeWriter.emit(anonymousTypeArguments);
-                codeWriter.emit(")");
-            }
-            if (fieldSpecs.isEmpty() && methodSpecs.isEmpty() && typeSpecs.isEmpty()) {
-                return false; // Avoid unnecessary braces "{}".
-            }
-            codeWriter.emit(" {\n");
-        } else if (anonymousTypeArguments != null) {
-            TypeName supertype = !superinterfaces.isEmpty() ? superinterfaces.get(0) : superclass;
-            codeWriter.emit("new $T(", supertype);
-            codeWriter.emit(anonymousTypeArguments);
-            codeWriter.emit(") {\n");
-        } else {
-            // Push an empty type (specifically without nested types) for type-resolution.
-            codeWriter.pushType(new TypeSpec(this));
-
-            codeWriter.emitJavadoc(
-                    kind == Kind.RECORD && recordConstructor != null
-                            ? MethodSpec.makeJavadocWithParameters(javadoc, recordConstructor.parameters())
-                            : javadoc);
-            codeWriter.emitAnnotations(annotations, false);
-            codeWriter.emitModifiers(modifiers, Util.union(implicitModifiers, kind.asMemberModifiers));
-            if (kind == Kind.ANNOTATION) {
-                codeWriter.emit("$L $L", "@interface", name);
-            } else {
-                codeWriter.emit("$L $L", kind.name().toLowerCase(Locale.US), name);
-            }
-            codeWriter.emitTypeVariables(typeVariables);
-
-            if (kind == Kind.RECORD) {
-                if (recordConstructor != null) {
-                    codeWriter.emitParameters(recordConstructor.parameters(), recordConstructor.varargs());
-                } else {
-                    // If there is no constructor then emit an empty parameter list.
-                    codeWriter.emitParameters(List.of(), false);
-                }
-            }
-
-            List<TypeName> extendsTypes;
-            List<TypeName> implementsTypes;
-            if (kind == Kind.INTERFACE) {
-                extendsTypes = superinterfaces;
-                implementsTypes = Collections.emptyList();
-            } else {
-                extendsTypes = superclass.equals(ClassName.OBJECT)
-                        ? Collections.emptyList()
-                        : Collections.singletonList(superclass);
-                implementsTypes = superinterfaces;
-            }
-
-            if (!extendsTypes.isEmpty()) {
-                codeWriter.emit(" extends");
-                boolean firstType = true;
-                for (TypeName type : extendsTypes) {
-                    if (!firstType) {
-                        codeWriter.emit(",");
-                    }
-                    codeWriter.emit(" $T", type);
-                    firstType = false;
-                }
-            }
-
-            if (!implementsTypes.isEmpty()) {
-                codeWriter.emit(" implements");
-                boolean firstType = true;
-                for (TypeName type : implementsTypes) {
-                    if (!firstType) {
-                        codeWriter.emit(",");
-                    }
-                    codeWriter.emit(" $T", type);
-                    firstType = false;
-                }
-            }
-
-            if (!permittedSubclasses.isEmpty()) {
-                codeWriter.emit(" permits");
-                boolean firstType = true;
-                for (TypeName type : permittedSubclasses) {
-                    if (!firstType) {
-                        codeWriter.emit(",");
-                    }
-                    codeWriter.emit(" $T", type);
-                    firstType = false;
-                }
-            }
-
-            codeWriter.popType();
-
-            codeWriter.emit(" {\n");
-        }
-
-        return true;
-    }
-
     void emit(CodeWriter codeWriter, String enumName, Set<Modifier> implicitModifiers) throws IOException {
         // Nested classes interrupt wrapped line indentation. Stash the current wrapping state and put
         // it back afterwards when this type is complete.
@@ -375,8 +273,101 @@ public final class TypeSpec {
         codeWriter.statementLine = -1;
 
         try {
-            if (!emitHeader(codeWriter, enumName, implicitModifiers)) {
-                return;
+            if (enumName != null) {
+                codeWriter.emitJavadoc(javadoc);
+                codeWriter.emitAnnotations(annotations, false);
+                codeWriter.emit("$L", enumName);
+                if (!anonymousTypeArguments.formatParts().isEmpty()) {
+                    codeWriter.emit("(");
+                    codeWriter.emit(anonymousTypeArguments);
+                    codeWriter.emit(")");
+                }
+                if (fieldSpecs.isEmpty() && methodSpecs.isEmpty() && typeSpecs.isEmpty()) {
+                    return; // Avoid unnecessary braces "{}".
+                }
+                codeWriter.emit(" {\n");
+            } else if (anonymousTypeArguments != null) {
+                TypeName supertype = !superinterfaces.isEmpty() ? superinterfaces.get(0) : superclass;
+                codeWriter.emit("new $T(", supertype);
+                codeWriter.emit(anonymousTypeArguments);
+                codeWriter.emit(") {\n");
+            } else {
+                // Push an empty type (specifically without nested types) for type-resolution.
+                codeWriter.pushType(new TypeSpec(this));
+
+                codeWriter.emitJavadoc(
+                        kind == Kind.RECORD && recordConstructor != null
+                                ? MethodSpec.makeJavadocWithParameters(javadoc, recordConstructor.parameters())
+                                : javadoc);
+                codeWriter.emitAnnotations(annotations, false);
+                codeWriter.emitModifiers(modifiers, Util.union(implicitModifiers, kind.asMemberModifiers));
+                if (kind == Kind.ANNOTATION) {
+                    codeWriter.emit("$L $L", "@interface", name);
+                } else {
+                    codeWriter.emit("$L $L", kind.name().toLowerCase(Locale.US), name);
+                }
+                codeWriter.emitTypeVariables(typeVariables);
+
+                if (kind == Kind.RECORD) {
+                    if (recordConstructor != null) {
+                        codeWriter.emitParameters(recordConstructor.parameters(), recordConstructor.varargs());
+                    } else {
+                        // If there is no constructor then emit an empty parameter list.
+                        codeWriter.emitParameters(List.of(), false);
+                    }
+                }
+
+                List<TypeName> extendsTypes;
+                List<TypeName> implementsTypes;
+                if (kind == Kind.INTERFACE) {
+                    extendsTypes = superinterfaces;
+                    implementsTypes = Collections.emptyList();
+                } else {
+                    extendsTypes = superclass.equals(ClassName.OBJECT)
+                            ? Collections.emptyList()
+                            : Collections.singletonList(superclass);
+                    implementsTypes = superinterfaces;
+                }
+
+                if (!extendsTypes.isEmpty()) {
+                    codeWriter.emit(" extends");
+                    boolean firstType = true;
+                    for (TypeName type : extendsTypes) {
+                        if (!firstType) {
+                            codeWriter.emit(",");
+                        }
+                        codeWriter.emit(" $T", type);
+                        firstType = false;
+                    }
+                }
+
+                if (!implementsTypes.isEmpty()) {
+                    codeWriter.emit(" implements");
+                    boolean firstType = true;
+                    for (TypeName type : implementsTypes) {
+                        if (!firstType) {
+                            codeWriter.emit(",");
+                        }
+                        codeWriter.emit(" $T", type);
+                        firstType = false;
+                    }
+                }
+
+                if (!permittedSubclasses.isEmpty()) {
+                    codeWriter.emit(" permits");
+                    boolean firstType = true;
+                    for (TypeName type : permittedSubclasses) {
+                        if (!firstType) {
+                            codeWriter.emit(",");
+                        }
+                        codeWriter.emit(" $T", type);
+                        firstType = false;
+                    }
+                }
+
+                codeWriter.popType();
+
+                codeWriter.emit(" {\n");
             }
 
             codeWriter.pushType(this);
