@@ -38,7 +38,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -936,7 +935,7 @@ public final class TypeSpecTest {
     public void recordWithAnnotationOnParam() {
         TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
                 .addRecordComponent(ParameterSpec.builder(String.class, "id")
-                        .addAnnotation(NotNull.class)
+                        .addAnnotation(Deprecated.class)
                         .build())
                 .build();
         assertThat(toString(typeSpec))
@@ -944,10 +943,10 @@ public final class TypeSpecTest {
                         """
                         package com.palantir.tacos;
 
+                        import java.lang.Deprecated;
                         import java.lang.String;
-                        import org.jetbrains.annotations.NotNull;
 
-                        record Taco(@NotNull String id) {
+                        record Taco(@Deprecated String id) {
                         }
                         """);
     }
