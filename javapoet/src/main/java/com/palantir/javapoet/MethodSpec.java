@@ -42,7 +42,6 @@ import javax.lang.model.util.Types;
 /** A generated constructor or method declaration. */
 public final class MethodSpec {
     private static final String CONSTRUCTOR = "<init>";
-
     private final String name;
     private final CodeBlock javadoc;
     private final List<AnnotationSpec> annotations;
@@ -54,6 +53,8 @@ public final class MethodSpec {
     private final List<TypeName> exceptions;
     private final CodeBlock code;
     private final CodeBlock defaultValue;
+
+    private final boolean compactConstructor;
 
     private MethodSpec(Builder builder) {
         CodeBlock code = builder.code.build();
@@ -77,6 +78,7 @@ public final class MethodSpec {
         this.exceptions = Util.immutableList(builder.exceptions);
         this.defaultValue = builder.defaultValue;
         this.code = code;
+        this.compactConstructor = builder.compactConstructor;
     }
 
     public String name() {
@@ -127,13 +129,16 @@ public final class MethodSpec {
         return name.equals(CONSTRUCTOR);
     }
 
+    public boolean isCompactConstructor() {
+        return compactConstructor;
+    }
+
     private boolean lastParameterIsArray(List<ParameterSpec> parameters) {
         return !parameters.isEmpty()
                 && TypeName.asArray(parameters.get(parameters.size() - 1).type()) != null;
     }
 
-    void emit(CodeWriter codeWriter, String enclosingName, Set<Modifier> implicitModifiers, boolean compactConstructor)
-            throws IOException {
+    void emit(CodeWriter codeWriter, String enclosingName, Set<Modifier> implicitModifiers) throws IOException {
         codeWriter.emitJavadoc(javadocWithParameters());
         codeWriter.emitAnnotations(annotations, false);
         codeWriter.emitModifiers(modifiers, implicitModifiers);
@@ -232,7 +237,7 @@ public final class MethodSpec {
         StringBuilder out = new StringBuilder();
         try {
             CodeWriter codeWriter = new CodeWriter(out);
-            emit(codeWriter, "Constructor", Collections.emptySet(), false);
+            emit(codeWriter, "Constructor", Collections.emptySet());
             return out.toString();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -240,11 +245,15 @@ public final class MethodSpec {
     }
 
     public static Builder methodBuilder(String name) {
-        return new Builder(name);
+        return new Builder(name, false);
     }
 
     public static Builder constructorBuilder() {
-        return new Builder(CONSTRUCTOR);
+        return new Builder(CONSTRUCTOR, false);
+    }
+
+    public static Builder compactConstructorBuilder() {
+        return new Builder(CONSTRUCTOR, true);
     }
 
     /**
@@ -332,7 +341,7 @@ public final class MethodSpec {
     }
 
     public Builder toBuilder() {
-        Builder builder = new Builder(name);
+        Builder builder = new Builder(name, compactConstructor);
         builder.javadoc.add(javadoc);
         builder.annotations.addAll(annotations);
         builder.modifiers.addAll(modifiers);
@@ -361,8 +370,11 @@ public final class MethodSpec {
         private final List<Modifier> modifiers = new ArrayList<>();
         private final List<ParameterSpec> parameters = new ArrayList<>();
 
-        private Builder(String name) {
+        private final boolean compactConstructor;
+
+        private Builder(String name, boolean compactConstructor) {
             setName(name);
+            this.compactConstructor = compactConstructor;
         }
 
         public Builder setName(String name) {

@@ -406,36 +406,17 @@ public final class JavaFileTest {
     }
 
     @Test
-    public void recordOneField() {
-        String source = JavaFile.builder(
-                        "com.palantir.tacos",
-                        TypeSpec.recordBuilder("Taco")
-                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
-                                        .build())
-                                .build())
-                .skipJavaLangImports(true)
-                .build()
-                .toString();
-        assertThat(source)
-                .isEqualTo(
-                        """
-                               package com.palantir.tacos;
-
-                               record Taco(String name) {
-                               }
-                               """);
-    }
-
-    @Test
     public void recordOneFieldWithGeneric() {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
                                 .addTypeVariable(TypeVariableName.get("T"))
-                                .addRecordComponent(ParameterSpec.builder(
-                                                ParameterizedTypeName.get(
-                                                        ClassName.get(List.class), TypeVariableName.get("T")),
-                                                "names")
+                                .recordConstructor(MethodSpec.constructorBuilder()
+                                        .addParameter(ParameterSpec.builder(
+                                                        ParameterizedTypeName.get(
+                                                                ClassName.get(List.class), TypeVariableName.get("T")),
+                                                        "names")
+                                                .build())
                                         .build())
                                 .build())
                 .skipJavaLangImports(true)
@@ -454,34 +435,13 @@ public final class JavaFileTest {
     }
 
     @Test
-    public void recordTwoField() {
-        String source = JavaFile.builder(
-                        "com.palantir.tacos",
-                        TypeSpec.recordBuilder("Taco")
-                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
-                                        .build())
-                                .addRecordComponent(ParameterSpec.builder(Integer.class, "code")
-                                        .build())
-                                .build())
-                .skipJavaLangImports(true)
-                .build()
-                .toString();
-        assertThat(source)
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
-
-                        record Taco(String name, Integer code) {
-                        }
-                        """);
-    }
-
-    @Test
     public void recordOneFieldImplementsInterface() {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
+                                .recordConstructor(MethodSpec.constructorBuilder()
+                                        .addParameter(ParameterSpec.builder(String.class, "name")
+                                                .build())
                                         .build())
                                 .addSuperinterface(Serializable.class)
                                 .build())
@@ -505,7 +465,9 @@ public final class JavaFileTest {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
+                                .recordConstructor(MethodSpec.constructorBuilder()
+                                        .addParameter(ParameterSpec.builder(String.class, "name")
+                                                .build())
                                         .build())
                                 .addAnnotation(Deprecated.class)
                                 .build())
@@ -524,64 +486,13 @@ public final class JavaFileTest {
     }
 
     @Test
-    public void recordOneFieldWithMethod() {
-        String source = JavaFile.builder(
-                        "com.palantir.tacos",
-                        TypeSpec.recordBuilder("Taco")
-                                .addRecordComponent(ParameterSpec.builder(String.class, "name")
-                                        .build())
-                                .addMethod(MethodSpec.methodBuilder("name")
-                                        .returns(String.class)
-                                        .addStatement("return name")
-                                        .build())
-                                .build())
-                .skipJavaLangImports(true)
-                .build()
-                .toString();
-        assertThat(source)
-                .isEqualTo(
-                        """
-                               package com.palantir.tacos;
-
-                               record Taco(String name) {
-                                 String name() {
-                                   return name;
-                                 }
-                               }
-                               """);
-    }
-
-    @Test
-    public void recordWithVarArgs() {
-        String source = JavaFile.builder(
-                        "com.palantir.tacos",
-                        TypeSpec.recordBuilder("Taco")
-                                .addRecordComponent(ParameterSpec.builder(String.class, "id")
-                                        .build())
-                                .addRecordComponent(
-                                        ParameterSpec.builder(ArrayTypeName.of(ClassName.get(String.class)), "names")
-                                                .build())
-                                .varargs()
-                                .build())
-                .skipJavaLangImports(true)
-                .build()
-                .toString();
-        assertThat(source)
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
-
-                        record Taco(String id, String... names) {
-                        }
-                        """);
-    }
-
-    @Test
     public void secondaryConstructorRecord() {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addRecordComponent(ParameterSpec.builder(ClassName.get(String.class), "name")
+                                .recordConstructor(MethodSpec.constructorBuilder()
+                                        .addParameter(ParameterSpec.builder(ClassName.get(String.class), "name")
+                                                .build())
                                         .build())
                                 .addMethod(MethodSpec.constructorBuilder()
                                         .addParameter(TypeName.INT, "number")
@@ -611,9 +522,9 @@ public final class JavaFileTest {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.recordBuilder("Taco")
-                                .addRecordComponent(name)
-                                .compactConstructor(MethodSpec.constructorBuilder()
+                                .recordConstructor(MethodSpec.compactConstructorBuilder()
                                         .addModifiers(Modifier.PUBLIC)
+                                        .addParameter(name)
                                         .addCode(CodeBlock.builder()
                                                 .beginControlFlow("if ($N.isEmpty())", name)
                                                 .addStatement(

@@ -854,7 +854,10 @@ public final class TypeSpecTest {
     @Test
     public void recordOneField() {
         TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
-                .addRecordComponent(ParameterSpec.builder(String.class, "name").build())
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(
+                                ParameterSpec.builder(String.class, "name").build())
+                        .build())
                 .build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
@@ -871,8 +874,12 @@ public final class TypeSpecTest {
     @Test
     public void recordTwoFields() {
         TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
-                .addRecordComponent(ParameterSpec.builder(String.class, "name").build())
-                .addRecordComponent(ParameterSpec.builder(Integer.class, "size").build())
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(
+                                ParameterSpec.builder(String.class, "name").build())
+                        .addParameter(
+                                ParameterSpec.builder(Integer.class, "size").build())
+                        .build())
                 .build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
@@ -882,18 +889,21 @@ public final class TypeSpecTest {
                         import java.lang.Integer;
                         import java.lang.String;
 
-                         record Taco(String name, Integer size) {
-                         }
-                         """);
+                        record Taco(String name, Integer size) {
+                        }
+                        """);
     }
 
     @Test
     public void recordWithVarArgs() {
         TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
-                .addRecordComponent(ParameterSpec.builder(String.class, "id").build())
-                .addRecordComponent(ParameterSpec.builder(ArrayTypeName.of(ClassName.get(String.class)), "names")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(
+                                ParameterSpec.builder(String.class, "name").build())
+                        .addParameter(ParameterSpec.builder(ArrayTypeName.of(ClassName.get(String.class)), "names")
+                                .build())
+                        .varargs()
                         .build())
-                .varargs()
                 .build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
@@ -902,7 +912,7 @@ public final class TypeSpecTest {
 
                         import java.lang.String;
 
-                        record Taco(String id, String... names) {
+                        record Taco(String name, String... names) {
                         }
                         """);
     }
@@ -910,8 +920,10 @@ public final class TypeSpecTest {
     @Test
     public void recordWithJavadoc() {
         TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
-                .addRecordComponent(ParameterSpec.builder(String.class, "id")
-                        .addJavadoc("Id of the taco.")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(ParameterSpec.builder(String.class, "id")
+                                .addJavadoc("Id of the taco.")
+                                .build())
                         .build())
                 .addJavadoc("A taco class that stores the id of a taco.")
                 .build();
@@ -934,8 +946,10 @@ public final class TypeSpecTest {
     @Test
     public void recordWithAnnotationOnParam() {
         TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
-                .addRecordComponent(ParameterSpec.builder(String.class, "id")
-                        .addAnnotation(Deprecated.class)
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(ParameterSpec.builder(String.class, "id")
+                                .addAnnotation(Deprecated.class)
+                                .build())
                         .build())
                 .build();
         assertThat(toString(typeSpec))

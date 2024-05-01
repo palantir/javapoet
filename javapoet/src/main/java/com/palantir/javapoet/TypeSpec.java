@@ -66,9 +66,7 @@ public final class TypeSpec {
     private final Set<String> nestedTypesSimpleNames;
     private final List<Element> originatingElements;
     private final Set<String> alwaysQualifiedNames;
-    private final List<ParameterSpec> recordComponents;
-    private final boolean varargs;
-    private final MethodSpec compactConstructor;
+    private final MethodSpec recordConstructor;
 
     private TypeSpec(Builder builder) {
         this.kind = builder.kind;
@@ -88,9 +86,7 @@ public final class TypeSpec {
         this.methodSpecs = Util.immutableList(builder.methodSpecs);
         this.typeSpecs = Util.immutableList(builder.typeSpecs);
         this.alwaysQualifiedNames = Util.immutableSet(builder.alwaysQualifiedNames);
-        this.recordComponents = Util.immutableList(builder.recordComponents);
-        this.varargs = builder.varargs;
-        this.compactConstructor = builder.compactConstructor;
+        this.recordConstructor = builder.recordConstructor;
 
         nestedTypesSimpleNames = new HashSet<>();
         List<Element> originatingElementsMutable = new ArrayList<>();
@@ -127,9 +123,7 @@ public final class TypeSpec {
         this.originatingElements = Collections.emptyList();
         this.nestedTypesSimpleNames = Collections.emptySet();
         this.alwaysQualifiedNames = Collections.emptySet();
-        this.recordComponents = Collections.emptyList();
-        this.varargs = false;
-        this.compactConstructor = null;
+        this.recordConstructor = null;
     }
 
     public Kind kind() {
@@ -297,7 +291,9 @@ public final class TypeSpec {
             codeWriter.pushType(new TypeSpec(this));
 
             codeWriter.emitJavadoc(
-                    kind == Kind.RECORD ? MethodSpec.makeJavadocWithParameters(javadoc, recordComponents) : javadoc);
+                    kind == Kind.RECORD && recordConstructor != null
+                            ? MethodSpec.makeJavadocWithParameters(javadoc, recordConstructor.parameters())
+                            : javadoc);
             codeWriter.emitAnnotations(annotations, false);
             codeWriter.emitModifiers(modifiers, Util.union(implicitModifiers, kind.asMemberModifiers));
             if (kind == Kind.ANNOTATION) {
@@ -308,7 +304,12 @@ public final class TypeSpec {
             codeWriter.emitTypeVariables(typeVariables);
 
             if (kind == Kind.RECORD) {
-                codeWriter.emitParameters(recordComponents, varargs);
+                if (recordConstructor != null) {
+                    codeWriter.emitParameters(recordConstructor.parameters(), recordConstructor.varargs());
+                } else {
+                    // If there is no constructor then emit an empty parameter list.
+                    codeWriter.emitParameters(List.of(), false);
+                }
             }
 
             List<TypeName> extendsTypes;
@@ -445,11 +446,14 @@ public final class TypeSpec {
             }
 
             // Compact constructor.
-            if (compactConstructor != null) {
+            if (recordConstructor != null
+                    && recordConstructor.code() != null
+                    && !recordConstructor.code().isEmpty()
+                    && recordConstructor.isCompactConstructor()) {
                 if (!firstMember) {
                     codeWriter.emit("\n");
                 }
-                compactConstructor.emit(codeWriter, name, kind.implicitMethodModifiers, true);
+                recordConstructor.emit(codeWriter, name, kind.implicitMethodModifiers);
                 firstMember = false;
             }
 
@@ -461,7 +465,7 @@ public final class TypeSpec {
                 if (!firstMember) {
                     codeWriter.emit("\n");
                 }
-                methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers, false);
+                methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers);
                 firstMember = false;
             }
 
@@ -473,7 +477,7 @@ public final class TypeSpec {
                 if (!firstMember) {
                     codeWriter.emit("\n");
                 }
-                methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers, false);
+                methodSpec.emit(codeWriter, name, kind.implicitMethodModifiers);
                 firstMember = false;
             }
 
@@ -596,10 +600,7 @@ public final class TypeSpec {
         private final List<TypeSpec> typeSpecs = new ArrayList<>();
         private final List<Element> originatingElements = new ArrayList<>();
         private final Set<String> alwaysQualifiedNames = new LinkedHashSet<>();
-
-        private final List<ParameterSpec> recordComponents = new ArrayList<>();
-        private boolean varargs;
-        private MethodSpec compactConstructor;
+        private MethodSpec recordConstructor;
 
         private Builder(Kind kind, String name, CodeBlock anonymousTypeArguments) {
             checkArgument(name == null || SourceVersion.isName(name), "not a valid name: %s", name);
@@ -736,33 +737,11 @@ public final class TypeSpec {
             return this;
         }
 
-        public Builder addRecordComponents(Iterable<ParameterSpec> parameterSpecs) {
-            checkArgument(parameterSpecs != null, "parameterSpecs == null");
-            for (ParameterSpec parameterSpec : parameterSpecs) {
-                addRecordComponent(parameterSpec);
-            }
-            return this;
-        }
-
-        public Builder addRecordComponent(ParameterSpec parameterSpec) {
-            recordComponents.add(parameterSpec);
-            return this;
-        }
-
-        public Builder varargs() {
-            return varargs(true);
-        }
-
-        public Builder varargs(boolean varargs) {
-            this.varargs = varargs;
-            return this;
-        }
-
-        public Builder compactConstructor(MethodSpec methodSpec) {
+        public Builder recordConstructor(MethodSpec methodSpec) {
             if (kind != Kind.RECORD) {
                 throw new UnsupportedOperationException(kind + " can't have compact constructors");
             }
-            compactConstructor = methodSpec;
+            recordConstructor = methodSpec;
             return this;
         }
 
@@ -992,9 +971,9 @@ public final class TypeSpec {
                 checkState(!modifiers.contains(Modifier.ABSTRACT), "abstract record");
             }
 
-            if (!recordComponents.isEmpty()) {
+            if (recordConstructor != null && !recordConstructor.parameters().isEmpty()) {
                 checkState(kind == Kind.RECORD, "%s is not record", this.name);
-                for (ParameterSpec recordComponent : recordComponents) {
+                for (ParameterSpec recordComponent : recordConstructor.parameters()) {
                     checkState(recordComponent != null, "recordComponents contain null");
                     checkState(recordComponent.modifiers().isEmpty(), "recordComponents has modifier");
                 }
