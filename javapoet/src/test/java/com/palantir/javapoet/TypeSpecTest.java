@@ -859,13 +859,13 @@ public final class TypeSpecTest {
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
-                               package com.palantir.tacos;
+                        package com.palantir.tacos;
 
-                               import java.lang.String;
+                        import java.lang.String;
 
-                               record Taco(String name) {
-                               }
-                               """);
+                        record Taco(String name) {
+                        }
+                        """);
     }
 
     @Test
@@ -877,14 +877,14 @@ public final class TypeSpecTest {
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
-                               package com.palantir.tacos;
+                        package com.palantir.tacos;
 
-                               import java.lang.Integer;
-                               import java.lang.String;
+                        import java.lang.Integer;
+                        import java.lang.String;
 
-                               record Taco(String name, Integer size) {
-                               }
-                               """);
+                         record Taco(String name, Integer size) {
+                         }
+                         """);
     }
 
     @Test

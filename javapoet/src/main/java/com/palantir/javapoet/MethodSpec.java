@@ -24,7 +24,6 @@ import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,7 @@ import javax.lang.model.util.Types;
 
 /** A generated constructor or method declaration. */
 public final class MethodSpec {
-    public static final String CONSTRUCTOR = "<init>";
+    private static final String CONSTRUCTOR = "<init>";
 
     private final String name;
     private final CodeBlock javadoc;
@@ -146,13 +145,12 @@ public final class MethodSpec {
 
         if (compactConstructor) {
             codeWriter.emit("$L", enclosingName);
+        } else if (isConstructor()) {
+            codeWriter.emit("$L", enclosingName);
+            codeWriter.emitParameters(parameters, varargs);
         } else {
-            if (isConstructor()) {
-                codeWriter.emit("$L", enclosingName);
-            } else {
-                codeWriter.emit("$T $L", returnType, name);
-            }
-            emitParameters(codeWriter, parameters, varargs);
+            codeWriter.emit("$T $L", returnType, name);
+            codeWriter.emitParameters(parameters, varargs);
         }
 
         if (defaultValue != null && !defaultValue.isEmpty()) {
@@ -188,27 +186,6 @@ public final class MethodSpec {
             codeWriter.emit("}\n");
         }
         codeWriter.popTypeVariables(typeVariables);
-    }
-
-    static void emitParameters(CodeWriter codeWriter, Iterable<ParameterSpec> parameters, boolean varargs)
-            throws IOException {
-        codeWriter.emit(CodeBlock.of("($Z"));
-
-        boolean firstParameter = true;
-        for (Iterator<ParameterSpec> parameterSpec = parameters.iterator(); parameterSpec.hasNext(); ) {
-            ParameterSpec parameter = parameterSpec.next();
-            if (!firstParameter) {
-                codeWriter.emit(",").emitWrappingSpace();
-            }
-            parameter.emit(codeWriter, isVarargs(varargs, parameterSpec));
-            firstParameter = false;
-        }
-
-        codeWriter.emit(")");
-    }
-
-    private static boolean isVarargs(boolean varargs, Iterator<ParameterSpec> parameterSpec) {
-        return !parameterSpec.hasNext() && varargs;
     }
 
     private CodeBlock javadocWithParameters() {

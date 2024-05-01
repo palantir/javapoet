@@ -272,9 +272,6 @@ public final class TypeSpec {
         return builder;
     }
 
-    /**
-     * Emits the header of the type spec and returns if the body should be emitted.
-     */
     private boolean emitHeader(CodeWriter codeWriter, String enumName, Set<Modifier> implicitModifiers)
             throws IOException {
         if (enumName != null) {
@@ -310,9 +307,8 @@ public final class TypeSpec {
             }
             codeWriter.emitTypeVariables(typeVariables);
 
-            // Record components.
             if (kind == Kind.RECORD) {
-                MethodSpec.emitParameters(codeWriter, recordComponents, varargs);
+                codeWriter.emitParameters(recordComponents, varargs);
             }
 
             List<TypeName> extendsTypes;
@@ -364,6 +360,7 @@ public final class TypeSpec {
             }
 
             codeWriter.popType();
+
             codeWriter.emit(" {\n");
         }
 
@@ -371,8 +368,7 @@ public final class TypeSpec {
     }
 
     void emit(CodeWriter codeWriter, String enumName, Set<Modifier> implicitModifiers) throws IOException {
-        // Nested classes interrupt wrapped line indentation.
-        // Stash the current wrapping state and put
+        // Nested classes interrupt wrapped line indentation. Stash the current wrapping state and put
         // it back afterwards when this type is complete.
         int previousStatementLine = codeWriter.statementLine;
         codeWriter.statementLine = -1;
@@ -537,6 +533,7 @@ public final class TypeSpec {
     @SuppressWarnings("ImmutableEnumChecker")
     public enum Kind {
         CLASS(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet()),
+        RECORD(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet()),
 
         INTERFACE(
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)),
@@ -554,9 +551,7 @@ public final class TypeSpec {
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.ABSTRACT)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC)),
-                Util.immutableSet(Collections.singletonList(Modifier.STATIC))),
-
-        RECORD(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
+                Util.immutableSet(Collections.singletonList(Modifier.STATIC)));
 
         private final Set<Modifier> implicitFieldModifiers;
         private final Set<Modifier> implicitMethodModifiers;
@@ -742,7 +737,7 @@ public final class TypeSpec {
         }
 
         public Builder addRecordComponents(Iterable<ParameterSpec> parameterSpecs) {
-            checkArgument(parameterSpecs != null, "fieldSpecs == null");
+            checkArgument(parameterSpecs != null, "parameterSpecs == null");
             for (ParameterSpec parameterSpec : parameterSpecs) {
                 addRecordComponent(parameterSpec);
             }
@@ -763,26 +758,10 @@ public final class TypeSpec {
             return this;
         }
 
-        /**
-         * Sets the compact constructor for this builder. Its parameters are solely used for javadoc
-         * generation.
-         */
         public Builder compactConstructor(MethodSpec methodSpec) {
             if (kind != Kind.RECORD) {
                 throw new UnsupportedOperationException(kind + " can't have compact constructors");
             }
-
-            checkState(compactConstructor == null, "%s already has a compact constructor", name);
-
-            checkState(methodSpec.name().equals(MethodSpec.CONSTRUCTOR), "compact constructor is not a constructor");
-            EnumSet<Modifier> possibleModifiers = EnumSet.of(Modifier.PUBLIC, Modifier.PROTECTED, Modifier.PRIVATE);
-            checkState(
-                    possibleModifiers.containsAll(methodSpec.modifiers()),
-                    "compact constructor has non-access modifiers");
-            checkState(methodSpec.modifiers().size() <= 1, "compact constructor has too many access modifiers");
-            checkState(methodSpec.typeVariables().isEmpty(), "compact constructor has type variables");
-            checkState(methodSpec.exceptions().isEmpty(), "compact constructor has exceptions");
-            checkState(methodSpec.defaultValue() == null, "compact constructor has a default value");
             compactConstructor = methodSpec;
             return this;
         }
@@ -1020,6 +999,7 @@ public final class TypeSpec {
                     checkState(recordComponent.modifiers().isEmpty(), "recordComponents has modifier");
                 }
             }
+
             for (TypeName superinterface : superinterfaces) {
                 checkArgument(superinterface != null, "superinterfaces contains null");
             }

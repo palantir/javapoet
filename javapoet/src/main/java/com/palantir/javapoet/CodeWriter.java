@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -222,6 +223,22 @@ final class CodeWriter {
             firstTypeVariable = false;
         }
         emit(">");
+    }
+
+    public void emitParameters(Iterable<ParameterSpec> parameters, boolean varargs) throws IOException {
+        emit(CodeBlock.of("($Z"));
+
+        boolean firstParameter = true;
+        for (Iterator<ParameterSpec> parameterSpec = parameters.iterator(); parameterSpec.hasNext(); ) {
+            ParameterSpec parameter = parameterSpec.next();
+            if (!firstParameter) {
+                emit(",").emitWrappingSpace();
+            }
+            parameter.emit(this, !parameterSpec.hasNext() && varargs);
+            firstParameter = false;
+        }
+
+        emit(")");
     }
 
     public void popTypeVariables(List<TypeVariableName> typeVariables) {
