@@ -241,6 +241,22 @@ final class CodeWriter {
         emit(")");
     }
 
+    public void emitJavadocWithParameters(CodeBlock javadoc, Iterable<ParameterSpec> parameters) throws IOException {
+        CodeBlock.Builder builder = javadoc.toBuilder();
+        boolean emitTagNewline = true;
+        for (ParameterSpec parameterSpec : parameters) {
+            if (!parameterSpec.javadoc().isEmpty()) {
+                // Emit a new line before @param section only if the method javadoc is present.
+                if (emitTagNewline && !javadoc.isEmpty()) {
+                    builder.add("\n");
+                }
+                emitTagNewline = false;
+                builder.add("@param $L $L", parameterSpec.name(), parameterSpec.javadoc());
+            }
+        }
+        emitJavadoc(builder.build());
+    }
+
     public void popTypeVariables(List<TypeVariableName> typeVariables) {
         typeVariables.forEach(typeVariable -> currentTypeVariables.remove(typeVariable.name()));
     }

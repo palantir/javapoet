@@ -295,10 +295,11 @@ public final class TypeSpec {
                 // Push an empty type (specifically without nested types) for type-resolution.
                 codeWriter.pushType(new TypeSpec(this));
 
-                codeWriter.emitJavadoc(
-                        kind == Kind.RECORD && recordConstructor != null
-                                ? MethodSpec.makeJavadocWithParameters(javadoc, recordConstructor.parameters())
-                                : javadoc);
+                if (kind == Kind.RECORD && recordConstructor != null) {
+                    codeWriter.emitJavadocWithParameters(javadoc, recordConstructor.parameters());
+                } else {
+                    codeWriter.emitJavadoc(javadoc);
+                }
                 codeWriter.emitAnnotations(annotations, false);
                 codeWriter.emitModifiers(modifiers, Util.union(implicitModifiers, kind.asMemberModifiers));
                 if (kind == Kind.ANNOTATION) {
@@ -728,11 +729,11 @@ public final class TypeSpec {
             return this;
         }
 
-        public Builder recordConstructor(MethodSpec methodSpec) {
+        public Builder recordConstructor(MethodSpec recordConstructor) {
             if (kind != Kind.RECORD) {
-                throw new UnsupportedOperationException(kind + " can't have compact constructors");
+                throw new UnsupportedOperationException(kind + " can't have record constructor");
             }
-            recordConstructor = methodSpec;
+            this.recordConstructor = recordConstructor;
             return this;
         }
 
@@ -958,15 +959,9 @@ public final class TypeSpec {
                 }
             }
 
-            if (kind == Kind.RECORD) {
-                checkState(!modifiers.contains(Modifier.ABSTRACT), "abstract record");
-            }
-
-            if (recordConstructor != null && !recordConstructor.parameters().isEmpty()) {
-                checkState(kind == Kind.RECORD, "%s is not record", this.name);
+            if (recordConstructor != null) {
                 for (ParameterSpec recordComponent : recordConstructor.parameters()) {
-                    checkState(recordComponent != null, "recordComponents contain null");
-                    checkState(recordComponent.modifiers().isEmpty(), "recordComponents has modifier");
+                    checkArgument(recordComponent.modifiers().isEmpty(), "record components must not have modifiers");
                 }
             }
 
@@ -1005,7 +1000,6 @@ public final class TypeSpec {
                             fieldSpec.name(),
                             check);
                 }
-
                 if (kind == Kind.RECORD) {
                     checkState(
                             fieldSpec.modifiers().contains(Modifier.STATIC),
@@ -1081,7 +1075,12 @@ public final class TypeSpec {
                         kind.implicitTypeModifiers);
             }
 
-            boolean isAbstract = modifiers.contains(Modifier.ABSTRACT) || (kind != Kind.CLASS && kind != Kind.RECORD);
+            boolean isAbstract =
+                    switch (kind) {
+                        case CLASS -> modifiers.contains(Modifier.ABSTRACT);
+                        case RECORD, ENUM, ANNOTATION -> false;
+                        case INTERFACE -> true;
+                    };
             for (MethodSpec methodSpec : methodSpecs) {
                 checkArgument(
                         isAbstract || !methodSpec.modifiers().contains(Modifier.ABSTRACT),
