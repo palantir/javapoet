@@ -325,8 +325,8 @@ public class TypeName {
                     }
 
                     @Override
-                    public TypeName visitError(ErrorType t, Void p) {
-                        return visitDeclared(t, p);
+                    public TypeName visitError(ErrorType t, Void _p) {
+                        return visitDeclared(t, null);
                     }
 
                     @Override
@@ -345,11 +345,11 @@ public class TypeName {
                     }
 
                     @Override
-                    public TypeName visitNoType(NoType t, Void p) {
+                    public TypeName visitNoType(NoType t, Void _p) {
                         if (t.getKind() == TypeKind.VOID) {
                             return TypeName.VOID;
                         }
-                        return super.visitUnknown(t, p);
+                        return super.visitUnknown(t, null);
                     }
 
                     @Override
