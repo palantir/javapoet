@@ -1077,9 +1077,8 @@ public final class TypeSpec {
 
             boolean isAbstract =
                     switch (kind) {
-                        case CLASS -> modifiers.contains(Modifier.ABSTRACT);
-                        case RECORD, ENUM, ANNOTATION -> false;
-                        case INTERFACE -> true;
+                        case CLASS, RECORD -> modifiers.contains(Modifier.ABSTRACT);
+                        case ENUM, ANNOTATION, INTERFACE -> true;
                     };
             for (MethodSpec methodSpec : methodSpecs) {
                 checkArgument(
