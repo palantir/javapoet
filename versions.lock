@@ -1,4 +1,4 @@
-# Run ./gradlew writeVersionsLock to regenerate this file
+# Run ./gradlew writeVersionsLocks to regenerate this file
 
 [Test dependencies]
 com.google.auto:auto-common:1.2.1 (1 constraints: 17120ffb)
