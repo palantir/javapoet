@@ -302,11 +302,7 @@ public final class TypeSpec {
                 }
                 codeWriter.emitAnnotations(annotations, false);
                 codeWriter.emitModifiers(modifiers, Util.union(implicitModifiers, kind.asMemberModifiers));
-                if (kind == Kind.ANNOTATION) {
-                    codeWriter.emit("$L $L", "@interface", name);
-                } else {
-                    codeWriter.emit("$L $L", kind.name().toLowerCase(Locale.ROOT), name);
-                }
+                codeWriter.emit("$L $L", kind.keyword, name);
                 codeWriter.emitTypeVariables(typeVariables);
 
                 if (kind == Kind.RECORD) {
@@ -524,42 +520,53 @@ public final class TypeSpec {
 
     @SuppressWarnings("ImmutableEnumChecker")
     public enum Kind {
-        CLASS(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet()),
+        CLASS(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), "class"),
 
-        RECORD(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet()),
+        RECORD(
+                Collections.emptySet(),
+                Collections.emptySet(),
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "record"),
 
         INTERFACE(
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.ABSTRACT)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC)),
-                Util.immutableSet(Collections.singletonList(Modifier.STATIC))),
+                Util.immutableSet(Collections.singletonList(Modifier.STATIC)),
+                "interface"),
 
         ENUM(
                 Collections.emptySet(),
                 Collections.emptySet(),
                 Collections.emptySet(),
-                Collections.singleton(Modifier.STATIC)),
+                Collections.singleton(Modifier.STATIC),
+                "enum"),
 
         ANNOTATION(
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.ABSTRACT)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC)),
-                Util.immutableSet(Collections.singletonList(Modifier.STATIC)));
+                Util.immutableSet(Collections.singletonList(Modifier.STATIC)),
+                "@annotation");
 
         private final Set<Modifier> implicitFieldModifiers;
         private final Set<Modifier> implicitMethodModifiers;
         private final Set<Modifier> implicitTypeModifiers;
         private final Set<Modifier> asMemberModifiers;
+        private final String keyword;
 
         Kind(
                 Set<Modifier> implicitFieldModifiers,
                 Set<Modifier> implicitMethodModifiers,
                 Set<Modifier> implicitTypeModifiers,
-                Set<Modifier> asMemberModifiers) {
+                Set<Modifier> asMemberModifiers,
+                String keyword) {
             this.implicitFieldModifiers = implicitFieldModifiers;
             this.implicitMethodModifiers = implicitMethodModifiers;
             this.implicitTypeModifiers = implicitTypeModifiers;
             this.asMemberModifiers = asMemberModifiers;
+            this.keyword = keyword;
         }
 
         @Override
