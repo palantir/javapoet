@@ -966,6 +966,19 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void recordNoField() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco").build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        record Taco() {
+                        }
+                        """);
+    }
+
+    @Test
     public void nestedClasses() {
         ClassName taco = ClassName.get(tacosPackage, "Combo", "Taco");
         ClassName topping = ClassName.get(tacosPackage, "Combo", "Taco", "Topping");

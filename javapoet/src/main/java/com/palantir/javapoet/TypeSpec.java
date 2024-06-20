@@ -295,7 +295,7 @@ public final class TypeSpec {
                 // Push an empty type (specifically without nested types) for type-resolution.
                 codeWriter.pushType(new TypeSpec(this));
 
-                if (kind == Kind.RECORD && recordConstructor != null) {
+                if (recordConstructor != null) {
                     codeWriter.emitJavadocWithParameters(javadoc, recordConstructor.parameters());
                 } else {
                     codeWriter.emitJavadoc(javadoc);
@@ -305,7 +305,7 @@ public final class TypeSpec {
                 if (kind == Kind.ANNOTATION) {
                     codeWriter.emit("$L $L", "@interface", name);
                 } else {
-                    codeWriter.emit("$L $L", kind.name().toLowerCase(Locale.US), name);
+                    codeWriter.emit("$L $L", kind.name().toLowerCase(Locale.ROOT), name);
                 }
                 codeWriter.emitTypeVariables(typeVariables);
 
@@ -313,7 +313,6 @@ public final class TypeSpec {
                     if (recordConstructor != null) {
                         codeWriter.emitParameters(recordConstructor.parameters(), recordConstructor.varargs());
                     } else {
-                        // If there is no constructor then emit an empty parameter list.
                         codeWriter.emitParameters(List.of(), false);
                     }
                 }
@@ -438,10 +437,7 @@ public final class TypeSpec {
             }
 
             // Compact constructor.
-            if (recordConstructor != null
-                    && recordConstructor.code() != null
-                    && !recordConstructor.code().isEmpty()
-                    && recordConstructor.isCompactConstructor()) {
+            if (recordConstructor != null && !recordConstructor.code().isEmpty()) {
                 if (!firstMember) {
                     codeWriter.emit("\n");
                 }
@@ -529,6 +525,7 @@ public final class TypeSpec {
     @SuppressWarnings("ImmutableEnumChecker")
     public enum Kind {
         CLASS(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet()),
+
         RECORD(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet()),
 
         INTERFACE(
@@ -575,6 +572,7 @@ public final class TypeSpec {
         private final Kind kind;
         private final String name;
         private final CodeBlock anonymousTypeArguments;
+        private MethodSpec recordConstructor;
 
         private final CodeBlock.Builder javadoc = CodeBlock.builder();
         private TypeName superclass = ClassName.OBJECT;
@@ -592,7 +590,6 @@ public final class TypeSpec {
         private final List<TypeSpec> typeSpecs = new ArrayList<>();
         private final List<Element> originatingElements = new ArrayList<>();
         private final Set<String> alwaysQualifiedNames = new LinkedHashSet<>();
-        private MethodSpec recordConstructor;
 
         private Builder(Kind kind, String name, CodeBlock anonymousTypeArguments) {
             checkArgument(name == null || SourceVersion.isName(name), "not a valid name: %s", name);

@@ -389,23 +389,6 @@ public final class JavaFileTest {
     }
 
     @Test
-    public void recordNoField() {
-        String source = JavaFile.builder(
-                        "com.palantir.tacos", TypeSpec.recordBuilder("Taco").build())
-                .skipJavaLangImports(true)
-                .build()
-                .toString();
-        assertThat(source)
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
-
-                        record Taco() {
-                        }
-                        """);
-    }
-
-    @Test
     public void recordOneFieldWithGeneric() {
         String source = JavaFile.builder(
                         "com.palantir.tacos",
@@ -496,7 +479,7 @@ public final class JavaFileTest {
                                         .build())
                                 .addMethod(MethodSpec.constructorBuilder()
                                         .addParameter(TypeName.INT, "number")
-                                        .addCode("this.name = $T.toString(number);", ClassName.get(Integer.class))
+                                        .addCode("this($T.toString(number));", ClassName.get(Integer.class))
                                         .build())
                                 .build())
                 .skipJavaLangImports(true)
@@ -509,7 +492,7 @@ public final class JavaFileTest {
 
                         record Taco(String name) {
                           Taco(int number) {
-                            this.name = Integer.toString(number);
+                            this(Integer.toString(number));
                           }
                         }
                         """);
