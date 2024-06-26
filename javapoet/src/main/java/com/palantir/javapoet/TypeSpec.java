@@ -548,7 +548,7 @@ public final class TypeSpec {
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.ABSTRACT)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC)),
                 Util.immutableSet(Collections.singletonList(Modifier.STATIC)),
-                "@annotation");
+                "@interface");
 
         private final Set<Modifier> implicitFieldModifiers;
         private final Set<Modifier> implicitMethodModifiers;
