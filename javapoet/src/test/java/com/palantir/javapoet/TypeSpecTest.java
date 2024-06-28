@@ -852,6 +852,133 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void recordOneField() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(
+                                ParameterSpec.builder(String.class, "name").build())
+                        .build())
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.lang.String;
+
+                        record Taco(String name) {
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordTwoFields() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(
+                                ParameterSpec.builder(String.class, "name").build())
+                        .addParameter(
+                                ParameterSpec.builder(Integer.class, "size").build())
+                        .build())
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.lang.Integer;
+                        import java.lang.String;
+
+                        record Taco(String name, Integer size) {
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordWithVarArgs() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(
+                                ParameterSpec.builder(String.class, "name").build())
+                        .addParameter(ParameterSpec.builder(ArrayTypeName.of(ClassName.get(String.class)), "names")
+                                .build())
+                        .varargs()
+                        .build())
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.lang.String;
+
+                        record Taco(String name, String... names) {
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordWithJavadoc() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(ParameterSpec.builder(String.class, "id")
+                                .addJavadoc("Id of the taco.")
+                                .build())
+                        .build())
+                .addJavadoc("A taco class that stores the id of a taco.")
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.lang.String;
+
+                        /**
+                         * A taco class that stores the id of a taco.
+                         * @param id Id of the taco.
+                         */
+                        record Taco(String id) {
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordWithAnnotationOnParam() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(ParameterSpec.builder(String.class, "id")
+                                .addAnnotation(Deprecated.class)
+                                .build())
+                        .build())
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.lang.Deprecated;
+                        import java.lang.String;
+
+                        record Taco(@Deprecated String id) {
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordNoField() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco").build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        record Taco() {
+                        }
+                        """);
+    }
+
+    @Test
     public void nestedClasses() {
         ClassName taco = ClassName.get(tacosPackage, "Combo", "Taco");
         ClassName topping = ClassName.get(tacosPackage, "Combo", "Taco", "Topping");
