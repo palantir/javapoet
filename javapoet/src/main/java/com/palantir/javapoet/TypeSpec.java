@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.lang.model.SourceVersion;
@@ -569,10 +568,6 @@ public final class TypeSpec {
             this.keyword = keyword;
         }
 
-        @Override
-        public String toString() {
-            return name().toLowerCase(Locale.ROOT);
-        }
     }
 
     public static final class Builder {
