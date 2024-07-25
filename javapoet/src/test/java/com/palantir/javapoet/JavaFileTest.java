@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.google.testing.compile.CompilationRule;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -383,6 +384,152 @@ public final class JavaFileTest {
 
                         class Taco {
                           List<@Spicy Chorizo> chorizo;
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordOneFieldWithGeneric() {
+        String source = JavaFile.builder(
+                        "com.palantir.tacos",
+                        TypeSpec.recordBuilder("Taco")
+                                .addTypeVariable(TypeVariableName.get("T"))
+                                .recordConstructor(MethodSpec.constructorBuilder()
+                                        .addParameter(ParameterSpec.builder(
+                                                        ParameterizedTypeName.get(
+                                                                ClassName.get(List.class), TypeVariableName.get("T")),
+                                                        "names")
+                                                .build())
+                                        .build())
+                                .build())
+                .skipJavaLangImports(true)
+                .build()
+                .toString();
+        assertThat(source)
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.util.List;
+
+                        record Taco<T>(List<T> names) {
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordOneFieldImplementsInterface() {
+        String source = JavaFile.builder(
+                        "com.palantir.tacos",
+                        TypeSpec.recordBuilder("Taco")
+                                .recordConstructor(MethodSpec.constructorBuilder()
+                                        .addParameter(ParameterSpec.builder(String.class, "name")
+                                                .build())
+                                        .build())
+                                .addSuperinterface(Serializable.class)
+                                .build())
+                .skipJavaLangImports(true)
+                .build()
+                .toString();
+        assertThat(source)
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        import java.io.Serializable;
+
+                        record Taco(String name) implements Serializable {
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordOneFieldWithAnnotation() {
+        String source = JavaFile.builder(
+                        "com.palantir.tacos",
+                        TypeSpec.recordBuilder("Taco")
+                                .recordConstructor(MethodSpec.constructorBuilder()
+                                        .addParameter(ParameterSpec.builder(String.class, "name")
+                                                .build())
+                                        .build())
+                                .addAnnotation(Deprecated.class)
+                                .build())
+                .skipJavaLangImports(true)
+                .build()
+                .toString();
+        assertThat(source)
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        @Deprecated
+                        record Taco(String name) {
+                        }
+                        """);
+    }
+
+    @Test
+    public void secondaryConstructorRecord() {
+        String source = JavaFile.builder(
+                        "com.palantir.tacos",
+                        TypeSpec.recordBuilder("Taco")
+                                .recordConstructor(MethodSpec.constructorBuilder()
+                                        .addParameter(ParameterSpec.builder(ClassName.get(String.class), "name")
+                                                .build())
+                                        .build())
+                                .addMethod(MethodSpec.constructorBuilder()
+                                        .addParameter(TypeName.INT, "number")
+                                        .addCode("this($T.toString(number));", ClassName.get(Integer.class))
+                                        .build())
+                                .build())
+                .skipJavaLangImports(true)
+                .build()
+                .toString();
+        assertThat(source)
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        record Taco(String name) {
+                          Taco(int number) {
+                            this(Integer.toString(number));
+                          }
+                        }
+                        """);
+    }
+
+    @Test
+    public void recordWithCompactConstructor() {
+        ParameterSpec name =
+                ParameterSpec.builder(ClassName.get(String.class), "name").build();
+        String source = JavaFile.builder(
+                        "com.palantir.tacos",
+                        TypeSpec.recordBuilder("Taco")
+                                .recordConstructor(MethodSpec.compactConstructorBuilder()
+                                        .addModifiers(Modifier.PUBLIC)
+                                        .addParameter(name)
+                                        .addCode(CodeBlock.builder()
+                                                .beginControlFlow("if ($N.isEmpty())", name)
+                                                .addStatement(
+                                                        "throw new $T()", ClassName.get(IllegalArgumentException.class))
+                                                .endControlFlow()
+                                                .build())
+                                        .build())
+                                .build())
+                .skipJavaLangImports(true)
+                .build()
+                .toString();
+        assertThat(source)
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        record Taco(String name) {
+                          public Taco {
+                            if (name.isEmpty()) {
+                              throw new IllegalArgumentException();
+                            }
+                          }
                         }
                         """);
     }
