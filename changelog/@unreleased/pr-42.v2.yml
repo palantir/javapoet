@@ -1,0 +1,5 @@
+type: feature
+feature:
+  description: Add support for records.
+  links:
+  - https://github.com/palantir/javapoet/pull/42

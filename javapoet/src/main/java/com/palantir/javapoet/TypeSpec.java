@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.lang.model.SourceVersion;
@@ -66,6 +65,7 @@ public final class TypeSpec {
     private final Set<String> nestedTypesSimpleNames;
     private final List<Element> originatingElements;
     private final Set<String> alwaysQualifiedNames;
+    private final MethodSpec recordConstructor;
 
     private TypeSpec(Builder builder) {
         this.kind = builder.kind;
@@ -85,6 +85,7 @@ public final class TypeSpec {
         this.methodSpecs = Util.immutableList(builder.methodSpecs);
         this.typeSpecs = Util.immutableList(builder.typeSpecs);
         this.alwaysQualifiedNames = Util.immutableSet(builder.alwaysQualifiedNames);
+        this.recordConstructor = builder.recordConstructor;
 
         nestedTypesSimpleNames = new HashSet<>();
         List<Element> originatingElementsMutable = new ArrayList<>();
@@ -121,6 +122,7 @@ public final class TypeSpec {
         this.originatingElements = Collections.emptyList();
         this.nestedTypesSimpleNames = Collections.emptySet();
         this.alwaysQualifiedNames = Collections.emptySet();
+        this.recordConstructor = null;
     }
 
     public Kind kind() {
@@ -201,6 +203,14 @@ public final class TypeSpec {
 
     public static Builder classBuilder(ClassName className) {
         return classBuilder(checkNotNull(className, "className == null").simpleName());
+    }
+
+    public static Builder recordBuilder(String name) {
+        return new Builder(Kind.RECORD, checkNotNull(name, "name == null"), null);
+    }
+
+    public static Builder recordBuilder(ClassName className) {
+        return recordBuilder(checkNotNull(className, "className == null").simpleName());
     }
 
     public static Builder interfaceBuilder(String name) {
@@ -284,15 +294,23 @@ public final class TypeSpec {
                 // Push an empty type (specifically without nested types) for type-resolution.
                 codeWriter.pushType(new TypeSpec(this));
 
-                codeWriter.emitJavadoc(javadoc);
+                if (recordConstructor != null) {
+                    codeWriter.emitJavadocWithParameters(javadoc, recordConstructor.parameters());
+                } else {
+                    codeWriter.emitJavadoc(javadoc);
+                }
                 codeWriter.emitAnnotations(annotations, false);
                 codeWriter.emitModifiers(modifiers, Util.union(implicitModifiers, kind.asMemberModifiers));
-                if (kind == Kind.ANNOTATION) {
-                    codeWriter.emit("$L $L", "@interface", name);
-                } else {
-                    codeWriter.emit("$L $L", kind.toString(), name);
-                }
+                codeWriter.emit("$L $L", kind.keyword, name);
                 codeWriter.emitTypeVariables(typeVariables);
+
+                if (kind == Kind.RECORD) {
+                    if (recordConstructor != null) {
+                        codeWriter.emitParameters(recordConstructor.parameters(), recordConstructor.varargs());
+                    } else {
+                        codeWriter.emitParameters(List.of(), false);
+                    }
+                }
 
                 List<TypeName> extendsTypes;
                 List<TypeName> implementsTypes;
@@ -413,6 +431,15 @@ public final class TypeSpec {
                 firstMember = false;
             }
 
+            // Compact constructor.
+            if (recordConstructor != null && !recordConstructor.code().isEmpty()) {
+                if (!firstMember) {
+                    codeWriter.emit("\n");
+                }
+                recordConstructor.emit(codeWriter, name, kind.implicitMethodModifiers);
+                firstMember = false;
+            }
+
             // Constructors.
             for (MethodSpec methodSpec : methodSpecs) {
                 if (!methodSpec.isConstructor()) {
@@ -492,52 +519,62 @@ public final class TypeSpec {
 
     @SuppressWarnings("ImmutableEnumChecker")
     public enum Kind {
-        CLASS(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet()),
+        CLASS(Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), "class"),
+
+        RECORD(
+                Collections.emptySet(),
+                Collections.emptySet(),
+                Collections.emptySet(),
+                Collections.emptySet(),
+                "record"),
 
         INTERFACE(
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.ABSTRACT)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC)),
-                Util.immutableSet(Collections.singletonList(Modifier.STATIC))),
+                Util.immutableSet(Collections.singletonList(Modifier.STATIC)),
+                "interface"),
 
         ENUM(
                 Collections.emptySet(),
                 Collections.emptySet(),
                 Collections.emptySet(),
-                Collections.singleton(Modifier.STATIC)),
+                Collections.singleton(Modifier.STATIC),
+                "enum"),
 
         ANNOTATION(
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.ABSTRACT)),
                 Util.immutableSet(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC)),
-                Util.immutableSet(Collections.singletonList(Modifier.STATIC)));
+                Util.immutableSet(Collections.singletonList(Modifier.STATIC)),
+                "@interface");
 
         private final Set<Modifier> implicitFieldModifiers;
         private final Set<Modifier> implicitMethodModifiers;
         private final Set<Modifier> implicitTypeModifiers;
         private final Set<Modifier> asMemberModifiers;
+        private final String keyword;
 
         Kind(
                 Set<Modifier> implicitFieldModifiers,
                 Set<Modifier> implicitMethodModifiers,
                 Set<Modifier> implicitTypeModifiers,
-                Set<Modifier> asMemberModifiers) {
+                Set<Modifier> asMemberModifiers,
+                String keyword) {
             this.implicitFieldModifiers = implicitFieldModifiers;
             this.implicitMethodModifiers = implicitMethodModifiers;
             this.implicitTypeModifiers = implicitTypeModifiers;
             this.asMemberModifiers = asMemberModifiers;
+            this.keyword = keyword;
         }
 
-        @Override
-        public String toString() {
-            return name().toLowerCase(Locale.ROOT);
-        }
     }
 
     public static final class Builder {
         private final Kind kind;
         private final String name;
         private final CodeBlock anonymousTypeArguments;
+        private MethodSpec recordConstructor;
 
         private final CodeBlock.Builder javadoc = CodeBlock.builder();
         private TypeName superclass = ClassName.OBJECT;
@@ -688,6 +725,14 @@ public final class TypeSpec {
                 TypeElement superInterfaceElement = (TypeElement) declaredType.asElement();
                 avoidClashesWithNestedClasses(superInterfaceElement);
             }
+            return this;
+        }
+
+        public Builder recordConstructor(MethodSpec recordConstructor) {
+            if (kind != Kind.RECORD) {
+                throw new UnsupportedOperationException(kind + " can't have record constructor");
+            }
+            this.recordConstructor = recordConstructor;
             return this;
         }
 
@@ -913,6 +958,12 @@ public final class TypeSpec {
                 }
             }
 
+            if (recordConstructor != null) {
+                for (ParameterSpec recordComponent : recordConstructor.parameters()) {
+                    checkArgument(recordComponent.modifiers().isEmpty(), "record components must not have modifiers");
+                }
+            }
+
             for (TypeName superinterface : superinterfaces) {
                 checkArgument(superinterface != null, "superinterfaces contains null");
             }
@@ -947,6 +998,14 @@ public final class TypeSpec {
                             name,
                             fieldSpec.name(),
                             check);
+                }
+                if (kind == Kind.RECORD) {
+                    checkState(
+                            fieldSpec.modifiers().contains(Modifier.STATIC),
+                            "%s %s.%s must be static",
+                            kind,
+                            name,
+                            fieldSpec.name());
                 }
             }
 
@@ -995,6 +1054,14 @@ public final class TypeSpec {
                             name,
                             methodSpec.name());
                 }
+                if (kind == Kind.RECORD) {
+                    checkState(
+                            !methodSpec.modifiers().contains(Modifier.NATIVE),
+                            "%s %s.%s cannot be native",
+                            kind,
+                            name,
+                            methodSpec.name());
+                }
             }
 
             for (TypeSpec typeSpec : typeSpecs) {
@@ -1007,7 +1074,11 @@ public final class TypeSpec {
                         kind.implicitTypeModifiers);
             }
 
-            boolean isAbstract = modifiers.contains(Modifier.ABSTRACT) || kind != Kind.CLASS;
+            boolean isAbstract =
+                    switch (kind) {
+                        case CLASS, RECORD -> modifiers.contains(Modifier.ABSTRACT);
+                        case ENUM, ANNOTATION, INTERFACE -> true;
+                    };
             for (MethodSpec methodSpec : methodSpecs) {
                 checkArgument(
                         isAbstract || !methodSpec.modifiers().contains(Modifier.ABSTRACT),
