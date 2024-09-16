@@ -754,7 +754,7 @@ public final class TypeSpec {
         }
 
         public Builder addPermittedSubclass(Type permittedSubclass) {
-            return addSuperinterface(permittedSubclass, true);
+            return addPermittedSubclass(permittedSubclass, true);
         }
 
         public Builder addPermittedSubclass(Type permittedSubclass, boolean avoidNestedTypeNameClashes) {
@@ -769,7 +769,7 @@ public final class TypeSpec {
         }
 
         public Builder addPermittedSubclass(TypeMirror permittedSubclass) {
-            return addSuperinterface(permittedSubclass, true);
+            return addPermittedSubclass(permittedSubclass, true);
         }
 
         public Builder addPermittedSubclass(TypeMirror permittedSubclass, boolean avoidNestedTypeNameClashes) {
