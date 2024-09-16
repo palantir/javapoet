@@ -1,5 +1,11 @@
 apply plugin: 'com.palantir.external-publish-jar'
 
+jar{
+    manifest{
+        attributes 'Automatic-Module-Name': 'com.palantir.javapoet'
+    }
+}
+
 dependencies {
     testImplementation 'com.google.code.findbugs:jsr305'
     testImplementation 'com.google.guava:guava'
