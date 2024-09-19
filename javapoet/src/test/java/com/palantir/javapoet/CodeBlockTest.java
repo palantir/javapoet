@@ -310,6 +310,19 @@ public final class CodeBlockTest {
     }
 
     @Test
+    public void tooManyArguments() {
+        assertThatThrownBy(() -> CodeBlock.of("test", 1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("unused arguments: expected %s, received %s", 0, 1);
+        assertThatThrownBy(() -> CodeBlock.of("test", 1, 2))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("unused arguments: expected %s, received %s", 0, 2);
+        assertThatThrownBy(() -> CodeBlock.of("test $L", 2, 3))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("unused arguments: expected %s, received %s", 1, 2);
+    }
+
+    @Test
     public void clear() {
         CodeBlock block =
                 CodeBlock.builder().addStatement("$S", "Test string").clear().build();
