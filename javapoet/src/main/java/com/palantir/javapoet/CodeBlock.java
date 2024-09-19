@@ -342,9 +342,9 @@ public final class CodeBlock {
 
             // If there is no format specifier, but arguments are provided:
             checkArgument(
-                    hasRelative || hasIndexed || args.length <= 0, 
-                    "unused arguments: expected %s, received %s", 
-                    0, 
+                    hasRelative || hasIndexed || args.length <= 0,
+                    "unused arguments: expected %s, received %s",
+                    0,
                     args.length);
 
             return this;
