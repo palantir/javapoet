@@ -339,6 +339,11 @@ public final class CodeBlock {
                 String s = unused.size() == 1 ? "" : "s";
                 checkArgument(unused.isEmpty(), "unused argument%s: %s", s, String.join(", ", unused));
             }
+
+            // If there is no format specifier, but arguments are provided:
+            checkArgument(hasRelative || hasIndexed || args.length <= 0, "unused arguments: expected %s, received %s", 0, args.length);
+
+            
             return this;
         }
 
