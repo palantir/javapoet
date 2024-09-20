@@ -38,3 +38,6 @@ reports/
 *.tmproj
 *.tmproject
 *.sw[op]
+
+# Gradle JDKs setup
+!gradle/*
