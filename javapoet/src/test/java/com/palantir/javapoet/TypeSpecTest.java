@@ -496,9 +496,9 @@ public final class TypeSpecTest {
     @Test
     public void onlyEnumsMayHaveEnumConstants() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Roshambo")
-                        .addEnumConstant("ROCK")
-                        .build())
-                .isInstanceOf(IllegalStateException.class);
+                        .addEnumConstant("ROCK"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("only enums can have enum constants");
     }
 
     @Test
@@ -979,6 +979,39 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void compactConstructorAsMethod() {
+        MethodSpec compactConstructor = MethodSpec.compactConstructorBuilder().build();
+        assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addMethod(compactConstructor))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("cannot add additional compact record constructor");
+    }
+
+    @Test
+    public void compactConstructorAsRecordMethod() {
+        MethodSpec compactConstructor = MethodSpec.compactConstructorBuilder().build();
+        assertThatThrownBy(() -> TypeSpec.recordBuilder("Taco").addMethod(compactConstructor))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("cannot add additional compact record constructor");
+    }
+
+    @Test
+    public void recordConstructorAlreadySet() {
+        MethodSpec constructor = MethodSpec.constructorBuilder().build();
+        TypeSpec.Builder builder = TypeSpec.recordBuilder("Taco").recordConstructor(constructor);
+        assertThatThrownBy(() -> builder.recordConstructor(constructor))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageStartingWith("record constructor already set to ");
+    }
+
+    @Test
+    public void regularMethodAsRecordConstructor() {
+        MethodSpec method = MethodSpec.methodBuilder("test").build();
+        assertThatThrownBy(() -> TypeSpec.recordBuilder("Taco").recordConstructor(method))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("must provide a constructor, not ");
+    }
+
+    @Test
     public void nestedClasses() {
         ClassName taco = ClassName.get(tacosPackage, "Combo", "Taco");
         ClassName topping = ClassName.get(tacosPackage, "Combo", "Taco", "Topping");
@@ -1127,9 +1160,9 @@ public final class TypeSpecTest {
                                 .addModifiers(Modifier.PUBLIC)
                                 .defaultValue("0")
                                 .returns(int.class)
-                                .build())
-                        .build())
-                .isInstanceOf(IllegalStateException.class);
+                                .build()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("method with default value is only allowed for annotation type");
     }
 
     @Test
@@ -2874,19 +2907,21 @@ public final class TypeSpecTest {
     }
 
     @Test
-    public void initializerBlockUnsupportedExceptionOnInterface() {
+    public void initializerBlockIllegalStateExceptionOnInterface() {
         TypeSpec.Builder interfaceBuilder = TypeSpec.interfaceBuilder("Taco");
         assertThatThrownBy(() ->
                         interfaceBuilder.addInitializerBlock(CodeBlock.builder().build()))
-                .isInstanceOf(UnsupportedOperationException.class);
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("INTERFACE can't have initializer blocks");
     }
 
     @Test
-    public void initializerBlockUnsupportedExceptionOnAnnotation() {
+    public void initializerBlockIllegalStateExceptionOnAnnotation() {
         TypeSpec.Builder annotationBuilder = TypeSpec.annotationBuilder("Taco");
         assertThatThrownBy(() -> annotationBuilder.addInitializerBlock(
                         CodeBlock.builder().build()))
-                .isInstanceOf(UnsupportedOperationException.class);
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("ANNOTATION can't have initializer blocks");
     }
 
     @Test

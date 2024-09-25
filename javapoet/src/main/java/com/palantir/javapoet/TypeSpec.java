@@ -206,10 +206,18 @@ public final class TypeSpec {
         return classBuilder(checkNotNull(className, "className == null").simpleName());
     }
 
+    /**
+     * Creates a builder for a record class. Call {@link Builder#recordConstructor(MethodSpec)}
+     * afterwards to define the components of the record.
+     */
     public static Builder recordBuilder(String name) {
         return new Builder(Kind.RECORD, checkNotNull(name, "name == null"), null);
     }
 
+    /**
+     * Creates a builder for a record class. Call {@link Builder#recordConstructor(MethodSpec)}
+     * afterwards to define the components of the record.
+     */
     public static Builder recordBuilder(ClassName className) {
         return recordBuilder(checkNotNull(className, "className == null").simpleName());
     }
@@ -433,7 +441,7 @@ public final class TypeSpec {
                 firstMember = false;
             }
 
-            // Compact constructor.
+            // Canonical record constructor.
             if (recordConstructor != null && !recordConstructor.code().isEmpty()) {
                 if (!firstMember) {
                     codeWriter.emit("\n");
@@ -731,10 +739,14 @@ public final class TypeSpec {
             return this;
         }
 
+        /**
+         * Defines the components of the record class (from the constructor parameters), and in case the
+         * constructor body is not empty also the code in the canonical constructor of the record.
+         */
         public Builder recordConstructor(MethodSpec recordConstructor) {
-            if (kind != Kind.RECORD) {
-                throw new UnsupportedOperationException(kind + " can't have record constructor");
-            }
+            checkState(this.kind == Kind.RECORD, "%s can't have record constructor", this.kind);
+            checkState(this.recordConstructor == null, "record constructor already set to %s", this.recordConstructor);
+            checkArgument(recordConstructor.isConstructor(), "must provide a constructor, not %s", recordConstructor);
             this.recordConstructor = recordConstructor;
             return this;
         }
@@ -791,6 +803,7 @@ public final class TypeSpec {
         public Builder addEnumConstant(String name, TypeSpec typeSpec) {
             checkNotNull(name, "name == null");
             checkNotNull(typeSpec, "typeSpec == null");
+            checkState(kind == Kind.ENUM, "only enums can have enum constants");
             enumConstants.put(name, typeSpec);
             return this;
         }
@@ -823,9 +836,7 @@ public final class TypeSpec {
         }
 
         public Builder addInitializerBlock(CodeBlock block) {
-            if ((kind != Kind.CLASS && kind != Kind.ENUM)) {
-                throw new UnsupportedOperationException(kind + " can't have initializer blocks");
-            }
+            checkState(kind == Kind.CLASS || kind == Kind.ENUM, "%s can't have initializer blocks", kind);
             initializerBlock.add("{\n").indent().add(block).unindent().add("}\n");
             return this;
         }
@@ -840,6 +851,10 @@ public final class TypeSpec {
 
         public Builder addMethod(MethodSpec methodSpec) {
             checkNotNull(methodSpec, "methodSpec == null");
+            checkArgument(!methodSpec.isCompactRecordConstructor(),
+                    "cannot add additional compact record constructor");
+            checkArgument(methodSpec.defaultValue() == null || kind == Kind.ANNOTATION,
+                    "method with default value is only allowed for annotation type");
             methodSpecs.add(methodSpec);
             return this;
         }

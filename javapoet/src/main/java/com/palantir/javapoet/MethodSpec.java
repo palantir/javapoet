@@ -129,6 +129,10 @@ public final class MethodSpec {
         return name.equals(CONSTRUCTOR);
     }
 
+    public boolean isCompactRecordConstructor() {
+        return compactConstructor;
+    }
+
     private boolean lastParameterIsArray(List<ParameterSpec> parameters) {
         return !parameters.isEmpty()
                 && TypeName.asArray(parameters.get(parameters.size() - 1).type()) != null;

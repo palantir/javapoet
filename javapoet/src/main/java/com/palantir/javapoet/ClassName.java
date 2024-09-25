@@ -17,6 +17,7 @@ package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
 import static com.palantir.javapoet.Util.checkNotNull;
+import static com.palantir.javapoet.Util.checkState;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,6 +69,8 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
             String packageName, ClassName enclosingClassName, String simpleName, List<AnnotationSpec> annotations) {
         super(annotations);
         this.packageName = checkNotNull(packageName, "packageName == null");
+        checkState(enclosingClassName == null || enclosingClassName.packageName.equals(packageName),
+                "enclosing class is in wrong package");
         this.enclosingClassName = enclosingClassName;
         this.simpleName = checkNotNull(simpleName, "simpleName == null");
         this.canonicalName = enclosingClassName != null

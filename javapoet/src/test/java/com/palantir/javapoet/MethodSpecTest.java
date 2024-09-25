@@ -403,6 +403,14 @@ public final class MethodSpecTest {
     }
 
     @Test
+    public void defaultValueAlreadySet() {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("name").defaultValue("true");
+        assertThatThrownBy(() -> builder.defaultValue("false"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("defaultValue was already set");
+    }
+
+    @Test
     public void ensureTrailingNewline() {
         MethodSpec methodSpec = MethodSpec.methodBuilder("method")
                 .addCode("codeWithNoNewline();")
