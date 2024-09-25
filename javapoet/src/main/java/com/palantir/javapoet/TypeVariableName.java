@@ -16,12 +16,13 @@
 package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
+import static com.palantir.javapoet.Util.checkNoNullElement;
 import static com.palantir.javapoet.Util.checkNotNull;
+import static com.palantir.javapoet.Util.nonNullList;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public final class TypeVariableName extends TypeName {
     private TypeVariableName(String name, List<TypeName> bounds, List<AnnotationSpec> annotations) {
         super(annotations);
         this.name = checkNotNull(name, "name == null");
-        this.bounds = Util.immutableList(bounds);
+        this.bounds = Util.immutableList(checkNoNullElement(bounds, "bounds"));
 
         for (TypeName bound : this.bounds) {
             checkArgument(!bound.isPrimitive() && bound != VOID, "invalid bound: %s", bound);
@@ -71,13 +72,13 @@ public final class TypeVariableName extends TypeName {
     }
 
     public TypeVariableName withBounds(TypeName... bounds) {
-        return withBounds(Arrays.asList(bounds));
+        return withBounds(nonNullList(bounds, "bounds"));
     }
 
     public TypeVariableName withBounds(List<? extends TypeName> bounds) {
         List<TypeName> newBounds = new ArrayList<>();
         newBounds.addAll(this.bounds);
-        newBounds.addAll(bounds);
+        newBounds.addAll(checkNoNullElement(bounds, "bounds"));
         return new TypeVariableName(name, newBounds, annotations());
     }
 
@@ -88,6 +89,8 @@ public final class TypeVariableName extends TypeName {
     }
 
     private static TypeVariableName of(String name, List<TypeName> bounds) {
+        checkNotNull(name, "name == null");
+        checkNoNullElement(bounds, "bounds");
         // Strip java.lang.Object from bounds if it is present.
         List<TypeName> boundsNoObject = new ArrayList<>(bounds);
         boundsNoObject.remove(ClassName.OBJECT);
@@ -96,17 +99,17 @@ public final class TypeVariableName extends TypeName {
 
     /** Returns type variable named {@code name} without bounds. */
     public static TypeVariableName get(String name) {
-        return TypeVariableName.of(name, Collections.emptyList());
+        return of(name, Collections.emptyList());
     }
 
     /** Returns type variable named {@code name} with {@code bounds}. */
     public static TypeVariableName get(String name, TypeName... bounds) {
-        return TypeVariableName.of(name, Arrays.asList(bounds));
+        return of(name, nonNullList(bounds, "bounds"));
     }
 
     /** Returns type variable named {@code name} with {@code bounds}. */
     public static TypeVariableName get(String name, Type... bounds) {
-        return TypeVariableName.of(name, TypeName.list(bounds));
+        return of(name, TypeName.list(bounds));
     }
 
     /** Returns type variable equivalent to {@code mirror}. */
@@ -123,6 +126,7 @@ public final class TypeVariableName extends TypeName {
      * in {@code variables} will make sure that the bounds are filled in before returning.
      */
     static TypeVariableName get(TypeVariable mirror, Map<TypeParameterElement, TypeVariableName> typeVariables) {
+        checkNotNull(mirror, "mirror == null");
         TypeParameterElement element = (TypeParameterElement) mirror.asElement();
         TypeVariableName typeVariableName = typeVariables.get(element);
         if (typeVariableName == null) {
@@ -141,6 +145,7 @@ public final class TypeVariableName extends TypeName {
 
     /** Returns type variable equivalent to {@code element}. */
     public static TypeVariableName get(TypeParameterElement element) {
+        checkNotNull(element, "element == null");
         String name = element.getSimpleName().toString();
         List<? extends TypeMirror> boundsMirrors = element.getBounds();
 
@@ -159,6 +164,7 @@ public final class TypeVariableName extends TypeName {
 
     /** @see #get(java.lang.reflect.TypeVariable, Map) */
     static TypeVariableName get(java.lang.reflect.TypeVariable<?> type, Map<Type, TypeVariableName> map) {
+        checkNotNull(type, "type == null");
         TypeVariableName result = map.get(type);
         if (result == null) {
             List<TypeName> bounds = new ArrayList<>();

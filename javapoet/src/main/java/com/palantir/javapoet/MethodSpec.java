@@ -18,6 +18,7 @@ package com.palantir.javapoet;
 import static com.palantir.javapoet.Util.checkArgument;
 import static com.palantir.javapoet.Util.checkNotNull;
 import static com.palantir.javapoet.Util.checkState;
+import static com.palantir.javapoet.Util.nonNullList;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -294,6 +295,10 @@ public final class MethodSpec {
      * parameters of the overridden method. Since JavaPoet 1.8 annotations must be added separately.
      */
     public static Builder overriding(ExecutableElement method, DeclaredType enclosing, Types types) {
+        checkNotNull(method, "method == null");
+        checkNotNull(enclosing, "enclosing == null");
+        checkNotNull(types, "types == null");
+
         ExecutableType executableType = (ExecutableType) types.asMemberOf(enclosing, method);
         List<? extends TypeMirror> resolvedParameterTypes = executableType.getParameterTypes();
         List<? extends TypeMirror> resolvedThrownTypes = executableType.getThrownTypes();
@@ -371,21 +376,21 @@ public final class MethodSpec {
         }
 
         public Builder addAnnotations(Iterable<AnnotationSpec> annotationSpecs) {
-            checkArgument(annotationSpecs != null, "annotationSpecs == null");
+            checkNotNull(annotationSpecs, "annotationSpecs == null");
             for (AnnotationSpec annotationSpec : annotationSpecs) {
-                this.annotations.add(annotationSpec);
+                addAnnotation(annotationSpec);
             }
             return this;
         }
 
         public Builder addAnnotation(AnnotationSpec annotationSpec) {
+            checkNotNull(annotationSpec, "annotationSpec == null");
             this.annotations.add(annotationSpec);
             return this;
         }
 
         public Builder addAnnotation(ClassName annotation) {
-            this.annotations.add(AnnotationSpec.builder(annotation).build());
-            return this;
+            return addAnnotation(AnnotationSpec.builder(annotation).build());
         }
 
         public Builder addAnnotation(Class<?> annotation) {
@@ -393,34 +398,35 @@ public final class MethodSpec {
         }
 
         public Builder addModifiers(Modifier... modifiers) {
-            checkNotNull(modifiers, "modifiers == null");
-            Collections.addAll(this.modifiers, modifiers);
-            return this;
+            return addModifiers(nonNullList(modifiers, "modifiers"));
         }
 
         public Builder addModifiers(Iterable<Modifier> modifiers) {
             checkNotNull(modifiers, "modifiers == null");
             for (Modifier modifier : modifiers) {
+                checkNotNull(modifier, "modifiers contain null");
                 this.modifiers.add(modifier);
             }
             return this;
         }
 
         public Builder addTypeVariables(Iterable<TypeVariableName> typeVariables) {
-            checkArgument(typeVariables != null, "typeVariables == null");
+            checkNotNull(typeVariables, "typeVariables == null");
             for (TypeVariableName typeVariable : typeVariables) {
-                this.typeVariables.add(typeVariable);
+                addTypeVariable(typeVariable);
             }
             return this;
         }
 
         public Builder addTypeVariable(TypeVariableName typeVariable) {
+            checkNotNull(typeVariable, "typeVariable == null");
             typeVariables.add(typeVariable);
             return this;
         }
 
         public Builder returns(TypeName returnType) {
             checkState(!name.equals(CONSTRUCTOR), "constructor cannot have return type.");
+            checkNotNull(returnType, "returnType == null");
             this.returnType = returnType;
             return this;
         }
@@ -430,14 +436,15 @@ public final class MethodSpec {
         }
 
         public Builder addParameters(Iterable<ParameterSpec> parameterSpecs) {
-            checkArgument(parameterSpecs != null, "parameterSpecs == null");
+            checkNotNull(parameterSpecs, "parameterSpecs == null");
             for (ParameterSpec parameterSpec : parameterSpecs) {
-                this.parameters.add(parameterSpec);
+                addParameter(parameterSpec);
             }
             return this;
         }
 
         public Builder addParameter(ParameterSpec parameterSpec) {
+            checkNotNull(parameterSpec, "parameterSpec == null");
             this.parameters.add(parameterSpec);
             return this;
         }
@@ -460,14 +467,15 @@ public final class MethodSpec {
         }
 
         public Builder addExceptions(Iterable<? extends TypeName> exceptions) {
-            checkArgument(exceptions != null, "exceptions == null");
+            checkNotNull(exceptions, "exceptions == null");
             for (TypeName exception : exceptions) {
-                this.exceptions.add(exception);
+                addException(exception);
             }
             return this;
         }
 
         public Builder addException(TypeName exception) {
+            checkNotNull(exception, "exception == null");
             this.exceptions.add(exception);
             return this;
         }
@@ -492,6 +500,7 @@ public final class MethodSpec {
         }
 
         public Builder addComment(String format, Object... args) {
+            checkNotNull(format, "format == null"); // otherwise string concat turns this into non-null
             code.add("// " + format + "\n", args);
             return this;
         }

@@ -130,6 +130,7 @@ public final class ParameterSpec {
     }
 
     private static boolean isValidParameterName(String name) {
+        checkNotNull(name, "name == null");
         // Allow "this" for explicit receiver parameters
         // See https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.4.1.
         if (name.endsWith(".this")) {
@@ -183,21 +184,21 @@ public final class ParameterSpec {
         }
 
         public Builder addAnnotations(Iterable<AnnotationSpec> annotationSpecs) {
-            checkArgument(annotationSpecs != null, "annotationSpecs == null");
+            checkNotNull(annotationSpecs, "annotationSpecs == null");
             for (AnnotationSpec annotationSpec : annotationSpecs) {
-                this.annotations.add(annotationSpec);
+                addAnnotation(annotationSpec);
             }
             return this;
         }
 
         public Builder addAnnotation(AnnotationSpec annotationSpec) {
+            checkNotNull(annotationSpec, "annotationSpec == null");
             this.annotations.add(annotationSpec);
             return this;
         }
 
         public Builder addAnnotation(ClassName annotation) {
-            this.annotations.add(AnnotationSpec.builder(annotation).build());
-            return this;
+            return addAnnotation(AnnotationSpec.builder(annotation).build());
         }
 
         public Builder addAnnotation(Class<?> annotation) {
@@ -212,6 +213,7 @@ public final class ParameterSpec {
         public Builder addModifiers(Iterable<Modifier> modifiers) {
             checkNotNull(modifiers, "modifiers == null");
             for (Modifier modifier : modifiers) {
+                checkNotNull(modifier, "modifiers contain null");
                 if (!modifier.equals(Modifier.FINAL)) {
                     throw new IllegalStateException("unexpected parameter modifier: " + modifier);
                 }

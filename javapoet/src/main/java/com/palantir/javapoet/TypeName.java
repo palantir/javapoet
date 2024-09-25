@@ -15,6 +15,10 @@
  */
 package com.palantir.javapoet;
 
+import static com.palantir.javapoet.Util.checkNoNullElement;
+import static com.palantir.javapoet.Util.checkNotNull;
+import static com.palantir.javapoet.Util.nonNullList;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.GenericArrayType;
@@ -23,7 +27,6 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +94,7 @@ public class TypeName {
 
     private TypeName(String keyword, List<AnnotationSpec> annotations) {
         this.keyword = keyword;
-        this.annotations = Util.immutableList(annotations);
+        this.annotations = Util.immutableList(checkNoNullElement(annotations, "annotations"));
     }
 
     // Package-private constructor to prevent third-party subclasses.
@@ -104,11 +107,11 @@ public class TypeName {
     }
 
     public final TypeName annotated(AnnotationSpec... annotations) {
-        return annotated(Arrays.asList(annotations));
+        return annotated(nonNullList(annotations, "annotations"));
     }
 
     public TypeName annotated(List<AnnotationSpec> annotations) {
-        Util.checkNotNull(annotations, "annotations == null");
+        checkNotNull(annotations, "annotations == null");
         return new TypeName(keyword, concatAnnotations(annotations));
     }
 
@@ -119,9 +122,9 @@ public class TypeName {
         return new TypeName(keyword);
     }
 
-    protected final List<AnnotationSpec> concatAnnotations(List<AnnotationSpec> annotations) {
+    final List<AnnotationSpec> concatAnnotations(List<AnnotationSpec> annotations) {
         List<AnnotationSpec> allAnnotations = new ArrayList<>(this.annotations);
-        allAnnotations.addAll(annotations);
+        allAnnotations.addAll(checkNoNullElement(annotations, "annotations"));
         return allAnnotations;
     }
 
@@ -285,6 +288,7 @@ public class TypeName {
     }
 
     static TypeName get(TypeMirror mirror, final Map<TypeParameterElement, TypeVariableName> typeVariables) {
+        checkNotNull(mirror, "mirror == null");
         return mirror.accept(
                 new SimpleTypeVisitor8<TypeName, Void>() {
                     @Override
@@ -422,6 +426,7 @@ public class TypeName {
     }
 
     static List<TypeName> list(Type[] types, Map<Type, TypeVariableName> map) {
+        checkNoNullElement(types, "types");
         List<TypeName> result = new ArrayList<>(types.length);
         for (Type type : types) {
             result.add(get(type, map));

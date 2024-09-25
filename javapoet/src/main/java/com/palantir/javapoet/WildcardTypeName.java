@@ -16,6 +16,8 @@
 package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
+import static com.palantir.javapoet.Util.checkNoNullElement;
+import static com.palantir.javapoet.Util.checkNotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -38,8 +40,8 @@ public final class WildcardTypeName extends TypeName {
 
     private WildcardTypeName(List<TypeName> upperBounds, List<TypeName> lowerBounds, List<AnnotationSpec> annotations) {
         super(annotations);
-        this.upperBounds = Util.immutableList(upperBounds);
-        this.lowerBounds = Util.immutableList(lowerBounds);
+        this.upperBounds = Util.immutableList(checkNoNullElement(upperBounds, "upperBounds"));
+        this.lowerBounds = Util.immutableList(checkNoNullElement(lowerBounds, "lowerBounds"));
 
         checkArgument(this.upperBounds.size() == 1, "unexpected extends bounds: %s", upperBounds);
         for (TypeName upperBound : this.upperBounds) {
@@ -104,11 +106,13 @@ public final class WildcardTypeName extends TypeName {
     }
 
     public static TypeName get(javax.lang.model.type.WildcardType mirror) {
+        checkNotNull(mirror, "mirror == null");
         return get(mirror, new LinkedHashMap<>());
     }
 
     static TypeName get(
             javax.lang.model.type.WildcardType mirror, Map<TypeParameterElement, TypeVariableName> typeVariables) {
+        checkNotNull(mirror, "mirror == null");
         TypeMirror extendsBound = mirror.getExtendsBound();
         if (extendsBound == null) {
             TypeMirror superBound = mirror.getSuperBound();

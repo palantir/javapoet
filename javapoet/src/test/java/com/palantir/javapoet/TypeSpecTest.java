@@ -2084,6 +2084,13 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void nullAnonymousClass() {
+        assertThatThrownBy(() -> TypeSpec.anonymousClassBuilder(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("typeArguments == null");
+    }
+
+    @Test
     public void interfaceClassToString() {
         TypeSpec type = TypeSpec.interfaceBuilder("Taco").build();
         assertThat(type.toString())
@@ -2245,7 +2252,7 @@ public final class TypeSpecTest {
     @Test
     public void nullAnnotationsAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addAnnotations(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("annotationSpecs == null");
     }
 
@@ -2276,7 +2283,7 @@ public final class TypeSpecTest {
     @Test
     public void nullFieldsAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addFields(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("fieldSpecs == null");
     }
 
@@ -2307,7 +2314,7 @@ public final class TypeSpecTest {
     @Test
     public void nullMethodsAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addMethods(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("methodSpecs == null");
     }
 
@@ -2350,14 +2357,14 @@ public final class TypeSpecTest {
     @Test
     public void nullSuperinterfacesAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addSuperinterfaces(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("superinterfaces == null");
     }
 
     @Test
     public void nullSingleSuperinterfaceAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addSuperinterface((TypeName) null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("superinterface == null");
     }
 
@@ -2368,7 +2375,7 @@ public final class TypeSpecTest {
         superinterfaces.add(null);
 
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addSuperinterfaces(superinterfaces))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("superinterface == null");
     }
 
@@ -2393,14 +2400,14 @@ public final class TypeSpecTest {
     @Test
     public void nullPermittedSubclassesAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addPermittedSubclasses(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("permittedSubclasses == null");
     }
 
     @Test
     public void nullPermittedSubclassAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addPermittedSubclass((TypeName) null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("permittedSubclass == null");
     }
 
@@ -2411,7 +2418,7 @@ public final class TypeSpecTest {
         permittedSublclasses.add(null);
 
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addPermittedSubclasses(permittedSublclasses))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("permittedSubclass == null");
     }
 
@@ -2438,14 +2445,14 @@ public final class TypeSpecTest {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco")
                         .addModifiers((Modifier) null)
                         .build())
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("modifiers contain null");
     }
 
     @Test
     public void nullTypeVariablesAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addTypeVariables(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("typeVariables == null");
     }
 
@@ -2469,7 +2476,7 @@ public final class TypeSpecTest {
     @Test
     public void nullTypesAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addTypes(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("typeSpecs == null");
     }
 

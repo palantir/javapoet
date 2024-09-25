@@ -16,6 +16,7 @@
 package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
+import static com.palantir.javapoet.Util.checkNoNullElement;
 import static com.palantir.javapoet.Util.checkNotNull;
 import static com.palantir.javapoet.Util.checkState;
 import static com.palantir.javapoet.Util.requireExactlyOneOf;
@@ -234,6 +235,7 @@ public final class TypeSpec {
     }
 
     public static Builder anonymousClassBuilder(CodeBlock typeArguments) {
+        checkNotNull(typeArguments, "typeArguments == null");
         return new Builder(Kind.CLASS, null, typeArguments);
     }
 
@@ -611,9 +613,9 @@ public final class TypeSpec {
         }
 
         public Builder addAnnotations(Iterable<AnnotationSpec> annotationSpecs) {
-            checkArgument(annotationSpecs != null, "annotationSpecs == null");
+            checkNotNull(annotationSpecs, "annotationSpecs == null");
             for (AnnotationSpec annotationSpec : annotationSpecs) {
-                this.annotations.add(annotationSpec);
+                addAnnotation(annotationSpec);
             }
             return this;
         }
@@ -633,26 +635,27 @@ public final class TypeSpec {
         }
 
         public Builder addModifiers(Modifier... modifiers) {
-            Collections.addAll(this.modifiers, modifiers);
+            Collections.addAll(this.modifiers, checkNoNullElement(modifiers, "modifiers"));
             return this;
         }
 
         public Builder addTypeVariables(Iterable<TypeVariableName> typeVariables) {
-            checkArgument(typeVariables != null, "typeVariables == null");
+            checkNotNull(typeVariables, "typeVariables == null");
             for (TypeVariableName typeVariable : typeVariables) {
-                this.typeVariables.add(typeVariable);
+                addTypeVariable(typeVariable);
             }
             return this;
         }
 
         public Builder addTypeVariable(TypeVariableName typeVariable) {
+            checkNotNull(typeVariable, "typeVariable == null");
             typeVariables.add(typeVariable);
             return this;
         }
 
         public Builder superclass(TypeName superclass) {
-            checkState(this.kind == Kind.CLASS, "only classes have super classes, not " + this.kind);
-            checkState(this.superclass == ClassName.OBJECT, "superclass already set to " + this.superclass);
+            checkState(this.kind == Kind.CLASS, "only classes have super classes, not %s", this.kind);
+            checkState(this.superclass == ClassName.OBJECT, "superclass already set to %s", this.superclass);
             checkArgument(!superclass.isPrimitive(), "superclass may not be a primitive");
             this.superclass = superclass;
             return this;
@@ -687,7 +690,7 @@ public final class TypeSpec {
         }
 
         public Builder addSuperinterfaces(Iterable<? extends TypeName> superinterfaces) {
-            checkArgument(superinterfaces != null, "superinterfaces == null");
+            checkNotNull(superinterfaces, "superinterfaces == null");
             for (TypeName superinterface : superinterfaces) {
                 addSuperinterface(superinterface);
             }
@@ -695,7 +698,7 @@ public final class TypeSpec {
         }
 
         public Builder addSuperinterface(TypeName superinterface) {
-            checkArgument(superinterface != null, "superinterface == null");
+            checkNotNull(superinterface, "superinterface == null");
             this.superinterfaces.add(superinterface);
             return this;
         }
@@ -737,7 +740,7 @@ public final class TypeSpec {
         }
 
         public Builder addPermittedSubclasses(Iterable<? extends TypeName> permittedSubclasses) {
-            checkArgument(permittedSubclasses != null, "permittedSubclasses == null");
+            checkNotNull(permittedSubclasses, "permittedSubclasses == null");
             for (TypeName permittedSubclass : permittedSubclasses) {
                 addPermittedSubclass(permittedSubclass);
             }
@@ -747,8 +750,8 @@ public final class TypeSpec {
         public Builder addPermittedSubclass(TypeName permittedSubclass) {
             checkState(
                     this.kind == Kind.CLASS || this.kind == Kind.INTERFACE,
-                    "only classes and interfaces can have permitted subclasses, not " + this.kind);
-            checkArgument(permittedSubclass != null, "permittedSubclass == null");
+                    "only classes and interfaces can have permitted subclasses, not %s", this.kind);
+            checkNotNull(permittedSubclass, "permittedSubclass == null");
             this.permittedSubclasses.add(permittedSubclass);
             return this;
         }
@@ -786,12 +789,14 @@ public final class TypeSpec {
         }
 
         public Builder addEnumConstant(String name, TypeSpec typeSpec) {
+            checkNotNull(name, "name == null");
+            checkNotNull(typeSpec, "typeSpec == null");
             enumConstants.put(name, typeSpec);
             return this;
         }
 
         public Builder addFields(Iterable<FieldSpec> fieldSpecs) {
-            checkArgument(fieldSpecs != null, "fieldSpecs == null");
+            checkNotNull(fieldSpecs, "fieldSpecs == null");
             for (FieldSpec fieldSpec : fieldSpecs) {
                 addField(fieldSpec);
             }
@@ -799,6 +804,7 @@ public final class TypeSpec {
         }
 
         public Builder addField(FieldSpec fieldSpec) {
+            checkNotNull(fieldSpec, "fieldSpec == null");
             fieldSpecs.add(fieldSpec);
             return this;
         }
@@ -825,7 +831,7 @@ public final class TypeSpec {
         }
 
         public Builder addMethods(Iterable<MethodSpec> methodSpecs) {
-            checkArgument(methodSpecs != null, "methodSpecs == null");
+            checkNotNull(methodSpecs, "methodSpecs == null");
             for (MethodSpec methodSpec : methodSpecs) {
                 addMethod(methodSpec);
             }
@@ -833,12 +839,13 @@ public final class TypeSpec {
         }
 
         public Builder addMethod(MethodSpec methodSpec) {
+            checkNotNull(methodSpec, "methodSpec == null");
             methodSpecs.add(methodSpec);
             return this;
         }
 
         public Builder addTypes(Iterable<TypeSpec> typeSpecs) {
-            checkArgument(typeSpecs != null, "typeSpecs == null");
+            checkNotNull(typeSpecs, "typeSpecs == null");
             for (TypeSpec typeSpec : typeSpecs) {
                 addType(typeSpec);
             }
@@ -846,21 +853,20 @@ public final class TypeSpec {
         }
 
         public Builder addType(TypeSpec typeSpec) {
+            checkNotNull(typeSpec, "typeSpec == null");
             typeSpecs.add(typeSpec);
             return this;
         }
 
         public Builder addOriginatingElement(Element originatingElement) {
+            checkNotNull(originatingElement, "originatingElement == null");
             originatingElements.add(originatingElement);
             return this;
         }
 
         public Builder alwaysQualify(String... simpleNames) {
-            checkArgument(simpleNames != null, "simpleNames == null");
-            for (String name : simpleNames) {
-                checkArgument(name != null, "null entry in simpleNames array: %s", Arrays.toString(simpleNames));
-                alwaysQualifiedNames.add(name);
-            }
+            checkNoNullElement(simpleNames, "simpleNames");
+            Collections.addAll(alwaysQualifiedNames, simpleNames);
             return this;
         }
 
@@ -889,7 +895,7 @@ public final class TypeSpec {
          * @return this builder instance
          */
         public Builder avoidClashesWithNestedClasses(TypeElement typeElement) {
-            checkArgument(typeElement != null, "typeElement == null");
+            checkNotNull(typeElement, "typeElement == null");
             for (TypeElement nestedType : ElementFilter.typesIn(typeElement.getEnclosedElements())) {
                 alwaysQualify(nestedType.getSimpleName().toString());
             }
@@ -932,7 +938,7 @@ public final class TypeSpec {
          * @return this builder instance
          */
         public Builder avoidClashesWithNestedClasses(Class<?> clazz) {
-            checkArgument(clazz != null, "clazz == null");
+            checkNotNull(clazz, "clazz == null");
             for (Class<?> nestedType : clazz.getDeclaredClasses()) {
                 alwaysQualify(nestedType.getSimpleName());
             }
@@ -954,7 +960,7 @@ public final class TypeSpec {
             if (!modifiers.isEmpty()) {
                 checkState(anonymousTypeArguments == null, "forbidden on anonymous types.");
                 for (Modifier modifier : modifiers) {
-                    checkArgument(modifier != null, "modifiers contain null");
+                    checkNotNull(modifier, "modifiers contain null");
                 }
             }
 
@@ -964,19 +970,12 @@ public final class TypeSpec {
                 }
             }
 
-            for (TypeName superinterface : superinterfaces) {
-                checkArgument(superinterface != null, "superinterfaces contains null");
-            }
-
-            for (TypeName superinterface : permittedSubclasses) {
-                checkArgument(superinterface != null, "permittedSubclasses contains null");
-            }
+            checkNoNullElement(superinterfaces, "superinterfaces");
+            checkNoNullElement(permittedSubclasses, "permittedSubclasses");
 
             if (!typeVariables.isEmpty()) {
-                checkState(anonymousTypeArguments == null, "typevariables are forbidden on anonymous types.");
-                for (TypeVariableName typeVariableName : typeVariables) {
-                    checkArgument(typeVariableName != null, "typeVariables contain null");
-                }
+                checkState(anonymousTypeArguments == null, "typeVariables are forbidden on anonymous types.");
+                checkNoNullElement(typeVariables, "typeVariables");
             }
 
             for (Map.Entry<String, TypeSpec> enumConstant : enumConstants.entrySet()) {

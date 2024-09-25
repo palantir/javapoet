@@ -41,7 +41,7 @@ public class FieldSpecTest {
     @Test
     public void nullAnnotationsAddition() {
         assertThatThrownBy(() -> FieldSpec.builder(int.class, "foo").addAnnotations(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("annotationSpecs == null");
     }
 }

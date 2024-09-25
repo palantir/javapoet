@@ -16,14 +16,15 @@
 package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
+import static com.palantir.javapoet.Util.checkNoNullElement;
 import static com.palantir.javapoet.Util.checkNotNull;
+import static com.palantir.javapoet.Util.nonNullList;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public final class ParameterizedTypeName extends TypeName {
         super(annotations);
         this.rawType = checkNotNull(rawType, "rawType == null").annotated(annotations);
         this.enclosingType = enclosingType;
-        this.typeArguments = Util.immutableList(typeArguments);
+        this.typeArguments = Util.immutableList(checkNoNullElement(typeArguments, "typeArguments"));
 
         checkArgument(!this.typeArguments.isEmpty() || enclosingType != null, "no type arguments: %s", rawType);
         for (TypeName typeArgument : this.typeArguments) {
@@ -124,7 +125,7 @@ public final class ParameterizedTypeName extends TypeName {
 
     /** Returns a parameterized type, applying {@code typeArguments} to {@code rawType}. */
     public static ParameterizedTypeName get(ClassName rawType, TypeName... typeArguments) {
-        return new ParameterizedTypeName(null, rawType, Arrays.asList(typeArguments));
+        return new ParameterizedTypeName(null, rawType, nonNullList(typeArguments, "typeArguments"));
     }
 
     /** Returns a parameterized type, applying {@code typeArguments} to {@code rawType}. */
@@ -139,6 +140,7 @@ public final class ParameterizedTypeName extends TypeName {
 
     /** Returns a parameterized type equivalent to {@code type}. */
     static ParameterizedTypeName get(ParameterizedType type, Map<Type, TypeVariableName> map) {
+        checkNotNull(type, "type == null");
         ClassName rawType = ClassName.get((Class<?>) type.getRawType());
         List<TypeName> typeArguments = TypeName.list(type.getActualTypeArguments(), map);
 

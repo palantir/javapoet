@@ -68,28 +68,28 @@ public final class MethodSpecTest {
     @Test
     public void nullAnnotationsAddition() {
         assertThatThrownBy(() -> MethodSpec.methodBuilder("doSomething").addAnnotations(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("annotationSpecs == null");
     }
 
     @Test
     public void nullTypeVariablesAddition() {
         assertThatThrownBy(() -> MethodSpec.methodBuilder("doSomething").addTypeVariables(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("typeVariables == null");
     }
 
     @Test
     public void nullParametersAddition() {
         assertThatThrownBy(() -> MethodSpec.methodBuilder("doSomething").addParameters(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("parameterSpecs == null");
     }
 
     @Test
     public void nullExceptionsAddition() {
         assertThatThrownBy(() -> MethodSpec.methodBuilder("doSomething").addExceptions(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("exceptions == null");
     }
 
