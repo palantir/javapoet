@@ -260,6 +260,7 @@ public final class TypeSpec {
         builder.typeSpecs.addAll(typeSpecs);
         builder.initializerBlock.add(initializerBlock);
         builder.staticBlock.add(staticBlock);
+        builder.recordConstructor = recordConstructor;
         builder.originatingElements.addAll(originatingElements);
         builder.alwaysQualifiedNames.addAll(alwaysQualifiedNames);
         return builder;

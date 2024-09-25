@@ -38,6 +38,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,9 +57,37 @@ public final class TypeSpecTest {
         return compilation.getElements().getTypeElement(clazz.getCanonicalName());
     }
 
+    /**
+     * Type spec created by a test method; used by {@link #checkToBuilderRoundtrip()}.
+     *
+     * <p>{@code null} if a test method does not create a (valid) type spec, or if no round-trip check
+     * should be performed on it.
+     */
+    private TypeSpec typeSpec = null;
+
+    /**
+     * Performs round-trip check that {@code typeSpec.toBuilder().build()} is identical to the
+     * original {@code typeSpec}.
+     */
+    @After
+    public void checkToBuilderRoundtrip() {
+        if (typeSpec == null) {
+            return;
+        }
+
+        String originalToString = typeSpec.toString();
+        int originalHashCode = typeSpec.hashCode();
+
+        TypeSpec roundtripTypeSpec = typeSpec.toBuilder().build();
+        assertThat(roundtripTypeSpec.toString()).isEqualTo(originalToString);
+        assertThat(roundtripTypeSpec.hashCode()).isEqualTo(originalHashCode);
+        assertThat(roundtripTypeSpec).isEqualTo(typeSpec);
+    }
+
+
     @Test
     public void basic() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("toString")
                         .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -66,7 +95,7 @@ public final class TypeSpecTest {
                         .addCode("return $S;\n", "taco")
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -81,7 +110,7 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
-        assertThat(taco.hashCode()).isEqualTo(472949424); // update expected number if source changes
+        assertThat(typeSpec.hashCode()).isEqualTo(472949424); // update expected number if source changes
     }
 
     @Test
@@ -92,12 +121,12 @@ public final class TypeSpecTest {
                 ParameterizedTypeName.get(ClassName.get(List.class), WildcardTypeName.subtypeOf(Serializable.class));
         TypeName listOfSuper =
                 ParameterizedTypeName.get(ClassName.get(List.class), WildcardTypeName.supertypeOf(String.class));
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(listOfAny, "extendsObject")
                 .addField(listOfExtends, "extendsSerializable")
                 .addField(listOfSuper, "superString")
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -150,14 +179,14 @@ public final class TypeSpecTest {
                         .addCode("return $L;\n", aSimpleThung)
                         .build())
                 .build();
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(FieldSpec.builder(thingThangOfFooBar, "NAME")
                         .addModifiers(Modifier.STATIC, Modifier.FINAL, Modifier.FINAL)
                         .initializer("$L", aThingThang)
                         .build())
                 .build();
 
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -182,7 +211,7 @@ public final class TypeSpecTest {
 
     @Test
     public void annotatedParameters() {
-        TypeSpec service = TypeSpec.classBuilder("Foo")
+        typeSpec = TypeSpec.classBuilder("Foo")
                 .addMethod(MethodSpec.constructorBuilder()
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(long.class, "id")
@@ -204,7 +233,7 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(service))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -227,14 +256,14 @@ public final class TypeSpecTest {
     @Test
     public void annotationsAndJavaLangTypes() {
         ClassName freeRange = ClassName.get("javax.annotation", "FreeRange");
-        TypeSpec taco = TypeSpec.classBuilder("EthicalTaco")
+        typeSpec = TypeSpec.classBuilder("EthicalTaco")
                 .addField(
                         ClassName.get(String.class)
                                 .annotated(AnnotationSpec.builder(freeRange).build()),
                         "meat")
                 .build();
 
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -261,7 +290,7 @@ public final class TypeSpecTest {
         ClassName body = ClassName.get(tacosPackage, "Body");
         ClassName queryMap = ClassName.get(tacosPackage, "QueryMap");
         ClassName header = ClassName.get(tacosPackage, "Header");
-        TypeSpec service = TypeSpec.interfaceBuilder("Service")
+        typeSpec = TypeSpec.interfaceBuilder("Service")
                 .addMethod(MethodSpec.methodBuilder("fooBar")
                         .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                         .addAnnotation(AnnotationSpec.builder(headers)
@@ -288,7 +317,7 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(service))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -311,14 +340,14 @@ public final class TypeSpecTest {
 
     @Test
     public void annotatedField() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(FieldSpec.builder(String.class, "thing", Modifier.PRIVATE, Modifier.FINAL)
                         .addAnnotation(AnnotationSpec.builder(ClassName.get(tacosPackage, "JsonAdapter"))
                                 .addMember("value", "$T.class", ClassName.get(tacosPackage, "Foo"))
                                 .build())
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -335,7 +364,7 @@ public final class TypeSpecTest {
     @Test
     public void annotatedClass() {
         ClassName someType = ClassName.get(tacosPackage, "SomeType");
-        TypeSpec taco = TypeSpec.classBuilder("Foo")
+        typeSpec = TypeSpec.classBuilder("Foo")
                 .addAnnotation(AnnotationSpec.builder(ClassName.get(tacosPackage, "Something"))
                         .addMember("hi", "$T.$N", someType, "FIELD")
                         .addMember("hey", "$L", 12)
@@ -343,7 +372,7 @@ public final class TypeSpecTest {
                         .build())
                 .addModifiers(Modifier.PUBLIC)
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -373,7 +402,7 @@ public final class TypeSpecTest {
 
     @Test
     public void enumWithSubclassing() {
-        TypeSpec roshambo = TypeSpec.enumBuilder("Roshambo")
+        typeSpec = TypeSpec.enumBuilder("Roshambo")
                 .addModifiers(Modifier.PUBLIC)
                 .addEnumConstant(
                         "ROCK",
@@ -402,7 +431,7 @@ public final class TypeSpecTest {
                         .addCode("this($S);\n", "fist")
                         .build())
                 .build();
-        assertThat(toString(roshambo))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -441,7 +470,7 @@ public final class TypeSpecTest {
     /** https://github.com/square/javapoet/issues/193 */
     @Test
     public void enumsMayDefineAbstractMethods() {
-        TypeSpec roshambo = TypeSpec.enumBuilder("Tortilla")
+        typeSpec = TypeSpec.enumBuilder("Tortilla")
                 .addModifiers(Modifier.PUBLIC)
                 .addEnumConstant(
                         "CORN",
@@ -455,7 +484,7 @@ public final class TypeSpecTest {
                         .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                         .build())
                 .build();
-        assertThat(toString(roshambo))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -476,10 +505,10 @@ public final class TypeSpecTest {
 
     @Test
     public void noEnumConstants() {
-        TypeSpec roshambo = TypeSpec.enumBuilder("Roshambo")
+        typeSpec = TypeSpec.enumBuilder("Roshambo")
                 .addField(String.class, "NO_ENUM", Modifier.STATIC)
                 .build();
-        assertThat(toString(roshambo))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -503,7 +532,7 @@ public final class TypeSpecTest {
 
     @Test
     public void enumWithMembersButNoConstructorCall() {
-        TypeSpec roshambo = TypeSpec.enumBuilder("Roshambo")
+        typeSpec = TypeSpec.enumBuilder("Roshambo")
                 .addEnumConstant(
                         "SPOCK",
                         TypeSpec.anonymousClassBuilder("")
@@ -515,7 +544,7 @@ public final class TypeSpecTest {
                                         .build())
                                 .build())
                 .build();
-        assertThat(toString(roshambo))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -537,7 +566,7 @@ public final class TypeSpecTest {
     /** https://github.com/square/javapoet/issues/253 */
     @Test
     public void enumWithAnnotatedValues() {
-        TypeSpec roshambo = TypeSpec.enumBuilder("Roshambo")
+        typeSpec = TypeSpec.enumBuilder("Roshambo")
                 .addModifiers(Modifier.PUBLIC)
                 .addEnumConstant(
                         "ROCK",
@@ -547,7 +576,7 @@ public final class TypeSpecTest {
                 .addEnumConstant("PAPER")
                 .addEnumConstant("SCISSORS")
                 .build();
-        assertThat(toString(roshambo))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -567,7 +596,7 @@ public final class TypeSpecTest {
 
     @Test
     public void methodThrows() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addModifiers(Modifier.ABSTRACT)
                 .addMethod(MethodSpec.methodBuilder("throwOne")
                         .addException(IOException.class)
@@ -585,7 +614,7 @@ public final class TypeSpecTest {
                         .addException(IOException.class)
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -611,7 +640,7 @@ public final class TypeSpecTest {
         TypeVariableName t = TypeVariableName.get("T");
         TypeVariableName p = TypeVariableName.get("P", Number.class);
         ClassName location = ClassName.get(tacosPackage, "Location");
-        TypeSpec typeSpec = TypeSpec.classBuilder("Location")
+        typeSpec = TypeSpec.classBuilder("Location")
                 .addTypeVariable(t)
                 .addTypeVariable(p)
                 .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Comparable.class), p))
@@ -672,7 +701,7 @@ public final class TypeSpecTest {
         TypeVariableName p = TypeVariableName.get("P", Number.class);
         TypeVariableName q =
                 (TypeVariableName) TypeVariableName.get("Q", Number.class).annotated(a);
-        TypeSpec typeSpec = TypeSpec.classBuilder("Location")
+        typeSpec = TypeSpec.classBuilder("Location")
                 .addTypeVariable(p.withBounds(Comparable.class))
                 .addTypeVariable(q.withBounds(Comparable.class))
                 .addField(p, "x")
@@ -696,8 +725,7 @@ public final class TypeSpecTest {
 
     @Test
     public void classSealed() {
-        TypeSpec typeSpec =
-                TypeSpec.classBuilder("Taco").addModifiers(Modifier.SEALED).build();
+        typeSpec = TypeSpec.classBuilder("Taco").addModifiers(Modifier.SEALED).build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -710,8 +738,7 @@ public final class TypeSpecTest {
 
     @Test
     public void classNonSealed() {
-        TypeSpec typeSpec =
-                TypeSpec.classBuilder("Taco").addModifiers(Modifier.NON_SEALED).build();
+        typeSpec = TypeSpec.classBuilder("Taco").addModifiers(Modifier.NON_SEALED).build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -726,7 +753,7 @@ public final class TypeSpecTest {
     public void classImplementsExtendsPermits() {
         ClassName taco = ClassName.get(tacosPackage, "Taco");
         ClassName food = ClassName.get("com.palantir.tacos", "Food");
-        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addModifiers(Modifier.ABSTRACT, Modifier.SEALED)
                 .superclass(ParameterizedTypeName.get(ClassName.get(AbstractSet.class), food))
                 .addSuperinterface(Serializable.class)
@@ -754,7 +781,7 @@ public final class TypeSpecTest {
         ClassName outer = ClassName.get(tacosPackage, "Outer");
         ClassName inner = outer.nestedClass("Inner");
         ClassName callable = ClassName.get(Callable.class);
-        TypeSpec typeSpec = TypeSpec.classBuilder("Outer")
+        typeSpec = TypeSpec.classBuilder("Outer")
                 .superclass(ParameterizedTypeName.get(callable, inner))
                 .addType(TypeSpec.classBuilder("Inner")
                         .addModifiers(Modifier.STATIC)
@@ -777,7 +804,7 @@ public final class TypeSpecTest {
 
     @Test
     public void enumImplements() {
-        TypeSpec typeSpec = TypeSpec.enumBuilder("Food")
+        typeSpec = TypeSpec.enumBuilder("Food")
                 .addSuperinterface(Serializable.class)
                 .addSuperinterface(Cloneable.class)
                 .addEnumConstant("LEAN_GROUND_BEEF")
@@ -801,8 +828,7 @@ public final class TypeSpecTest {
 
     @Test
     public void interfaceSealed() {
-        TypeSpec typeSpec =
-                TypeSpec.interfaceBuilder("Taco").addModifiers(Modifier.SEALED).build();
+        typeSpec = TypeSpec.interfaceBuilder("Taco").addModifiers(Modifier.SEALED).build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -815,7 +841,7 @@ public final class TypeSpecTest {
 
     @Test
     public void interfaceNonSealed() {
-        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Taco")
+        typeSpec = TypeSpec.interfaceBuilder("Taco")
                 .addModifiers(Modifier.NON_SEALED)
                 .build();
         assertThat(toString(typeSpec))
@@ -831,7 +857,7 @@ public final class TypeSpecTest {
     @Test
     public void interfaceExtendsPermits() {
         ClassName taco = ClassName.get(tacosPackage, "Taco");
-        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Taco")
+        typeSpec = TypeSpec.interfaceBuilder("Taco")
                 .addModifiers(Modifier.SEALED)
                 .addSuperinterface(Serializable.class)
                 .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Comparable.class), taco))
@@ -853,7 +879,7 @@ public final class TypeSpecTest {
 
     @Test
     public void recordOneField() {
-        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+        typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(
                                 ParameterSpec.builder(String.class, "name").build())
@@ -873,7 +899,7 @@ public final class TypeSpecTest {
 
     @Test
     public void recordTwoFields() {
-        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+        typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(
                                 ParameterSpec.builder(String.class, "name").build())
@@ -896,7 +922,7 @@ public final class TypeSpecTest {
 
     @Test
     public void recordWithVarArgs() {
-        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+        typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(
                                 ParameterSpec.builder(String.class, "name").build())
@@ -919,7 +945,7 @@ public final class TypeSpecTest {
 
     @Test
     public void recordWithJavadoc() {
-        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+        typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(ParameterSpec.builder(String.class, "id")
                                 .addJavadoc("Id of the taco.")
@@ -945,7 +971,7 @@ public final class TypeSpecTest {
 
     @Test
     public void recordWithAnnotationOnParam() {
-        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+        typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(ParameterSpec.builder(String.class, "id")
                                 .addAnnotation(Deprecated.class)
@@ -967,7 +993,7 @@ public final class TypeSpecTest {
 
     @Test
     public void recordNoField() {
-        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco").build();
+        typeSpec = TypeSpec.recordBuilder("Taco").build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -984,7 +1010,7 @@ public final class TypeSpecTest {
         ClassName topping = ClassName.get(tacosPackage, "Combo", "Taco", "Topping");
         ClassName chips = ClassName.get(tacosPackage, "Combo", "Chips");
         ClassName sauce = ClassName.get(tacosPackage, "Combo", "Sauce");
-        TypeSpec typeSpec = TypeSpec.classBuilder("Combo")
+        typeSpec = TypeSpec.classBuilder("Combo")
                 .addField(taco, "taco")
                 .addField(chips, "chips")
                 .addType(TypeSpec.classBuilder(taco.simpleName())
@@ -1057,7 +1083,7 @@ public final class TypeSpecTest {
 
     @Test
     public void annotation() {
-        TypeSpec annotation = TypeSpec.annotationBuilder("MyAnnotation")
+        typeSpec = TypeSpec.annotationBuilder("MyAnnotation")
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(MethodSpec.methodBuilder("test")
                         .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
@@ -1066,7 +1092,7 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(annotation))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1079,7 +1105,7 @@ public final class TypeSpecTest {
 
     @Test
     public void innerAnnotationInAnnotationDeclaration() {
-        TypeSpec bar = TypeSpec.annotationBuilder("Bar")
+        typeSpec = TypeSpec.annotationBuilder("Bar")
                 .addMethod(MethodSpec.methodBuilder("value")
                         .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                         .defaultValue("@$T", Deprecated.class)
@@ -1087,7 +1113,7 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1107,9 +1133,9 @@ public final class TypeSpecTest {
                 .initializer("$L", 101)
                 .build();
 
-        TypeSpec anno = TypeSpec.annotationBuilder("Anno").addField(field).build();
+        typeSpec = TypeSpec.annotationBuilder("Anno").addField(field).build();
 
-        assertThat(toString(anno))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1148,7 +1174,7 @@ public final class TypeSpecTest {
 
     @Test
     public void interfaceStaticMethods() {
-        TypeSpec bar = TypeSpec.interfaceBuilder("Tacos")
+        typeSpec = TypeSpec.interfaceBuilder("Tacos")
                 .addMethod(MethodSpec.methodBuilder("test")
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .returns(int.class)
@@ -1156,7 +1182,7 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1171,7 +1197,7 @@ public final class TypeSpecTest {
 
     @Test
     public void interfaceDefaultMethods() {
-        TypeSpec bar = TypeSpec.interfaceBuilder("Tacos")
+        typeSpec = TypeSpec.interfaceBuilder("Tacos")
                 .addMethod(MethodSpec.methodBuilder("test")
                         .addModifiers(Modifier.PUBLIC, Modifier.DEFAULT)
                         .returns(int.class)
@@ -1179,7 +1205,7 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1227,7 +1253,7 @@ public final class TypeSpecTest {
 
     @Test
     public void interfacePrivateMethods() {
-        TypeSpec bar = TypeSpec.interfaceBuilder("Tacos")
+        typeSpec = TypeSpec.interfaceBuilder("Tacos")
                 .addMethod(MethodSpec.methodBuilder("test")
                         .addModifiers(Modifier.PRIVATE)
                         .returns(int.class)
@@ -1235,7 +1261,7 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1247,7 +1273,7 @@ public final class TypeSpecTest {
                         }
                         """);
 
-        bar = TypeSpec.interfaceBuilder("Tacos")
+        typeSpec = TypeSpec.interfaceBuilder("Tacos")
                 .addMethod(MethodSpec.methodBuilder("test")
                         .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                         .returns(int.class)
@@ -1255,7 +1281,7 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1279,7 +1305,7 @@ public final class TypeSpecTest {
                 .build();
         FieldSpec externalBottom = FieldSpec.builder(ClassName.get(donutsPackage, "Bottom"), "externalBottom")
                 .build();
-        TypeSpec top = TypeSpec.classBuilder("Top")
+        typeSpec = TypeSpec.classBuilder("Top")
                 .addField(internalTop)
                 .addField(internalBottom)
                 .addField(externalTop)
@@ -1297,7 +1323,7 @@ public final class TypeSpecTest {
                                 .build())
                         .build())
                 .build();
-        assertThat(toString(top))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1342,11 +1368,11 @@ public final class TypeSpecTest {
                 .build();
         FieldSpec externalOther = FieldSpec.builder(ClassName.get(donutsPackage, "Other"), "externalOther")
                 .build();
-        TypeSpec gen = TypeSpec.classBuilder("Gen")
+        typeSpec = TypeSpec.classBuilder("Gen")
                 .addField(internalOther)
                 .addField(externalOther)
                 .build();
-        assertThat(toString(gen))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1365,7 +1391,7 @@ public final class TypeSpecTest {
         ClassName otherType = ClassName.get("com.other", "OtherType");
         ClassName methodInPackage = ClassName.get("com.palantir.tacos", "MethodInPackage");
         ClassName methodOtherType = ClassName.get("com.other", "MethodOtherType");
-        TypeSpec gen = TypeSpec.classBuilder("Gen")
+        typeSpec = TypeSpec.classBuilder("Gen")
                 .addTypeVariable(TypeVariableName.get("InPackage"))
                 .addTypeVariable(TypeVariableName.get("OtherType"))
                 .addField(FieldSpec.builder(inPackage, "inPackage").build())
@@ -1394,7 +1420,7 @@ public final class TypeSpecTest {
                         .addStatement("$T inPackage = null", inPackage)
                         .build())
                 .build();
-        assertThat(toString(gen))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1447,14 +1473,14 @@ public final class TypeSpecTest {
     @Test
     public void intersectionType() {
         TypeVariableName typeVariable = TypeVariableName.get("T", Comparator.class, Serializable.class);
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("getComparator")
                         .addTypeVariable(typeVariable)
                         .returns(typeVariable)
                         .addCode("return null;\n")
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1472,9 +1498,8 @@ public final class TypeSpecTest {
 
     @Test
     public void arrayType() {
-        TypeSpec taco =
-                TypeSpec.classBuilder("Taco").addField(int[].class, "ints").build();
-        assertThat(toString(taco))
+        typeSpec = TypeSpec.classBuilder("Taco").addField(int[].class, "ints").build();
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1487,7 +1512,7 @@ public final class TypeSpecTest {
 
     @Test
     public void javadoc() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addJavadoc("A hard or soft tortilla, loosely folded and filled with whatever\n")
                 .addJavadoc("{@link $T random} tex-mex stuff we could find in the pantry\n", Random.class)
                 .addJavadoc(CodeBlock.of("and some {@link $T} cheese.\n", String.class))
@@ -1507,7 +1532,7 @@ public final class TypeSpecTest {
                 .build();
         // Mentioning a type in Javadoc will not cause an import to be added (java.util.Random here),
         // but the short name will be used if it's already imported (java.util.Locale here).
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1544,7 +1569,7 @@ public final class TypeSpecTest {
         ClassName chicken = ClassName.get(tacosPackage, "Chicken");
         ClassName option = ClassName.get(tacosPackage, "Option");
         ClassName mealDeal = ClassName.get(tacosPackage, "MealDeal");
-        TypeSpec menu = TypeSpec.classBuilder("Menu")
+        typeSpec = TypeSpec.classBuilder("Menu")
                 .addAnnotation(AnnotationSpec.builder(mealDeal)
                         .addMember("price", "$L", 500)
                         .addMember(
@@ -1563,7 +1588,7 @@ public final class TypeSpecTest {
                                         .build())
                         .build())
                 .build();
-        assertThat(toString(menu))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1582,14 +1607,14 @@ public final class TypeSpecTest {
 
     @Test
     public void varargs() {
-        TypeSpec taqueria = TypeSpec.classBuilder("Taqueria")
+        typeSpec = TypeSpec.classBuilder("Taqueria")
                 .addMethod(MethodSpec.methodBuilder("prepare")
                         .addParameter(int.class, "workers")
                         .addParameter(Runnable[].class, "jobs")
                         .varargs()
                         .build())
                 .build();
-        assertThat(toString(taqueria))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1634,7 +1659,7 @@ public final class TypeSpecTest {
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .initializer(fieldBlock)
                 .build();
-        TypeSpec util = TypeSpec.classBuilder("Util")
+        typeSpec = TypeSpec.classBuilder("Util")
                 .addField(escapeHtml)
                 .addMethod(MethodSpec.methodBuilder("commonPrefixLength")
                         .returns(int.class)
@@ -1643,7 +1668,7 @@ public final class TypeSpecTest {
                         .addCode(methodBody)
                         .build())
                 .build();
-        assertThat(toString(util))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1680,7 +1705,7 @@ public final class TypeSpecTest {
 
     @Test
     public void indexedElseIf() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("choices")
                         .beginControlFlow("if ($1L != null || $1L == $2L)", "taco", "otherTaco")
                         .addStatement("$T.out.println($S)", System.class, "only one taco? NOO!")
@@ -1689,7 +1714,7 @@ public final class TypeSpecTest {
                         .endControlFlow()
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1710,7 +1735,7 @@ public final class TypeSpecTest {
 
     @Test
     public void elseIf() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("choices")
                         .beginControlFlow("if (5 < 4) ")
                         .addStatement("$T.out.println($S)", System.class, "wat")
@@ -1719,7 +1744,7 @@ public final class TypeSpecTest {
                         .endControlFlow()
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1740,14 +1765,14 @@ public final class TypeSpecTest {
 
     @Test
     public void doWhile() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("loopForever")
                         .beginControlFlow("do")
                         .addStatement("$T.out.println($S)", System.class, "hello")
                         .endControlFlow("while (5 < 6)")
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1766,12 +1791,12 @@ public final class TypeSpecTest {
 
     @Test
     public void inlineIndent() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("inlineIndent")
                         .addCode("if (3 < 4) {\n$>$T.out.println($S);\n$<}\n", System.class, "hello")
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1790,7 +1815,7 @@ public final class TypeSpecTest {
 
     @Test
     public void defaultModifiersForInterfaceMembers() {
-        TypeSpec taco = TypeSpec.interfaceBuilder("Taco")
+        typeSpec = TypeSpec.interfaceBuilder("Taco")
                 .addField(FieldSpec.builder(String.class, "SHELL")
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                         .initializer("$S", "crunchy corn")
@@ -1802,7 +1827,7 @@ public final class TypeSpecTest {
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1822,7 +1847,7 @@ public final class TypeSpecTest {
 
     @Test
     public void defaultModifiersForMemberInterfacesAndEnums() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addType(TypeSpec.classBuilder("Meat")
                         .addModifiers(Modifier.STATIC)
                         .build())
@@ -1834,7 +1859,7 @@ public final class TypeSpecTest {
                         .addEnumConstant("SALSA")
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1856,7 +1881,7 @@ public final class TypeSpecTest {
     @Test
     public void membersOrdering() {
         // Hand out names in reverse-alphabetical order to defend against unexpected sorting.
-        TypeSpec taco = TypeSpec.classBuilder("Members")
+        typeSpec = TypeSpec.classBuilder("Members")
                 .addType(TypeSpec.classBuilder("Z").build())
                 .addType(TypeSpec.classBuilder("Y").build())
                 .addField(String.class, "X", Modifier.STATIC)
@@ -1879,7 +1904,7 @@ public final class TypeSpecTest {
                         .build())
                 .build();
         // Static fields, instance fields, constructors, methods, classes.
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1924,7 +1949,7 @@ public final class TypeSpecTest {
 
     @Test
     public void nativeMethods() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("nativeInt")
                         .addModifiers(Modifier.NATIVE)
                         .returns(int.class)
@@ -1942,7 +1967,7 @@ public final class TypeSpecTest {
                                 .build())
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -1961,12 +1986,12 @@ public final class TypeSpecTest {
 
     @Test
     public void nullStringLiteral() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(FieldSpec.builder(String.class, "NULL")
                         .initializer("$S", (Object) null)
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2111,7 +2136,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multilineStatement() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("toString")
                         .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC)
@@ -2119,7 +2144,7 @@ public final class TypeSpecTest {
                         .addStatement("return $S\n+ $S\n+ $S\n+ $S\n+ $S", "Taco(", "beef,", "lettuce,", "cheese", ")")
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2155,7 +2180,7 @@ public final class TypeSpecTest {
                         .addStatement("return a.substring(0, length)\n" + ".compareTo(b.substring(0, length))")
                         .build())
                 .build();
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("comparePrefix")
                         .returns(stringComparator)
                         .addParameter(int.class, "length", Modifier.FINAL)
@@ -2167,7 +2192,7 @@ public final class TypeSpecTest {
                         .addStatement("$T.sort(\nlist,\n$L)", Collections.class, prefixComparator)
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2206,12 +2231,12 @@ public final class TypeSpecTest {
 
     @Test
     public void multilineStrings() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(FieldSpec.builder(String.class, "toppings")
                         .initializer("$S", "shell\nbeef\nlettuce\ncheese\n")
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2251,14 +2276,14 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleAnnotationAddition() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addAnnotations(Arrays.asList(
                         AnnotationSpec.builder(SuppressWarnings.class)
                                 .addMember("value", "$S", "unchecked")
                                 .build(),
                         AnnotationSpec.builder(Deprecated.class).build()))
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2282,14 +2307,14 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleFieldAddition() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addFields(Arrays.asList(
                         FieldSpec.builder(int.class, "ANSWER", Modifier.STATIC, Modifier.FINAL)
                                 .build(),
                         FieldSpec.builder(BigDecimal.class, "price", Modifier.PRIVATE)
                                 .build()))
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2313,7 +2338,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleMethodAddition() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethods(Arrays.asList(
                         MethodSpec.methodBuilder("getAnswer")
                                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -2327,7 +2352,7 @@ public final class TypeSpecTest {
                                 .addStatement("return $L", 4)
                                 .build()))
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2374,10 +2399,10 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleSuperinterfaceAddition() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addSuperinterfaces(Arrays.asList(TypeName.get(Serializable.class), TypeName.get(EventListener.class)))
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2417,13 +2442,13 @@ public final class TypeSpecTest {
 
     @Test
     public void multiplePermittedSubclassesAddition() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addModifiers(Modifier.SEALED)
                 .addPermittedSubclasses(Arrays.asList(
                         ClassName.bestGuess("com.palantir.tacos.BeefTaco"),
                         ClassName.bestGuess("com.palantir.tacos.ChickenTaco")))
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2451,10 +2476,10 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleTypeVariableAddition() {
-        TypeSpec location = TypeSpec.classBuilder("Location")
+        typeSpec = TypeSpec.classBuilder("Location")
                 .addTypeVariables(Arrays.asList(TypeVariableName.get("T"), TypeVariableName.get("P", Number.class)))
                 .build();
-        assertThat(toString(location))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2475,12 +2500,12 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleTypeAddition() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addTypes(Arrays.asList(
                         TypeSpec.classBuilder("Topping").build(),
                         TypeSpec.classBuilder("Sauce").build()))
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2497,7 +2522,7 @@ public final class TypeSpecTest {
 
     @Test
     public void tryCatch() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("addTopping")
                         .addParameter(ClassName.get("com.palantir.tacos", "Topping"), "topping")
                         .beginControlFlow("try")
@@ -2506,7 +2531,7 @@ public final class TypeSpecTest {
                         .endControlFlow()
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2524,7 +2549,7 @@ public final class TypeSpecTest {
 
     @Test
     public void ifElse() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("isDelicious")
                         .addParameter(TypeName.INT, "count")
                         .returns(TypeName.BOOLEAN)
@@ -2535,7 +2560,7 @@ public final class TypeSpecTest {
                         .endControlFlow()
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2706,7 +2731,7 @@ public final class TypeSpecTest {
 
     @Test
     public void staticCodeBlock() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(String.class, "foo", Modifier.PRIVATE)
                 .addField(String.class, "FOO", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .addStaticBlock(
@@ -2718,7 +2743,7 @@ public final class TypeSpecTest {
                         .addCode("return FOO;\n")
                         .build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2745,7 +2770,7 @@ public final class TypeSpecTest {
 
     @Test
     public void initializerBlockInRightPlace() {
-        TypeSpec taco = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(String.class, "foo", Modifier.PRIVATE)
                 .addField(String.class, "FOO", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .addStaticBlock(
@@ -2760,7 +2785,7 @@ public final class TypeSpecTest {
                 .addInitializerBlock(
                         CodeBlock.builder().addStatement("foo = $S", "FOO").build())
                 .build();
-        assertThat(toString(taco))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2892,9 +2917,8 @@ public final class TypeSpecTest {
         }
         methodBuilder.addCode(");$]\n");
 
-        TypeSpec taco =
-                TypeSpec.classBuilder("Taco").addMethod(methodBuilder.build()).build();
-        assertThat(toString(taco))
+        typeSpec = TypeSpec.classBuilder("Taco").addMethod(methodBuilder.build()).build();
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2927,8 +2951,8 @@ public final class TypeSpecTest {
                 .addCode(");$]\n")
                 .build();
 
-        TypeSpec taco = TypeSpec.classBuilder("Taco").addMethod(method).build();
-        assertThat(toString(taco))
+        typeSpec = TypeSpec.classBuilder("Taco").addMethod(method).build();
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2975,11 +2999,11 @@ public final class TypeSpecTest {
 
     @Test
     public void javadocWithTrailingLineDoesNotAddAnother() {
-        TypeSpec spec = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addJavadoc("Some doc with a newline\n")
                 .build();
 
-        assertThat(toString(spec))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -2994,11 +3018,11 @@ public final class TypeSpecTest {
 
     @Test
     public void javadocEnsuresTrailingLine() {
-        TypeSpec spec = TypeSpec.classBuilder("Taco")
+        typeSpec = TypeSpec.classBuilder("Taco")
                 .addJavadoc("Some doc with a newline")
                 .build();
 
-        assertThat(toString(spec))
+        assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
                         package com.palantir.tacos;

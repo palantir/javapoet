@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,6 +44,33 @@ public final class JavaFileTest {
 
     private TypeElement getElement(Class<?> clazz) {
         return compilation.getElements().getTypeElement(clazz.getCanonicalName());
+    }
+
+    /**
+     * Java file created by a test method; used by {@link #checkToBuilderRoundtrip()}.
+     *
+     * <p>{@code null} if a test method does not create a (valid) {@code JavaFile}, or if no round-trip check
+     * should be performed on it.
+     */
+    private JavaFile javaFile = null;
+
+    /**
+     * Performs round-trip check that {@code javaFile.toBuilder().build()} is identical to the
+     * original {@code javaFile}.
+     */
+    @After
+    public void checkToBuilderRoundtrip() {
+        if (javaFile == null) {
+            return;
+        }
+
+        String originalToString = javaFile.toString();
+        int originalHashCode = javaFile.hashCode();
+
+        JavaFile roundtripJavaFile = javaFile.toBuilder().build();
+        assertThat(roundtripJavaFile.toString()).isEqualTo(originalToString);
+        assertThat(roundtripJavaFile.hashCode()).isEqualTo(originalHashCode);
+        assertThat(roundtripJavaFile).isEqualTo(javaFile);
     }
 
     @Test
@@ -62,12 +90,12 @@ public final class JavaFileTest {
                 .addStatement("return result.isEmpty() ? $T.emptyList() : result", Collections.class)
                 .build();
         TypeSpec hello = TypeSpec.classBuilder("HelloWorld").addMethod(beyond).build();
-        JavaFile example = JavaFile.builder("com.example.helloworld", hello)
+        javaFile = JavaFile.builder("com.example.helloworld", hello)
                 .addStaticImport(hoverboard, "createNimbus")
                 .addStaticImport(namedBoards, "*")
                 .addStaticImport(Collections.class, "*")
                 .build();
-        assertThat(example.toString())
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         package com.example.helloworld;
@@ -96,7 +124,7 @@ public final class JavaFileTest {
     @Test
     public void importStaticForCrazyFormatsWorks() {
         MethodSpec method = MethodSpec.methodBuilder("method").build();
-        JavaFile javaFile = JavaFile.builder(
+        javaFile = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.classBuilder("Taco")
                                 .addStaticBlock(CodeBlock.builder()
@@ -122,7 +150,7 @@ public final class JavaFileTest {
 
     @Test
     public void importStaticMixed() {
-        JavaFile source = JavaFile.builder(
+        javaFile = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.classBuilder("Taco")
                                 .addStaticBlock(CodeBlock.builder()
@@ -140,7 +168,7 @@ public final class JavaFileTest {
                 .addStaticImport(System.class, "*")
                 .addStaticImport(Thread.State.class, "valueOf")
                 .build();
-        assertThat(source.toString())
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -167,7 +195,7 @@ public final class JavaFileTest {
     @Ignore("addStaticImport doesn't support members with $L")
     @Test
     public void importStaticDynamic() {
-        JavaFile source = JavaFile.builder(
+        javaFile = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.classBuilder("Taco")
                                 .addMethod(MethodSpec.methodBuilder("main")
@@ -176,7 +204,7 @@ public final class JavaFileTest {
                                 .build())
                 .addStaticImport(System.class, "out")
                 .build();
-        assertThat(source.toString())
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -193,9 +221,9 @@ public final class JavaFileTest {
 
     @Test
     public void importStaticNone() {
-        assertThat(JavaFile.builder("readme", importStaticTypeSpec("Util"))
-                        .build()
-                        .toString())
+        javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
+                .build();
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         package readme;
@@ -214,10 +242,10 @@ public final class JavaFileTest {
 
     @Test
     public void importStaticOnce() {
-        assertThat(JavaFile.builder("readme", importStaticTypeSpec("Util"))
-                        .addStaticImport(TimeUnit.SECONDS)
-                        .build()
-                        .toString())
+        javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
+                .addStaticImport(TimeUnit.SECONDS)
+                .build();
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         package readme;
@@ -238,11 +266,11 @@ public final class JavaFileTest {
 
     @Test
     public void importStaticTwice() {
-        assertThat(JavaFile.builder("readme", importStaticTypeSpec("Util"))
-                        .addStaticImport(TimeUnit.SECONDS)
-                        .addStaticImport(TimeUnit.MINUTES)
-                        .build()
-                        .toString())
+        javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
+                .addStaticImport(TimeUnit.SECONDS)
+                .addStaticImport(TimeUnit.MINUTES)
+                .build();
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         package readme;
@@ -263,11 +291,11 @@ public final class JavaFileTest {
 
     @Test
     public void importStaticUsingWildcards() {
-        assertThat(JavaFile.builder("readme", importStaticTypeSpec("Util"))
-                        .addStaticImport(TimeUnit.class, "*")
-                        .addStaticImport(System.class, "*")
-                        .build()
-                        .toString())
+        javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
+                .addStaticImport(TimeUnit.class, "*")
+                .addStaticImport(System.class, "*")
+                .build();
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         package readme;
@@ -297,11 +325,9 @@ public final class JavaFileTest {
 
     @Test
     public void noImports() {
-        String source = JavaFile.builder(
-                        "com.palantir.tacos", TypeSpec.classBuilder("Taco").build())
-                .build()
-                .toString();
-        assertThat(source)
+        javaFile = JavaFile.builder("com.palantir.tacos", TypeSpec.classBuilder("Taco").build())
+                .build();
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         package com.palantir.tacos;
@@ -911,12 +937,11 @@ public final class JavaFileTest {
 
     @Test
     public void topOfFileComment() {
-        String source = JavaFile.builder(
+        javaFile = JavaFile.builder(
                         "com.palantir.tacos", TypeSpec.classBuilder("Taco").build())
                 .addFileComment("Generated $L by JavaPoet. DO NOT EDIT!", "2015-01-13")
-                .build()
-                .toString();
-        assertThat(source)
+                .build();
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         // Generated 2015-01-13 by JavaPoet. DO NOT EDIT!
@@ -929,12 +954,11 @@ public final class JavaFileTest {
 
     @Test
     public void emptyLinesInTopOfFileComment() {
-        String source = JavaFile.builder(
+        javaFile = JavaFile.builder(
                         "com.palantir.tacos", TypeSpec.classBuilder("Taco").build())
                 .addFileComment("\nGENERATED FILE:\n\nDO NOT EDIT!\n")
-                .build()
-                .toString();
-        assertThat(source)
+                .build();
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         //
@@ -1017,16 +1041,15 @@ public final class JavaFileTest {
 
     @Test
     public void alwaysQualifySupersedesJavaLangImports() {
-        String source = JavaFile.builder(
+        javaFile = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.classBuilder("Taco")
                                 .addField(Thread.class, "thread")
                                 .alwaysQualify("Thread")
                                 .build())
                 .skipJavaLangImports(true)
-                .build()
-                .toString();
-        assertThat(source)
+                .build();
+        assertThat(javaFile.toString())
                 .isEqualTo(
                         """
                         package com.palantir.tacos;

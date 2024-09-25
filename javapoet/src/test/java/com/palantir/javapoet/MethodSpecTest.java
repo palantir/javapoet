@@ -43,6 +43,7 @@ import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,6 +64,33 @@ public final class MethodSpecTest {
 
     private TypeElement getElement(Class<?> clazz) {
         return elements.getTypeElement(clazz.getCanonicalName());
+    }
+
+    /**
+     * Method spec created by a test method; used by {@link #checkToBuilderRoundtrip()}.
+     *
+     * <p>{@code null} if a test method does not create a (valid) method spec, or if no round-trip check
+     * should be performed on it.
+     */
+    private MethodSpec methodSpec = null;
+
+    /**
+     * Performs round-trip check that {@code methodSpec.toBuilder().build()} is identical to the
+     * original {@code methodSpec}.
+     */
+    @After
+    public void checkToBuilderRoundtrip() {
+        if (methodSpec == null) {
+            return;
+        }
+
+        String originalToString = methodSpec.toString();
+        int originalHashCode = methodSpec.hashCode();
+
+        MethodSpec roundtripMethodSpec = methodSpec.toBuilder().build();
+        assertThat(roundtripMethodSpec.toString()).isEqualTo(originalToString);
+        assertThat(roundtripMethodSpec.hashCode()).isEqualTo(originalHashCode);
+        assertThat(roundtripMethodSpec).isEqualTo(methodSpec);
     }
 
     @Test
@@ -137,8 +165,8 @@ public final class MethodSpecTest {
     public void overrideEverything() {
         TypeElement classElement = getElement(Everything.class);
         ExecutableElement methodElement = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
-        MethodSpec method = MethodSpec.overriding(methodElement).build();
-        assertThat(method.toString())
+        methodSpec = MethodSpec.overriding(methodElement).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
@@ -153,9 +181,9 @@ public final class MethodSpecTest {
     public void overrideGenerics() {
         TypeElement classElement = getElement(Generics.class);
         ExecutableElement methodElement = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
-        MethodSpec method =
+        methodSpec =
                 MethodSpec.overriding(methodElement).addStatement("return null").build();
-        assertThat(method.toString())
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
@@ -169,8 +197,8 @@ public final class MethodSpecTest {
     public void overrideDoesNotCopyOverrideAnnotation() {
         TypeElement classElement = getElement(HasAnnotation.class);
         ExecutableElement exec = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
-        MethodSpec method = MethodSpec.overriding(exec).build();
-        assertThat(method.toString())
+        methodSpec = MethodSpec.overriding(exec).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
@@ -185,8 +213,8 @@ public final class MethodSpecTest {
         DeclaredType classType = (DeclaredType) classElement.asType();
         List<ExecutableElement> methods = methodsIn(elements.getAllMembers(classElement));
         ExecutableElement exec = findFirst(methods, "spliterator");
-        MethodSpec method = MethodSpec.overriding(exec, classType, types).build();
-        assertThat(method.toString())
+        methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
@@ -201,8 +229,8 @@ public final class MethodSpecTest {
         DeclaredType classType = (DeclaredType) classElement.asType();
         List<ExecutableElement> methods = methodsIn(elements.getAllMembers(classElement));
         ExecutableElement exec = findFirst(methods, "call");
-        MethodSpec method = MethodSpec.overriding(exec, classType, types).build();
-        assertThat(method.toString())
+        methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
@@ -210,8 +238,8 @@ public final class MethodSpecTest {
                         }
                         """);
         exec = findFirst(methods, "compareTo");
-        method = MethodSpec.overriding(exec, classType, types).build();
-        assertThat(method.toString())
+        methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
@@ -219,8 +247,8 @@ public final class MethodSpecTest {
                         }
                         """);
         exec = findFirst(methods, "fail");
-        method = MethodSpec.overriding(exec, classType, types).build();
-        assertThat(method.toString())
+        methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
@@ -296,7 +324,7 @@ public final class MethodSpecTest {
 
     @Test
     public void withoutParameterJavaDoc() {
-        MethodSpec methodSpec = MethodSpec.methodBuilder("getTaco")
+        methodSpec = MethodSpec.methodBuilder("getTaco")
                 .addModifiers(Modifier.PRIVATE)
                 .addParameter(TypeName.DOUBLE, "money")
                 .addJavadoc("Gets the best Taco\n")
@@ -314,7 +342,7 @@ public final class MethodSpecTest {
 
     @Test
     public void withParameterJavaDoc() {
-        MethodSpec methodSpec = MethodSpec.methodBuilder("getTaco")
+        methodSpec = MethodSpec.methodBuilder("getTaco")
                 .addParameter(ParameterSpec.builder(TypeName.DOUBLE, "money")
                         .addJavadoc("the amount required to buy the taco.\n")
                         .build())
@@ -339,7 +367,7 @@ public final class MethodSpecTest {
 
     @Test
     public void withParameterJavaDocAndWithoutMethodJavadoc() {
-        MethodSpec methodSpec = MethodSpec.methodBuilder("getTaco")
+        methodSpec = MethodSpec.methodBuilder("getTaco")
                 .addParameter(ParameterSpec.builder(TypeName.DOUBLE, "money")
                         .addJavadoc("the amount required to buy the taco.\n")
                         .build())
@@ -363,7 +391,7 @@ public final class MethodSpecTest {
     public void duplicateExceptionsIgnored() {
         ClassName ioException = ClassName.get(IOException.class);
         ClassName timeoutException = ClassName.get(TimeoutException.class);
-        MethodSpec methodSpec = MethodSpec.methodBuilder("duplicateExceptions")
+        methodSpec = MethodSpec.methodBuilder("duplicateExceptions")
                 .addException(ioException)
                 .addException(timeoutException)
                 .addException(timeoutException)
@@ -390,7 +418,7 @@ public final class MethodSpecTest {
 
     @Test
     public void modifyMethodName() {
-        MethodSpec methodSpec = MethodSpec.methodBuilder("initialMethod").build().toBuilder()
+        methodSpec = MethodSpec.methodBuilder("initialMethod").build().toBuilder()
                 .setName("revisedMethod")
                 .build();
 
@@ -404,7 +432,7 @@ public final class MethodSpecTest {
 
     @Test
     public void ensureTrailingNewline() {
-        MethodSpec methodSpec = MethodSpec.methodBuilder("method")
+        methodSpec = MethodSpec.methodBuilder("method")
                 .addCode("codeWithNoNewline();")
                 .build();
 
@@ -420,7 +448,7 @@ public final class MethodSpecTest {
     /** Ensures that we don't add a duplicate newline if one is already present. */
     @Test
     public void ensureTrailingNewlineWithExistingNewline() {
-        MethodSpec methodSpec = MethodSpec.methodBuilder("method")
+        methodSpec = MethodSpec.methodBuilder("method")
                 .addCode("codeWithNoNewline();\n") // Have a newline already, so ensure we're not adding one
                 .build();
 
@@ -439,7 +467,7 @@ public final class MethodSpecTest {
         m.put("field", "valueField");
         m.put("threshold", "5");
 
-        MethodSpec methodSpec = MethodSpec.methodBuilder("method")
+        methodSpec = MethodSpec.methodBuilder("method")
                 .beginControlFlow(named("if ($field:N > $threshold:L)", m))
                 .nextControlFlow(named("else if ($field:N == $threshold:L)", m))
                 .endControlFlow()
@@ -462,7 +490,7 @@ public final class MethodSpecTest {
         m.put("field", "valueField");
         m.put("threshold", "5");
 
-        MethodSpec methodSpec = MethodSpec.methodBuilder("method")
+        methodSpec = MethodSpec.methodBuilder("method")
                 .beginControlFlow("do")
                 .addStatement(named("$field:N--", m))
                 .endControlFlow(named("while ($field:N > $threshold:L)", m))
