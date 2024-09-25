@@ -17,12 +17,12 @@ package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
 import static com.palantir.javapoet.Util.checkNotNull;
+import static com.palantir.javapoet.Util.nonNullList;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.SourceVersion;
@@ -206,8 +206,7 @@ public final class ParameterSpec {
         }
 
         public Builder addModifiers(Modifier... modifiers) {
-            Collections.addAll(this.modifiers, modifiers);
-            return this;
+            return addModifiers(nonNullList(modifiers, "modifiers"));
         }
 
         public Builder addModifiers(Iterable<Modifier> modifiers) {
