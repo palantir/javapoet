@@ -754,8 +754,8 @@ public final class TypeSpec {
          */
         public Builder recordConstructor(MethodSpec recordConstructor) {
             checkState(this.kind == Kind.RECORD, "%s can't have record constructor", this.kind);
-            checkState(this.recordConstructor == null, "record constructor already set to %s", this.recordConstructor);
-            checkArgument(recordConstructor.isConstructor(), "must provide a constructor, not %s", recordConstructor);
+            checkState(this.recordConstructor == null, "record constructor already set");
+            checkArgument(recordConstructor.isConstructor(), "must provide a constructor, not a regular method");
             this.recordConstructor = recordConstructor;
             return this;
         }

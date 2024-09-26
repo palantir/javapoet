@@ -1000,7 +1000,7 @@ public final class TypeSpecTest {
         TypeSpec.Builder builder = TypeSpec.recordBuilder("Taco").recordConstructor(constructor);
         assertThatThrownBy(() -> builder.recordConstructor(constructor))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageStartingWith("record constructor already set to ");
+                .hasMessage("record constructor already set");
     }
 
     @Test
@@ -1008,7 +1008,7 @@ public final class TypeSpecTest {
         MethodSpec method = MethodSpec.methodBuilder("test").build();
         assertThatThrownBy(() -> TypeSpec.recordBuilder("Taco").recordConstructor(method))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageStartingWith("must provide a constructor, not ");
+                .hasMessage("must provide a constructor, not a regular method");
     }
 
     @Test
