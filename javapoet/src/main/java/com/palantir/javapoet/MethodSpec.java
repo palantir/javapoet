@@ -232,6 +232,11 @@ public final class MethodSpec {
         return new Builder(CONSTRUCTOR, false);
     }
 
+    /**
+     * Returns a builder for a compact record constructor, to be used with
+     * {@link TypeSpec.Builder#recordConstructor(MethodSpec)}. If you don't add any code to the
+     * constructor it does not matter whether you create a compact or non-compact constructor.
+     */
     public static Builder compactConstructorBuilder() {
         return new Builder(CONSTRUCTOR, true);
     }
@@ -513,6 +518,10 @@ public final class MethodSpec {
             return defaultValue(CodeBlock.of(format, args));
         }
 
+        /**
+         * Treats this method as an annotation type element and sets a default value for it. The
+         * built method is then only valid for annotation types, see {@link TypeSpec#annotationBuilder(String)}.
+         */
         public Builder defaultValue(CodeBlock codeBlock) {
             checkState(this.defaultValue == null, "defaultValue was already set");
             this.defaultValue = checkNotNull(codeBlock, "codeBlock == null");
