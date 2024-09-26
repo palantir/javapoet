@@ -16,9 +16,9 @@
 package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
-import static com.palantir.javapoet.Util.checkNoNullElement;
 import static com.palantir.javapoet.Util.checkNotNull;
 import static com.palantir.javapoet.Util.checkState;
+import static com.palantir.javapoet.Util.nonNullList;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -183,7 +183,15 @@ public final class FieldSpec {
         }
 
         public Builder addModifiers(Modifier... modifiers) {
-            Collections.addAll(this.modifiers, checkNoNullElement(modifiers, "modifiers"));
+            return addModifiers(nonNullList(modifiers, "modifiers"));
+        }
+
+        public Builder addModifiers(Iterable<Modifier> modifiers) {
+            checkNotNull(modifiers, "modifiers == null");
+            for (Modifier modifier : modifiers) {
+                checkNotNull(modifier, "modifiers contain null");
+                this.modifiers.add(modifier);
+            }
             return this;
         }
 
