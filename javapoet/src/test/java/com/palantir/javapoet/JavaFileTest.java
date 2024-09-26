@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,23 +46,10 @@ public final class JavaFileTest {
     }
 
     /**
-     * Java file created by a test method; used by {@link #checkToBuilderRoundtrip()}.
-     *
-     * <p>{@code null} if a test method does not create a (valid) {@code JavaFile}, or if no round-trip check
-     * should be performed on it.
-     */
-    private JavaFile javaFile = null;
-
-    /**
      * Performs round-trip check that {@code javaFile.toBuilder().build()} is identical to the
      * original {@code javaFile}.
      */
-    @After
-    public void checkToBuilderRoundtrip() {
-        if (javaFile == null) {
-            return;
-        }
-
+    private static void checkToBuilderRoundtrip(JavaFile javaFile) {
         String originalToString = javaFile.toString();
         int originalHashCode = javaFile.hashCode();
 
@@ -90,7 +76,7 @@ public final class JavaFileTest {
                 .addStatement("return result.isEmpty() ? $T.emptyList() : result", Collections.class)
                 .build();
         TypeSpec hello = TypeSpec.classBuilder("HelloWorld").addMethod(beyond).build();
-        javaFile = JavaFile.builder("com.example.helloworld", hello)
+        JavaFile javaFile = JavaFile.builder("com.example.helloworld", hello)
                 .addStaticImport(hoverboard, "createNimbus")
                 .addStaticImport(namedBoards, "*")
                 .addStaticImport(Collections.class, "*")
@@ -119,12 +105,13 @@ public final class JavaFileTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test
     public void importStaticForCrazyFormatsWorks() {
         MethodSpec method = MethodSpec.methodBuilder("method").build();
-        javaFile = JavaFile.builder(
+        JavaFile javaFile = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.classBuilder("Taco")
                                 .addStaticBlock(CodeBlock.builder()
@@ -146,11 +133,12 @@ public final class JavaFileTest {
                 .build();
 
         assertThatCode(javaFile::toString).doesNotThrowAnyException();
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test
     public void importStaticMixed() {
-        javaFile = JavaFile.builder(
+        JavaFile javaFile = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.classBuilder("Taco")
                                 .addStaticBlock(CodeBlock.builder()
@@ -190,12 +178,13 @@ public final class JavaFileTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Ignore("addStaticImport doesn't support members with $L")
     @Test
     public void importStaticDynamic() {
-        javaFile = JavaFile.builder(
+        JavaFile javaFile = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.classBuilder("Taco")
                                 .addMethod(MethodSpec.methodBuilder("main")
@@ -217,11 +206,12 @@ public final class JavaFileTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test
     public void importStaticNone() {
-        javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
+        JavaFile javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
                 .build();
         assertThat(javaFile.toString())
                 .isEqualTo(
@@ -238,11 +228,12 @@ public final class JavaFileTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test
     public void importStaticOnce() {
-        javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
+        JavaFile javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
                 .addStaticImport(TimeUnit.SECONDS)
                 .build();
         assertThat(javaFile.toString())
@@ -262,11 +253,12 @@ public final class JavaFileTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test
     public void importStaticTwice() {
-        javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
+        JavaFile javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
                 .addStaticImport(TimeUnit.SECONDS)
                 .addStaticImport(TimeUnit.MINUTES)
                 .build();
@@ -287,11 +279,12 @@ public final class JavaFileTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test
     public void importStaticUsingWildcards() {
-        javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
+        JavaFile javaFile = JavaFile.builder("readme", importStaticTypeSpec("Util"))
                 .addStaticImport(TimeUnit.class, "*")
                 .addStaticImport(System.class, "*")
                 .build();
@@ -310,6 +303,7 @@ public final class JavaFileTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     private TypeSpec importStaticTypeSpec(String name) {
@@ -325,7 +319,7 @@ public final class JavaFileTest {
 
     @Test
     public void noImports() {
-        javaFile = JavaFile.builder("com.palantir.tacos", TypeSpec.classBuilder("Taco").build())
+        JavaFile javaFile = JavaFile.builder("com.palantir.tacos", TypeSpec.classBuilder("Taco").build())
                 .build();
         assertThat(javaFile.toString())
                 .isEqualTo(
@@ -335,6 +329,7 @@ public final class JavaFileTest {
                         class Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test
@@ -937,7 +932,7 @@ public final class JavaFileTest {
 
     @Test
     public void topOfFileComment() {
-        javaFile = JavaFile.builder(
+        JavaFile javaFile = JavaFile.builder(
                         "com.palantir.tacos", TypeSpec.classBuilder("Taco").build())
                 .addFileComment("Generated $L by JavaPoet. DO NOT EDIT!", "2015-01-13")
                 .build();
@@ -950,11 +945,12 @@ public final class JavaFileTest {
                         class Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test
     public void emptyLinesInTopOfFileComment() {
-        javaFile = JavaFile.builder(
+        JavaFile javaFile = JavaFile.builder(
                         "com.palantir.tacos", TypeSpec.classBuilder("Taco").build())
                 .addFileComment("\nGENERATED FILE:\n\nDO NOT EDIT!\n")
                 .build();
@@ -971,6 +967,7 @@ public final class JavaFileTest {
                         class Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test
@@ -1041,7 +1038,7 @@ public final class JavaFileTest {
 
     @Test
     public void alwaysQualifySupersedesJavaLangImports() {
-        javaFile = JavaFile.builder(
+        JavaFile javaFile = JavaFile.builder(
                         "com.palantir.tacos",
                         TypeSpec.classBuilder("Taco")
                                 .addField(Thread.class, "thread")
@@ -1058,6 +1055,7 @@ public final class JavaFileTest {
                           java.lang.Thread thread;
                         }
                         """);
+        checkToBuilderRoundtrip(javaFile);
     }
 
     @Test

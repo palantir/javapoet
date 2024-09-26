@@ -30,7 +30,6 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,23 +51,10 @@ public class ParameterSpecTest {
     }
 
     /**
-     * Parameter spec created by a test method; used by {@link #checkToBuilderRoundtrip()}.
-     *
-     * <p>{@code null} if a test method does not create a (valid) parameter spec, or if no round-trip check
-     * should be performed on it.
-     */
-    private ParameterSpec parameterSpec = null;
-
-    /**
      * Performs round-trip check that {@code parameterSpec.toBuilder().build()} is identical to the
      * original {@code parameterSpec}.
      */
-    @After
-    public void checkToBuilderRoundtrip() {
-        if (parameterSpec == null) {
-            return;
-        }
-
+    private static void checkToBuilderRoundtrip(ParameterSpec parameterSpec) {
         String originalMethodString = toMethodString(parameterSpec);
         String originalToString = parameterSpec.toString();
         int originalHashCode = parameterSpec.hashCode();
@@ -80,7 +66,7 @@ public class ParameterSpecTest {
         assertThat(roundtripParameterSpec).isEqualTo(parameterSpec);
     }
 
-    private String toMethodString(ParameterSpec parameterSpec) {
+    private static String toMethodString(ParameterSpec parameterSpec) {
         // Add parameter to MethodSpec because at least parameter Javadoc is only emitted when part of a method
         return MethodSpec.methodBuilder("test").addParameter(parameterSpec).build().toString();
     }
@@ -98,20 +84,21 @@ public class ParameterSpecTest {
         assertThat(a.hashCode()).isEqualTo(b.hashCode());
         assertThat(a.toString()).isEqualTo(b.toString());
 
-        // Perform round-trip check in @After
-        parameterSpec = a;
+        checkToBuilderRoundtrip(a);
     }
 
     @Test
     public void receiverParameterInstanceMethod() {
-        parameterSpec = ParameterSpec.builder(int.class, "this").build();
+        ParameterSpec parameterSpec = ParameterSpec.builder(int.class, "this").build();
         assertThat(parameterSpec.name()).isEqualTo("this");
+        checkToBuilderRoundtrip(parameterSpec);
     }
 
     @Test
     public void receiverParameterNestedClass() {
-        parameterSpec = ParameterSpec.builder(int.class, "Foo.this").build();
+        ParameterSpec parameterSpec = ParameterSpec.builder(int.class, "Foo.this").build();
         assertThat(parameterSpec.name()).isEqualTo("Foo.this");
+        checkToBuilderRoundtrip(parameterSpec);
     }
 
     @Test
@@ -154,8 +141,9 @@ public class ParameterSpecTest {
         ExecutableElement element = findFirst(methods, "foo");
         VariableElement parameterElement = element.getParameters().get(0);
 
-        parameterSpec = ParameterSpec.get(parameterElement);
+        ParameterSpec parameterSpec = ParameterSpec.get(parameterElement);
         assertThat(parameterSpec.toString()).isEqualTo("final java.lang.String bar");
+        checkToBuilderRoundtrip(parameterSpec);
     }
 
     @Test
@@ -171,7 +159,7 @@ public class ParameterSpecTest {
 
     @Test
     public void parameterJavadoc() {
-        parameterSpec = ParameterSpec.builder(int.class, "i").addJavadoc("My param").build();
+        ParameterSpec parameterSpec = ParameterSpec.builder(int.class, "i").addJavadoc("My param").build();
         assertThat(toMethodString(parameterSpec))
                 .isEqualTo(
                         """
@@ -181,5 +169,6 @@ public class ParameterSpecTest {
                         void test(int i) {
                         }
                         """);
+        checkToBuilderRoundtrip(parameterSpec);
     }
 }

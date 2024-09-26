@@ -38,7 +38,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,23 +57,10 @@ public final class TypeSpecTest {
     }
 
     /**
-     * Type spec created by a test method; used by {@link #checkToBuilderRoundtrip()}.
-     *
-     * <p>{@code null} if a test method does not create a (valid) type spec, or if no round-trip check
-     * should be performed on it.
-     */
-    private TypeSpec typeSpec = null;
-
-    /**
      * Performs round-trip check that {@code typeSpec.toBuilder().build()} is identical to the
      * original {@code typeSpec}.
      */
-    @After
-    public void checkToBuilderRoundtrip() {
-        if (typeSpec == null) {
-            return;
-        }
-
+    private static void checkToBuilderRoundtrip(TypeSpec typeSpec) {
         String originalToString = typeSpec.toString();
         int originalHashCode = typeSpec.hashCode();
 
@@ -87,7 +73,7 @@ public final class TypeSpecTest {
 
     @Test
     public void basic() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("toString")
                         .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -111,6 +97,7 @@ public final class TypeSpecTest {
                         }
                         """);
         assertThat(typeSpec.hashCode()).isEqualTo(472949424); // update expected number if source changes
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -121,7 +108,7 @@ public final class TypeSpecTest {
                 ParameterizedTypeName.get(ClassName.get(List.class), WildcardTypeName.subtypeOf(Serializable.class));
         TypeName listOfSuper =
                 ParameterizedTypeName.get(ClassName.get(List.class), WildcardTypeName.supertypeOf(String.class));
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(listOfAny, "extendsObject")
                 .addField(listOfExtends, "extendsSerializable")
                 .addField(listOfSuper, "superString")
@@ -143,6 +130,7 @@ public final class TypeSpecTest {
                           List<? super String> superString;
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -179,7 +167,7 @@ public final class TypeSpecTest {
                         .addCode("return $L;\n", aSimpleThung)
                         .build())
                 .build();
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(FieldSpec.builder(thingThangOfFooBar, "NAME")
                         .addModifiers(Modifier.STATIC, Modifier.FINAL, Modifier.FINAL)
                         .initializer("$L", aThingThang)
@@ -207,11 +195,12 @@ public final class TypeSpecTest {
                           };
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void annotatedParameters() {
-        typeSpec = TypeSpec.classBuilder("Foo")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Foo")
                 .addMethod(MethodSpec.constructorBuilder()
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(long.class, "id")
@@ -247,6 +236,7 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     /**
@@ -256,7 +246,7 @@ public final class TypeSpecTest {
     @Test
     public void annotationsAndJavaLangTypes() {
         ClassName freeRange = ClassName.get("javax.annotation", "FreeRange");
-        typeSpec = TypeSpec.classBuilder("EthicalTaco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("EthicalTaco")
                 .addField(
                         ClassName.get(String.class)
                                 .annotated(AnnotationSpec.builder(freeRange).build()),
@@ -275,6 +265,7 @@ public final class TypeSpecTest {
                           @FreeRange String meat;
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -290,7 +281,7 @@ public final class TypeSpecTest {
         ClassName body = ClassName.get(tacosPackage, "Body");
         ClassName queryMap = ClassName.get(tacosPackage, "QueryMap");
         ClassName header = ClassName.get(tacosPackage, "Header");
-        typeSpec = TypeSpec.interfaceBuilder("Service")
+        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Service")
                 .addMethod(MethodSpec.methodBuilder("fooBar")
                         .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                         .addAnnotation(AnnotationSpec.builder(headers)
@@ -336,11 +327,12 @@ public final class TypeSpecTest {
                               @Header("Authorization") String authorization);
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void annotatedField() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(FieldSpec.builder(String.class, "thing", Modifier.PRIVATE, Modifier.FINAL)
                         .addAnnotation(AnnotationSpec.builder(ClassName.get(tacosPackage, "JsonAdapter"))
                                 .addMember("value", "$T.class", ClassName.get(tacosPackage, "Foo"))
@@ -359,12 +351,13 @@ public final class TypeSpecTest {
                           private final String thing;
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void annotatedClass() {
         ClassName someType = ClassName.get(tacosPackage, "SomeType");
-        typeSpec = TypeSpec.classBuilder("Foo")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Foo")
                 .addAnnotation(AnnotationSpec.builder(ClassName.get(tacosPackage, "Something"))
                         .addMember("hi", "$T.$N", someType, "FIELD")
                         .addMember("hey", "$L", 12)
@@ -385,6 +378,7 @@ public final class TypeSpecTest {
                         public class Foo {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -402,7 +396,7 @@ public final class TypeSpecTest {
 
     @Test
     public void enumWithSubclassing() {
-        typeSpec = TypeSpec.enumBuilder("Roshambo")
+        TypeSpec typeSpec = TypeSpec.enumBuilder("Roshambo")
                 .addModifiers(Modifier.PUBLIC)
                 .addEnumConstant(
                         "ROCK",
@@ -465,12 +459,13 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     /** https://github.com/square/javapoet/issues/193 */
     @Test
     public void enumsMayDefineAbstractMethods() {
-        typeSpec = TypeSpec.enumBuilder("Tortilla")
+        TypeSpec typeSpec = TypeSpec.enumBuilder("Tortilla")
                 .addModifiers(Modifier.PUBLIC)
                 .addEnumConstant(
                         "CORN",
@@ -501,11 +496,12 @@ public final class TypeSpecTest {
                           public abstract void fold();
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void noEnumConstants() {
-        typeSpec = TypeSpec.enumBuilder("Roshambo")
+        TypeSpec typeSpec = TypeSpec.enumBuilder("Roshambo")
                 .addField(String.class, "NO_ENUM", Modifier.STATIC)
                 .build();
         assertThat(toString(typeSpec))
@@ -520,6 +516,7 @@ public final class TypeSpecTest {
                           static String NO_ENUM;
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -532,7 +529,7 @@ public final class TypeSpecTest {
 
     @Test
     public void enumWithMembersButNoConstructorCall() {
-        typeSpec = TypeSpec.enumBuilder("Roshambo")
+        TypeSpec typeSpec = TypeSpec.enumBuilder("Roshambo")
                 .addEnumConstant(
                         "SPOCK",
                         TypeSpec.anonymousClassBuilder("")
@@ -561,12 +558,13 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     /** https://github.com/square/javapoet/issues/253 */
     @Test
     public void enumWithAnnotatedValues() {
-        typeSpec = TypeSpec.enumBuilder("Roshambo")
+        TypeSpec typeSpec = TypeSpec.enumBuilder("Roshambo")
                 .addModifiers(Modifier.PUBLIC)
                 .addEnumConstant(
                         "ROCK",
@@ -592,11 +590,12 @@ public final class TypeSpecTest {
                           SCISSORS
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void methodThrows() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addModifiers(Modifier.ABSTRACT)
                 .addMethod(MethodSpec.methodBuilder("throwOne")
                         .addException(IOException.class)
@@ -640,7 +639,7 @@ public final class TypeSpecTest {
         TypeVariableName t = TypeVariableName.get("T");
         TypeVariableName p = TypeVariableName.get("P", Number.class);
         ClassName location = ClassName.get(tacosPackage, "Location");
-        typeSpec = TypeSpec.classBuilder("Location")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Location")
                 .addTypeVariable(t)
                 .addTypeVariable(p)
                 .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Comparable.class), p))
@@ -692,6 +691,7 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -701,7 +701,7 @@ public final class TypeSpecTest {
         TypeVariableName p = TypeVariableName.get("P", Number.class);
         TypeVariableName q =
                 (TypeVariableName) TypeVariableName.get("Q", Number.class).annotated(a);
-        typeSpec = TypeSpec.classBuilder("Location")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Location")
                 .addTypeVariable(p.withBounds(Comparable.class))
                 .addTypeVariable(q.withBounds(Comparable.class))
                 .addField(p, "x")
@@ -721,11 +721,12 @@ public final class TypeSpecTest {
                           @A Q y;
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void classSealed() {
-        typeSpec = TypeSpec.classBuilder("Taco").addModifiers(Modifier.SEALED).build();
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco").addModifiers(Modifier.SEALED).build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -734,11 +735,12 @@ public final class TypeSpecTest {
                         sealed class Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void classNonSealed() {
-        typeSpec = TypeSpec.classBuilder("Taco").addModifiers(Modifier.NON_SEALED).build();
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco").addModifiers(Modifier.NON_SEALED).build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -747,13 +749,14 @@ public final class TypeSpecTest {
                         non-sealed class Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void classImplementsExtendsPermits() {
         ClassName taco = ClassName.get(tacosPackage, "Taco");
         ClassName food = ClassName.get("com.palantir.tacos", "Food");
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addModifiers(Modifier.ABSTRACT, Modifier.SEALED)
                 .superclass(ParameterizedTypeName.get(ClassName.get(AbstractSet.class), food))
                 .addSuperinterface(Serializable.class)
@@ -774,6 +777,7 @@ public final class TypeSpecTest {
                         permits BeefTaco, ChickenTaco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -781,7 +785,7 @@ public final class TypeSpecTest {
         ClassName outer = ClassName.get(tacosPackage, "Outer");
         ClassName inner = outer.nestedClass("Inner");
         ClassName callable = ClassName.get(Callable.class);
-        typeSpec = TypeSpec.classBuilder("Outer")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Outer")
                 .superclass(ParameterizedTypeName.get(callable, inner))
                 .addType(TypeSpec.classBuilder("Inner")
                         .addModifiers(Modifier.STATIC)
@@ -804,7 +808,7 @@ public final class TypeSpecTest {
 
     @Test
     public void enumImplements() {
-        typeSpec = TypeSpec.enumBuilder("Food")
+        TypeSpec typeSpec = TypeSpec.enumBuilder("Food")
                 .addSuperinterface(Serializable.class)
                 .addSuperinterface(Cloneable.class)
                 .addEnumConstant("LEAN_GROUND_BEEF")
@@ -824,11 +828,12 @@ public final class TypeSpecTest {
                           SHREDDED_CHEESE
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void interfaceSealed() {
-        typeSpec = TypeSpec.interfaceBuilder("Taco").addModifiers(Modifier.SEALED).build();
+        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Taco").addModifiers(Modifier.SEALED).build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -837,11 +842,12 @@ public final class TypeSpecTest {
                         sealed interface Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void interfaceNonSealed() {
-        typeSpec = TypeSpec.interfaceBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Taco")
                 .addModifiers(Modifier.NON_SEALED)
                 .build();
         assertThat(toString(typeSpec))
@@ -852,12 +858,13 @@ public final class TypeSpecTest {
                         non-sealed interface Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void interfaceExtendsPermits() {
         ClassName taco = ClassName.get(tacosPackage, "Taco");
-        typeSpec = TypeSpec.interfaceBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Taco")
                 .addModifiers(Modifier.SEALED)
                 .addSuperinterface(Serializable.class)
                 .addSuperinterface(ParameterizedTypeName.get(ClassName.get(Comparable.class), taco))
@@ -875,11 +882,12 @@ public final class TypeSpecTest {
                         sealed interface Taco extends Serializable, Comparable<Taco> permits BeefTaco, ChickenTaco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void recordOneField() {
-        typeSpec = TypeSpec.recordBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(
                                 ParameterSpec.builder(String.class, "name").build())
@@ -895,11 +903,12 @@ public final class TypeSpecTest {
                         record Taco(String name) {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void recordTwoFields() {
-        typeSpec = TypeSpec.recordBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(
                                 ParameterSpec.builder(String.class, "name").build())
@@ -922,7 +931,7 @@ public final class TypeSpecTest {
 
     @Test
     public void recordWithVarArgs() {
-        typeSpec = TypeSpec.recordBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(
                                 ParameterSpec.builder(String.class, "name").build())
@@ -945,7 +954,7 @@ public final class TypeSpecTest {
 
     @Test
     public void recordWithJavadoc() {
-        typeSpec = TypeSpec.recordBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(ParameterSpec.builder(String.class, "id")
                                 .addJavadoc("Id of the taco.")
@@ -967,11 +976,12 @@ public final class TypeSpecTest {
                         record Taco(String id) {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void recordWithAnnotationOnParam() {
-        typeSpec = TypeSpec.recordBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
                         .addParameter(ParameterSpec.builder(String.class, "id")
                                 .addAnnotation(Deprecated.class)
@@ -993,7 +1003,7 @@ public final class TypeSpecTest {
 
     @Test
     public void recordNoField() {
-        typeSpec = TypeSpec.recordBuilder("Taco").build();
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco").build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -1002,6 +1012,7 @@ public final class TypeSpecTest {
                         record Taco() {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -1010,7 +1021,7 @@ public final class TypeSpecTest {
         ClassName topping = ClassName.get(tacosPackage, "Combo", "Taco", "Topping");
         ClassName chips = ClassName.get(tacosPackage, "Combo", "Chips");
         ClassName sauce = ClassName.get(tacosPackage, "Combo", "Sauce");
-        typeSpec = TypeSpec.classBuilder("Combo")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Combo")
                 .addField(taco, "taco")
                 .addField(chips, "chips")
                 .addType(TypeSpec.classBuilder(taco.simpleName())
@@ -1079,11 +1090,12 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void annotation() {
-        typeSpec = TypeSpec.annotationBuilder("MyAnnotation")
+        TypeSpec typeSpec = TypeSpec.annotationBuilder("MyAnnotation")
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(MethodSpec.methodBuilder("test")
                         .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
@@ -1101,11 +1113,12 @@ public final class TypeSpecTest {
                           int test() default 0;
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void innerAnnotationInAnnotationDeclaration() {
-        typeSpec = TypeSpec.annotationBuilder("Bar")
+        TypeSpec typeSpec = TypeSpec.annotationBuilder("Bar")
                 .addMethod(MethodSpec.methodBuilder("value")
                         .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                         .defaultValue("@$T", Deprecated.class)
@@ -1124,6 +1137,7 @@ public final class TypeSpecTest {
                           Deprecated value() default @Deprecated;
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -1133,7 +1147,7 @@ public final class TypeSpecTest {
                 .initializer("$L", 101)
                 .build();
 
-        typeSpec = TypeSpec.annotationBuilder("Anno").addField(field).build();
+        TypeSpec typeSpec = TypeSpec.annotationBuilder("Anno").addField(field).build();
 
         assertThat(toString(typeSpec))
                 .isEqualTo(
@@ -1144,6 +1158,7 @@ public final class TypeSpecTest {
                           int FOO = 101;
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -1174,7 +1189,7 @@ public final class TypeSpecTest {
 
     @Test
     public void interfaceStaticMethods() {
-        typeSpec = TypeSpec.interfaceBuilder("Tacos")
+        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Tacos")
                 .addMethod(MethodSpec.methodBuilder("test")
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .returns(int.class)
@@ -1197,7 +1212,7 @@ public final class TypeSpecTest {
 
     @Test
     public void interfaceDefaultMethods() {
-        typeSpec = TypeSpec.interfaceBuilder("Tacos")
+        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Tacos")
                 .addMethod(MethodSpec.methodBuilder("test")
                         .addModifiers(Modifier.PUBLIC, Modifier.DEFAULT)
                         .returns(int.class)
@@ -1253,7 +1268,7 @@ public final class TypeSpecTest {
 
     @Test
     public void interfacePrivateMethods() {
-        typeSpec = TypeSpec.interfaceBuilder("Tacos")
+        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Tacos")
                 .addMethod(MethodSpec.methodBuilder("test")
                         .addModifiers(Modifier.PRIVATE)
                         .returns(int.class)
@@ -1305,7 +1320,7 @@ public final class TypeSpecTest {
                 .build();
         FieldSpec externalBottom = FieldSpec.builder(ClassName.get(donutsPackage, "Bottom"), "externalBottom")
                 .build();
-        typeSpec = TypeSpec.classBuilder("Top")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Top")
                 .addField(internalTop)
                 .addField(internalBottom)
                 .addField(externalTop)
@@ -1360,6 +1375,7 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -1368,7 +1384,7 @@ public final class TypeSpecTest {
                 .build();
         FieldSpec externalOther = FieldSpec.builder(ClassName.get(donutsPackage, "Other"), "externalOther")
                 .build();
-        typeSpec = TypeSpec.classBuilder("Gen")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Gen")
                 .addField(internalOther)
                 .addField(externalOther)
                 .build();
@@ -1391,7 +1407,7 @@ public final class TypeSpecTest {
         ClassName otherType = ClassName.get("com.other", "OtherType");
         ClassName methodInPackage = ClassName.get("com.palantir.tacos", "MethodInPackage");
         ClassName methodOtherType = ClassName.get("com.other", "MethodOtherType");
-        typeSpec = TypeSpec.classBuilder("Gen")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Gen")
                 .addTypeVariable(TypeVariableName.get("InPackage"))
                 .addTypeVariable(TypeVariableName.get("OtherType"))
                 .addField(FieldSpec.builder(inPackage, "inPackage").build())
@@ -1455,6 +1471,7 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -1468,12 +1485,13 @@ public final class TypeSpecTest {
                         .build())
                 .build();
         assertThat(outer.originatingElements()).containsExactly(outerElement, innerElement);
+        checkToBuilderRoundtrip(outer);
     }
 
     @Test
     public void intersectionType() {
         TypeVariableName typeVariable = TypeVariableName.get("T", Comparator.class, Serializable.class);
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("getComparator")
                         .addTypeVariable(typeVariable)
                         .returns(typeVariable)
@@ -1498,7 +1516,7 @@ public final class TypeSpecTest {
 
     @Test
     public void arrayType() {
-        typeSpec = TypeSpec.classBuilder("Taco").addField(int[].class, "ints").build();
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco").addField(int[].class, "ints").build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -1512,7 +1530,7 @@ public final class TypeSpecTest {
 
     @Test
     public void javadoc() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addJavadoc("A hard or soft tortilla, loosely folded and filled with whatever\n")
                 .addJavadoc("{@link $T random} tex-mex stuff we could find in the pantry\n", Random.class)
                 .addJavadoc(CodeBlock.of("and some {@link $T} cheese.\n", String.class))
@@ -1561,6 +1579,7 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -1569,7 +1588,7 @@ public final class TypeSpecTest {
         ClassName chicken = ClassName.get(tacosPackage, "Chicken");
         ClassName option = ClassName.get(tacosPackage, "Option");
         ClassName mealDeal = ClassName.get(tacosPackage, "MealDeal");
-        typeSpec = TypeSpec.classBuilder("Menu")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Menu")
                 .addAnnotation(AnnotationSpec.builder(mealDeal)
                         .addMember("price", "$L", 500)
                         .addMember(
@@ -1603,11 +1622,12 @@ public final class TypeSpecTest {
                         class Menu {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void varargs() {
-        typeSpec = TypeSpec.classBuilder("Taqueria")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taqueria")
                 .addMethod(MethodSpec.methodBuilder("prepare")
                         .addParameter(int.class, "workers")
                         .addParameter(Runnable[].class, "jobs")
@@ -1659,7 +1679,7 @@ public final class TypeSpecTest {
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .initializer(fieldBlock)
                 .build();
-        typeSpec = TypeSpec.classBuilder("Util")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Util")
                 .addField(escapeHtml)
                 .addMethod(MethodSpec.methodBuilder("commonPrefixLength")
                         .returns(int.class)
@@ -1705,7 +1725,7 @@ public final class TypeSpecTest {
 
     @Test
     public void indexedElseIf() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("choices")
                         .beginControlFlow("if ($1L != null || $1L == $2L)", "taco", "otherTaco")
                         .addStatement("$T.out.println($S)", System.class, "only one taco? NOO!")
@@ -1735,7 +1755,7 @@ public final class TypeSpecTest {
 
     @Test
     public void elseIf() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("choices")
                         .beginControlFlow("if (5 < 4) ")
                         .addStatement("$T.out.println($S)", System.class, "wat")
@@ -1765,7 +1785,7 @@ public final class TypeSpecTest {
 
     @Test
     public void doWhile() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("loopForever")
                         .beginControlFlow("do")
                         .addStatement("$T.out.println($S)", System.class, "hello")
@@ -1791,7 +1811,7 @@ public final class TypeSpecTest {
 
     @Test
     public void inlineIndent() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("inlineIndent")
                         .addCode("if (3 < 4) {\n$>$T.out.println($S);\n$<}\n", System.class, "hello")
                         .build())
@@ -1815,7 +1835,7 @@ public final class TypeSpecTest {
 
     @Test
     public void defaultModifiersForInterfaceMembers() {
-        typeSpec = TypeSpec.interfaceBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.interfaceBuilder("Taco")
                 .addField(FieldSpec.builder(String.class, "SHELL")
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                         .initializer("$S", "crunchy corn")
@@ -1843,11 +1863,12 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void defaultModifiersForMemberInterfacesAndEnums() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addType(TypeSpec.classBuilder("Meat")
                         .addModifiers(Modifier.STATIC)
                         .build())
@@ -1876,12 +1897,13 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void membersOrdering() {
         // Hand out names in reverse-alphabetical order to defend against unexpected sorting.
-        typeSpec = TypeSpec.classBuilder("Members")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Members")
                 .addType(TypeSpec.classBuilder("Z").build())
                 .addType(TypeSpec.classBuilder("Y").build())
                 .addField(String.class, "X", Modifier.STATIC)
@@ -1945,11 +1967,12 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void nativeMethods() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("nativeInt")
                         .addModifiers(Modifier.NATIVE)
                         .returns(int.class)
@@ -1986,7 +2009,7 @@ public final class TypeSpecTest {
 
     @Test
     public void nullStringLiteral() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(FieldSpec.builder(String.class, "NULL")
                         .initializer("$S", (Object) null)
                         .build())
@@ -2136,7 +2159,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multilineStatement() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("toString")
                         .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC)
@@ -2180,7 +2203,7 @@ public final class TypeSpecTest {
                         .addStatement("return a.substring(0, length)\n" + ".compareTo(b.substring(0, length))")
                         .build())
                 .build();
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("comparePrefix")
                         .returns(stringComparator)
                         .addParameter(int.class, "length", Modifier.FINAL)
@@ -2231,7 +2254,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multilineStrings() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(FieldSpec.builder(String.class, "toppings")
                         .initializer("$S", "shell\nbeef\nlettuce\ncheese\n")
                         .build())
@@ -2276,7 +2299,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleAnnotationAddition() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addAnnotations(Arrays.asList(
                         AnnotationSpec.builder(SuppressWarnings.class)
                                 .addMember("value", "$S", "unchecked")
@@ -2296,6 +2319,7 @@ public final class TypeSpecTest {
                         class Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -2307,7 +2331,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleFieldAddition() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addFields(Arrays.asList(
                         FieldSpec.builder(int.class, "ANSWER", Modifier.STATIC, Modifier.FINAL)
                                 .build(),
@@ -2327,6 +2351,7 @@ public final class TypeSpecTest {
                           private BigDecimal price;
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -2338,7 +2363,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleMethodAddition() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethods(Arrays.asList(
                         MethodSpec.methodBuilder("getAnswer")
                                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -2370,6 +2395,7 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -2399,7 +2425,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleSuperinterfaceAddition() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addSuperinterfaces(Arrays.asList(TypeName.get(Serializable.class), TypeName.get(EventListener.class)))
                 .build();
         assertThat(toString(typeSpec))
@@ -2413,6 +2439,7 @@ public final class TypeSpecTest {
                         class Taco implements Serializable, EventListener {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -2442,7 +2469,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multiplePermittedSubclassesAddition() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addModifiers(Modifier.SEALED)
                 .addPermittedSubclasses(Arrays.asList(
                         ClassName.bestGuess("com.palantir.tacos.BeefTaco"),
@@ -2456,6 +2483,7 @@ public final class TypeSpecTest {
                         sealed class Taco permits BeefTaco, ChickenTaco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -2476,7 +2504,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleTypeVariableAddition() {
-        typeSpec = TypeSpec.classBuilder("Location")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Location")
                 .addTypeVariables(Arrays.asList(TypeVariableName.get("T"), TypeVariableName.get("P", Number.class)))
                 .build();
         assertThat(toString(typeSpec))
@@ -2489,6 +2517,7 @@ public final class TypeSpecTest {
                         class Location<T, P extends Number> {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -2500,7 +2529,7 @@ public final class TypeSpecTest {
 
     @Test
     public void multipleTypeAddition() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addTypes(Arrays.asList(
                         TypeSpec.classBuilder("Topping").build(),
                         TypeSpec.classBuilder("Sauce").build()))
@@ -2518,11 +2547,12 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void tryCatch() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("addTopping")
                         .addParameter(ClassName.get("com.palantir.tacos", "Topping"), "topping")
                         .beginControlFlow("try")
@@ -2549,7 +2579,7 @@ public final class TypeSpecTest {
 
     @Test
     public void ifElse() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("isDelicious")
                         .addParameter(TypeName.INT, "count")
                         .returns(TypeName.BOOLEAN)
@@ -2731,7 +2761,7 @@ public final class TypeSpecTest {
 
     @Test
     public void staticCodeBlock() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(String.class, "foo", Modifier.PRIVATE)
                 .addField(String.class, "FOO", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .addStaticBlock(
@@ -2766,11 +2796,12 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void initializerBlockInRightPlace() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addField(String.class, "foo", Modifier.PRIVATE)
                 .addField(String.class, "FOO", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .addStaticBlock(
@@ -2815,6 +2846,7 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
@@ -2889,6 +2921,7 @@ public final class TypeSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(initializersAdded);
     }
 
     @Test
@@ -2917,7 +2950,7 @@ public final class TypeSpecTest {
         }
         methodBuilder.addCode(");$]\n");
 
-        typeSpec = TypeSpec.classBuilder("Taco").addMethod(methodBuilder.build()).build();
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco").addMethod(methodBuilder.build()).build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -2951,7 +2984,7 @@ public final class TypeSpecTest {
                 .addCode(");$]\n")
                 .build();
 
-        typeSpec = TypeSpec.classBuilder("Taco").addMethod(method).build();
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco").addMethod(method).build();
         assertThat(toString(typeSpec))
                 .isEqualTo(
                         """
@@ -2999,7 +3032,7 @@ public final class TypeSpecTest {
 
     @Test
     public void javadocWithTrailingLineDoesNotAddAnother() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addJavadoc("Some doc with a newline\n")
                 .build();
 
@@ -3014,11 +3047,12 @@ public final class TypeSpecTest {
                         class Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 
     @Test
     public void javadocEnsuresTrailingLine() {
-        typeSpec = TypeSpec.classBuilder("Taco")
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addJavadoc("Some doc with a newline")
                 .build();
 
@@ -3033,5 +3067,6 @@ public final class TypeSpecTest {
                         class Taco {
                         }
                         """);
+        checkToBuilderRoundtrip(typeSpec);
     }
 }

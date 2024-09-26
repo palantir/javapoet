@@ -43,7 +43,6 @@ import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,23 +66,10 @@ public final class MethodSpecTest {
     }
 
     /**
-     * Method spec created by a test method; used by {@link #checkToBuilderRoundtrip()}.
-     *
-     * <p>{@code null} if a test method does not create a (valid) method spec, or if no round-trip check
-     * should be performed on it.
-     */
-    private MethodSpec methodSpec = null;
-
-    /**
      * Performs round-trip check that {@code methodSpec.toBuilder().build()} is identical to the
      * original {@code methodSpec}.
      */
-    @After
-    public void checkToBuilderRoundtrip() {
-        if (methodSpec == null) {
-            return;
-        }
-
+    private static void checkToBuilderRoundtrip(MethodSpec methodSpec) {
         String originalToString = methodSpec.toString();
         int originalHashCode = methodSpec.hashCode();
 
@@ -165,7 +151,7 @@ public final class MethodSpecTest {
     public void overrideEverything() {
         TypeElement classElement = getElement(Everything.class);
         ExecutableElement methodElement = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
-        methodSpec = MethodSpec.overriding(methodElement).build();
+        MethodSpec methodSpec = MethodSpec.overriding(methodElement).build();
         assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
@@ -175,13 +161,14 @@ public final class MethodSpecTest {
                             java.lang.SecurityException {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
     public void overrideGenerics() {
         TypeElement classElement = getElement(Generics.class);
         ExecutableElement methodElement = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
-        methodSpec =
+        MethodSpec methodSpec =
                 MethodSpec.overriding(methodElement).addStatement("return null").build();
         assertThat(methodSpec.toString())
                 .isEqualTo(
@@ -191,13 +178,14 @@ public final class MethodSpecTest {
                           return null;
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
     public void overrideDoesNotCopyOverrideAnnotation() {
         TypeElement classElement = getElement(HasAnnotation.class);
         ExecutableElement exec = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
-        methodSpec = MethodSpec.overriding(exec).build();
+        MethodSpec methodSpec = MethodSpec.overriding(exec).build();
         assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
@@ -205,6 +193,7 @@ public final class MethodSpecTest {
                         public java.lang.String toString() {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -213,7 +202,7 @@ public final class MethodSpecTest {
         DeclaredType classType = (DeclaredType) classElement.asType();
         List<ExecutableElement> methods = methodsIn(elements.getAllMembers(classElement));
         ExecutableElement exec = findFirst(methods, "spliterator");
-        methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        MethodSpec methodSpec = MethodSpec.overriding(exec, classType, types).build();
         assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
@@ -221,6 +210,7 @@ public final class MethodSpecTest {
                         public java.util.Spliterator<java.lang.Object> spliterator() {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -229,7 +219,7 @@ public final class MethodSpecTest {
         DeclaredType classType = (DeclaredType) classElement.asType();
         List<ExecutableElement> methods = methodsIn(elements.getAllMembers(classElement));
         ExecutableElement exec = findFirst(methods, "call");
-        methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        MethodSpec methodSpec = MethodSpec.overriding(exec, classType, types).build();
         assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
@@ -237,6 +227,8 @@ public final class MethodSpecTest {
                         public java.lang.Integer call() throws java.lang.Exception {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
+
         exec = findFirst(methods, "compareTo");
         methodSpec = MethodSpec.overriding(exec, classType, types).build();
         assertThat(methodSpec.toString())
@@ -246,6 +238,8 @@ public final class MethodSpecTest {
                         public int compareTo(com.palantir.javapoet.MethodSpecTest.ExtendsOthers arg0) {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
+
         exec = findFirst(methods, "fail");
         methodSpec = MethodSpec.overriding(exec, classType, types).build();
         assertThat(methodSpec.toString())
@@ -255,6 +249,7 @@ public final class MethodSpecTest {
                         public void fail() throws java.lang.IllegalStateException {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -324,7 +319,7 @@ public final class MethodSpecTest {
 
     @Test
     public void withoutParameterJavaDoc() {
-        methodSpec = MethodSpec.methodBuilder("getTaco")
+        MethodSpec methodSpec = MethodSpec.methodBuilder("getTaco")
                 .addModifiers(Modifier.PRIVATE)
                 .addParameter(TypeName.DOUBLE, "money")
                 .addJavadoc("Gets the best Taco\n")
@@ -338,11 +333,12 @@ public final class MethodSpecTest {
                         private void getTaco(double money) {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
     public void withParameterJavaDoc() {
-        methodSpec = MethodSpec.methodBuilder("getTaco")
+        MethodSpec methodSpec = MethodSpec.methodBuilder("getTaco")
                 .addParameter(ParameterSpec.builder(TypeName.DOUBLE, "money")
                         .addJavadoc("the amount required to buy the taco.\n")
                         .build())
@@ -363,11 +359,12 @@ public final class MethodSpecTest {
                         void getTaco(double money, int count) {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
     public void withParameterJavaDocAndWithoutMethodJavadoc() {
-        methodSpec = MethodSpec.methodBuilder("getTaco")
+        MethodSpec methodSpec = MethodSpec.methodBuilder("getTaco")
                 .addParameter(ParameterSpec.builder(TypeName.DOUBLE, "money")
                         .addJavadoc("the amount required to buy the taco.\n")
                         .build())
@@ -385,13 +382,14 @@ public final class MethodSpecTest {
                         void getTaco(double money, int count) {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
     public void duplicateExceptionsIgnored() {
         ClassName ioException = ClassName.get(IOException.class);
         ClassName timeoutException = ClassName.get(TimeoutException.class);
-        methodSpec = MethodSpec.methodBuilder("duplicateExceptions")
+        MethodSpec methodSpec = MethodSpec.methodBuilder("duplicateExceptions")
                 .addException(ioException)
                 .addException(timeoutException)
                 .addException(timeoutException)
@@ -400,6 +398,7 @@ public final class MethodSpecTest {
         assertThat(methodSpec.exceptions()).containsExactlyElementsOf(Arrays.asList(ioException, timeoutException));
         assertThat(methodSpec.toBuilder().addException(ioException).build().exceptions())
                 .containsExactlyElementsOf(Arrays.asList(ioException, timeoutException));
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -418,7 +417,7 @@ public final class MethodSpecTest {
 
     @Test
     public void modifyMethodName() {
-        methodSpec = MethodSpec.methodBuilder("initialMethod").build().toBuilder()
+        MethodSpec methodSpec = MethodSpec.methodBuilder("initialMethod").build().toBuilder()
                 .setName("revisedMethod")
                 .build();
 
@@ -428,11 +427,12 @@ public final class MethodSpecTest {
                         void revisedMethod() {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
     public void ensureTrailingNewline() {
-        methodSpec = MethodSpec.methodBuilder("method")
+        MethodSpec methodSpec = MethodSpec.methodBuilder("method")
                 .addCode("codeWithNoNewline();")
                 .build();
 
@@ -443,12 +443,13 @@ public final class MethodSpecTest {
                           codeWithNoNewline();
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     /** Ensures that we don't add a duplicate newline if one is already present. */
     @Test
     public void ensureTrailingNewlineWithExistingNewline() {
-        methodSpec = MethodSpec.methodBuilder("method")
+        MethodSpec methodSpec = MethodSpec.methodBuilder("method")
                 .addCode("codeWithNoNewline();\n") // Have a newline already, so ensure we're not adding one
                 .build();
 
@@ -459,6 +460,7 @@ public final class MethodSpecTest {
                           codeWithNoNewline();
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -467,7 +469,7 @@ public final class MethodSpecTest {
         m.put("field", "valueField");
         m.put("threshold", "5");
 
-        methodSpec = MethodSpec.methodBuilder("method")
+        MethodSpec methodSpec = MethodSpec.methodBuilder("method")
                 .beginControlFlow(named("if ($field:N > $threshold:L)", m))
                 .nextControlFlow(named("else if ($field:N == $threshold:L)", m))
                 .endControlFlow()
@@ -482,6 +484,7 @@ public final class MethodSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -490,7 +493,7 @@ public final class MethodSpecTest {
         m.put("field", "valueField");
         m.put("threshold", "5");
 
-        methodSpec = MethodSpec.methodBuilder("method")
+        MethodSpec methodSpec = MethodSpec.methodBuilder("method")
                 .beginControlFlow("do")
                 .addStatement(named("$field:N--", m))
                 .endControlFlow(named("while ($field:N > $threshold:L)", m))
@@ -505,6 +508,7 @@ public final class MethodSpecTest {
                           } while (valueField > 5);
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     private static CodeBlock named(String format, Map<String, ?> args) {

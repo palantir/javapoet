@@ -19,28 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import javax.lang.model.element.Modifier;
-import org.junit.After;
 import org.junit.Test;
 
 public class FieldSpecTest {
     /**
-     * Field spec created by a test method; used by {@link #checkToBuilderRoundtrip()}.
-     *
-     * <p>{@code null} if a test method does not create a (valid) field spec, or if no round-trip check
-     * should be performed on it.
-     */
-    private FieldSpec fieldSpec = null;
-
-    /**
      * Performs round-trip check that {@code fieldSpec.toBuilder().build()} is identical to the
      * original {@code fieldSpec}.
      */
-    @After
-    public void checkToBuilderRoundtrip() {
-        if (fieldSpec == null) {
-            return;
-        }
-
+    private static void checkToBuilderRoundtrip(FieldSpec fieldSpec) {
         String originalToString = fieldSpec.toString();
         int originalHashCode = fieldSpec.hashCode();
 
@@ -65,8 +51,7 @@ public class FieldSpecTest {
         assertThat(a.hashCode()).isEqualTo(b.hashCode());
         assertThat(a.toString()).isEqualTo(b.toString());
 
-        // Perform round-trip check in @After
-        fieldSpec = a;
+        checkToBuilderRoundtrip(a);
     }
 
     @Test
