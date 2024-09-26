@@ -69,13 +69,20 @@ public class ParameterSpecTest {
             return;
         }
 
+        String originalMethodString = toMethodString(parameterSpec);
         String originalToString = parameterSpec.toString();
         int originalHashCode = parameterSpec.hashCode();
 
         ParameterSpec roundtripParameterSpec = parameterSpec.toBuilder().build();
+        assertThat(toMethodString(roundtripParameterSpec)).isEqualTo(originalMethodString);
         assertThat(roundtripParameterSpec.toString()).isEqualTo(originalToString);
         assertThat(roundtripParameterSpec.hashCode()).isEqualTo(originalHashCode);
         assertThat(roundtripParameterSpec).isEqualTo(parameterSpec);
+    }
+
+    private String toMethodString(ParameterSpec parameterSpec) {
+        // Add parameter to MethodSpec because at least parameter Javadoc is only emitted when part of a method
+        return MethodSpec.methodBuilder("test").addParameter(parameterSpec).build().toString();
     }
 
     @Test
@@ -160,5 +167,19 @@ public class ParameterSpecTest {
         assertThatThrownBy(() -> ParameterSpec.builder(int.class, "foo").addModifiers(modifiers))
                 .isInstanceOf(Exception.class)
                 .hasMessage("unexpected parameter modifier: public");
+    }
+
+    @Test
+    public void parameterJavadoc() {
+        parameterSpec = ParameterSpec.builder(int.class, "i").addJavadoc("My param").build();
+        assertThat(toMethodString(parameterSpec))
+                .isEqualTo(
+                        """
+                        /**
+                         * @param i My param
+                         */
+                        void test(int i) {
+                        }
+                        """);
     }
 }
