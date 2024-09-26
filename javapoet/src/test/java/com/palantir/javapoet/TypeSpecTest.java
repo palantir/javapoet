@@ -1478,13 +1478,20 @@ public final class TypeSpecTest {
     public void originatingElementsIncludesThoseOfNestedTypes() {
         Element outerElement = Mockito.mock(Element.class);
         Element innerElement = Mockito.mock(Element.class);
+        Element innerInnerElement = Mockito.mock(Element.class);
+
         TypeSpec outer = TypeSpec.classBuilder("Outer")
                 .addOriginatingElement(outerElement)
                 .addType(TypeSpec.classBuilder("Inner")
                         .addOriginatingElement(innerElement)
+                        .addType(TypeSpec.classBuilder("InnerInner")
+                                .addOriginatingElement(innerInnerElement)
+                                .build())
                         .build())
                 .build();
-        assertThat(outer.originatingElements()).containsExactly(outerElement, innerElement);
+        assertThat(outer.originatingElements()).containsExactly(outerElement, innerElement, innerInnerElement);
+        assertThat(outer.toBuilder().build().originatingElements()).containsExactly(
+                outerElement, innerElement, innerInnerElement);
         checkToBuilderRoundtrip(outer);
     }
 

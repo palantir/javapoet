@@ -88,14 +88,11 @@ public final class TypeSpec {
         this.recordConstructor = builder.recordConstructor;
 
         nestedTypesSimpleNames = new HashSet<>();
-        List<Element> originatingElementsMutable = new ArrayList<>();
-        originatingElementsMutable.addAll(builder.originatingElements);
         for (TypeSpec typeSpec : builder.typeSpecs) {
             nestedTypesSimpleNames.add(typeSpec.name);
-            originatingElementsMutable.addAll(typeSpec.originatingElements);
         }
 
-        this.originatingElements = Util.immutableList(originatingElementsMutable);
+        this.originatingElements = Util.immutableList(builder.originatingElements);
     }
 
     /**
@@ -190,7 +187,15 @@ public final class TypeSpec {
     }
 
     public List<Element> originatingElements() {
-        return originatingElements;
+        if (typeSpecs.isEmpty()) {
+            return originatingElements;
+        }
+
+        List<Element> allOriginatingElements = new ArrayList<>(originatingElements);
+        for (TypeSpec typeSpec : typeSpecs) {
+            allOriginatingElements.addAll(typeSpec.originatingElements());
+        }
+        return allOriginatingElements;
     }
 
     public Set<String> alwaysQualifiedNames() {
