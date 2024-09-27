@@ -7,4 +7,4 @@ org.assertj:* = 3.26.3
 org.eclipse.jdt.core.compiler:* = 4.6.1
 org.junit.jupiter:* = 5.11.1
 org.junit.vintage:* = 5.11.1
-org.mockito:* = 5.13.0
+org.mockito:* = 5.14.0
