@@ -567,7 +567,6 @@ public final class TypeSpec {
             this.asMemberModifiers = asMemberModifiers;
             this.keyword = keyword;
         }
-
     }
 
     public static final class Builder {
