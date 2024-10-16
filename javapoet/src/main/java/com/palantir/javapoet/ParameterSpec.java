@@ -156,6 +156,7 @@ public final class ParameterSpec {
         Builder builder = new Builder(type, name);
         builder.annotations.addAll(annotations);
         builder.modifiers.addAll(modifiers);
+        builder.javadoc.add(javadoc);
         return builder;
     }
 

@@ -65,6 +65,20 @@ public final class MethodSpecTest {
         return elements.getTypeElement(clazz.getCanonicalName());
     }
 
+    /**
+     * Performs round-trip check that {@code methodSpec.toBuilder().build()} is identical to the
+     * original {@code methodSpec}.
+     */
+    private static void checkToBuilderRoundtrip(MethodSpec methodSpec) {
+        String originalToString = methodSpec.toString();
+        int originalHashCode = methodSpec.hashCode();
+
+        MethodSpec roundtripMethodSpec = methodSpec.toBuilder().build();
+        assertThat(roundtripMethodSpec.toString()).isEqualTo(originalToString);
+        assertThat(roundtripMethodSpec.hashCode()).isEqualTo(originalHashCode);
+        assertThat(roundtripMethodSpec).isEqualTo(methodSpec);
+    }
+
     @Test
     public void nullAnnotationsAddition() {
         assertThatThrownBy(() -> MethodSpec.methodBuilder("doSomething").addAnnotations(null))
@@ -137,8 +151,8 @@ public final class MethodSpecTest {
     public void overrideEverything() {
         TypeElement classElement = getElement(Everything.class);
         ExecutableElement methodElement = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
-        MethodSpec method = MethodSpec.overriding(methodElement).build();
-        assertThat(method.toString())
+        MethodSpec methodSpec = MethodSpec.overriding(methodElement).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
@@ -147,15 +161,16 @@ public final class MethodSpecTest {
                             java.lang.SecurityException {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
     public void overrideGenerics() {
         TypeElement classElement = getElement(Generics.class);
         ExecutableElement methodElement = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
-        MethodSpec method =
+        MethodSpec methodSpec =
                 MethodSpec.overriding(methodElement).addStatement("return null").build();
-        assertThat(method.toString())
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
@@ -163,20 +178,22 @@ public final class MethodSpecTest {
                           return null;
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
     public void overrideDoesNotCopyOverrideAnnotation() {
         TypeElement classElement = getElement(HasAnnotation.class);
         ExecutableElement exec = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
-        MethodSpec method = MethodSpec.overriding(exec).build();
-        assertThat(method.toString())
+        MethodSpec methodSpec = MethodSpec.overriding(exec).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
                         public java.lang.String toString() {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -185,14 +202,15 @@ public final class MethodSpecTest {
         DeclaredType classType = (DeclaredType) classElement.asType();
         List<ExecutableElement> methods = methodsIn(elements.getAllMembers(classElement));
         ExecutableElement exec = findFirst(methods, "spliterator");
-        MethodSpec method = MethodSpec.overriding(exec, classType, types).build();
-        assertThat(method.toString())
+        MethodSpec methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
                         public java.util.Spliterator<java.lang.Object> spliterator() {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -201,32 +219,37 @@ public final class MethodSpecTest {
         DeclaredType classType = (DeclaredType) classElement.asType();
         List<ExecutableElement> methods = methodsIn(elements.getAllMembers(classElement));
         ExecutableElement exec = findFirst(methods, "call");
-        MethodSpec method = MethodSpec.overriding(exec, classType, types).build();
-        assertThat(method.toString())
+        MethodSpec methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
                         public java.lang.Integer call() throws java.lang.Exception {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
+
         exec = findFirst(methods, "compareTo");
-        method = MethodSpec.overriding(exec, classType, types).build();
-        assertThat(method.toString())
+        methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
                         public int compareTo(com.palantir.javapoet.MethodSpecTest.ExtendsOthers arg0) {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
+
         exec = findFirst(methods, "fail");
-        method = MethodSpec.overriding(exec, classType, types).build();
-        assertThat(method.toString())
+        methodSpec = MethodSpec.overriding(exec, classType, types).build();
+        assertThat(methodSpec.toString())
                 .isEqualTo(
                         """
                         @java.lang.Override
                         public void fail() throws java.lang.IllegalStateException {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -310,6 +333,7 @@ public final class MethodSpecTest {
                         private void getTaco(double money) {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -335,6 +359,7 @@ public final class MethodSpecTest {
                         void getTaco(double money, int count) {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -357,6 +382,7 @@ public final class MethodSpecTest {
                         void getTaco(double money, int count) {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -372,6 +398,7 @@ public final class MethodSpecTest {
         assertThat(methodSpec.exceptions()).containsExactlyElementsOf(Arrays.asList(ioException, timeoutException));
         assertThat(methodSpec.toBuilder().addException(ioException).build().exceptions())
                 .containsExactlyElementsOf(Arrays.asList(ioException, timeoutException));
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -400,6 +427,7 @@ public final class MethodSpecTest {
                         void revisedMethod() {
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -415,6 +443,7 @@ public final class MethodSpecTest {
                           codeWithNoNewline();
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     /** Ensures that we don't add a duplicate newline if one is already present. */
@@ -431,6 +460,7 @@ public final class MethodSpecTest {
                           codeWithNoNewline();
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -454,6 +484,7 @@ public final class MethodSpecTest {
                           }
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     @Test
@@ -477,6 +508,7 @@ public final class MethodSpecTest {
                           } while (valueField > 5);
                         }
                         """);
+        checkToBuilderRoundtrip(methodSpec);
     }
 
     private static CodeBlock named(String format, Map<String, ?> args) {

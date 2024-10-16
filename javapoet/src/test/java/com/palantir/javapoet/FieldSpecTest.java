@@ -22,6 +22,20 @@ import javax.lang.model.element.Modifier;
 import org.junit.Test;
 
 public class FieldSpecTest {
+    /**
+     * Performs round-trip check that {@code fieldSpec.toBuilder().build()} is identical to the
+     * original {@code fieldSpec}.
+     */
+    private static void checkToBuilderRoundtrip(FieldSpec fieldSpec) {
+        String originalToString = fieldSpec.toString();
+        int originalHashCode = fieldSpec.hashCode();
+
+        FieldSpec roundtripFieldSpec = fieldSpec.toBuilder().build();
+        assertThat(roundtripFieldSpec.toString()).isEqualTo(originalToString);
+        assertThat(roundtripFieldSpec.hashCode()).isEqualTo(originalHashCode);
+        assertThat(roundtripFieldSpec).isEqualTo(fieldSpec);
+    }
+
     @Test
     public void equalsAndHashCode() {
         FieldSpec a = FieldSpec.builder(int.class, "foo").build();
@@ -36,6 +50,8 @@ public class FieldSpecTest {
         assertThat(a.equals(b)).isTrue();
         assertThat(a.hashCode()).isEqualTo(b.hashCode());
         assertThat(a.toString()).isEqualTo(b.toString());
+
+        checkToBuilderRoundtrip(a);
     }
 
     @Test

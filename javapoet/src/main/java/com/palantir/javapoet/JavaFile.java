@@ -292,6 +292,7 @@ public final class JavaFile {
         builder.fileComment.add(fileComment);
         builder.skipJavaLangImports = skipJavaLangImports;
         builder.indent = indent;
+        builder.staticImports.addAll(staticImports);
         return builder;
     }
 
