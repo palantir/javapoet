@@ -16,6 +16,7 @@
 package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
+import static com.palantir.javapoet.Util.checkNoNullElement;
 import static com.palantir.javapoet.Util.checkNotNull;
 
 import java.io.ByteArrayInputStream;
@@ -30,7 +31,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -99,6 +99,7 @@ public final class JavaFile {
     }
 
     public void writeTo(Appendable out) throws IOException {
+        checkNotNull(out, "out == null");
         // First pass: emit the entire class, just to collect the types we'll need to import.
         CodeWriter importsCollector = new CodeWriter(NULL_APPENDABLE, indent, staticImports, alwaysQualify);
         emit(importsCollector);
@@ -129,6 +130,7 @@ public final class JavaFile {
 
     /** Writes this to {@code filer}. */
     public void writeTo(Filer filer) throws IOException {
+        checkNotNull(filer, "filer == null");
         String fileName = packageName.isEmpty() ? typeSpec.name() : packageName + "." + typeSpec.name();
         List<Element> originatingElements = typeSpec.originatingElements();
         JavaFileObject filerSourceFile = filer.createSourceFile(fileName, originatingElements.toArray(new Element[0]));
@@ -167,10 +169,12 @@ public final class JavaFile {
      * Returns the {@link Path} instance to which source is actually written.
      */
     public Path writeToPath(Path directory, Charset charset) throws IOException {
+        checkNotNull(directory, "directory == null");
         checkArgument(
                 Files.notExists(directory) || Files.isDirectory(directory),
                 "path %s exists but is not a directory.",
                 directory);
+        checkNotNull(charset, "charset == null");
         Path outputDirectory = directory;
         if (!packageName.isEmpty()) {
             for (String packageComponent : packageName.split("\\.", -1)) {
@@ -323,11 +327,10 @@ public final class JavaFile {
         }
 
         public Builder addStaticImport(ClassName className, String... names) {
-            checkArgument(className != null, "className == null");
-            checkArgument(names != null, "names == null");
+            checkNotNull(className, "className == null");
+            checkNoNullElement(names, "names");
             checkArgument(names.length > 0, "names array is empty");
             for (String name : names) {
-                checkArgument(name != null, "null entry in names array: %s", Arrays.toString(names));
                 staticImports.add(className.canonicalName() + "." + name);
             }
             return this;
@@ -347,7 +350,7 @@ public final class JavaFile {
         }
 
         public Builder indent(String indent) {
-            this.indent = indent;
+            this.indent = checkNotNull(indent, "indent == null");
             return this;
         }
 

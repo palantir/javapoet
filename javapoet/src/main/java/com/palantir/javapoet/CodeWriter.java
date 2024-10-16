@@ -16,6 +16,7 @@
 package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
+import static com.palantir.javapoet.Util.checkNoNullElement;
 import static com.palantir.javapoet.Util.checkNotNull;
 import static com.palantir.javapoet.Util.checkState;
 import static com.palantir.javapoet.Util.stringLiteralWithDoubleQuotes;
@@ -133,6 +134,7 @@ final class CodeWriter {
     }
 
     public CodeWriter pushType(TypeSpec type) {
+        checkNotNull(type, "type == null");
         this.typeSpecStack.add(type);
         return this;
     }
@@ -143,6 +145,7 @@ final class CodeWriter {
     }
 
     public void emitComment(CodeBlock codeBlock) throws IOException {
+        checkNotNull(codeBlock, "codeBlock == null");
         trailingNewline = true; // Force the '//' prefix for the comment.
         comment = true;
         try {
@@ -154,6 +157,7 @@ final class CodeWriter {
     }
 
     public void emitJavadoc(CodeBlock javadocCodeBlock) throws IOException {
+        checkNotNull(javadocCodeBlock, "javadocCodeBlock == null");
         if (javadocCodeBlock.isEmpty()) {
             return;
         }
@@ -169,6 +173,7 @@ final class CodeWriter {
     }
 
     public void emitAnnotations(List<AnnotationSpec> annotations, boolean inline) throws IOException {
+        checkNoNullElement(annotations, "annotations");
         for (AnnotationSpec annotationSpec : annotations) {
             annotationSpec.emit(this, inline);
             emit(inline ? " " : "\n");
@@ -180,6 +185,8 @@ final class CodeWriter {
      * be emitted.
      */
     public void emitModifiers(Set<Modifier> modifiers, Set<Modifier> implicitModifiers) throws IOException {
+        checkNoNullElement(modifiers, "modifiers");
+        checkNoNullElement(implicitModifiers, "implicitModifiers");
         if (modifiers.isEmpty()) {
             return;
         }
@@ -201,6 +208,7 @@ final class CodeWriter {
      * everywhere else bounds are omitted.
      */
     public void emitTypeVariables(List<TypeVariableName> typeVariables) throws IOException {
+        checkNoNullElement(typeVariables, "typeVariables");
         if (typeVariables.isEmpty()) {
             return;
         }
@@ -258,6 +266,7 @@ final class CodeWriter {
     }
 
     public void popTypeVariables(List<TypeVariableName> typeVariables) {
+        checkNoNullElement(typeVariables, "typeVariables");
         typeVariables.forEach(typeVariable -> currentTypeVariables.remove(typeVariable.name()));
     }
 
@@ -274,6 +283,7 @@ final class CodeWriter {
     }
 
     public CodeWriter emit(CodeBlock codeBlock, boolean ensureTrailingNewline) throws IOException {
+        checkNotNull(codeBlock, "codeBlock == null");
         int a = 0;
         ClassName deferredTypeName = null; // used by "import static" logic
         ListIterator<String> partIterator = codeBlock.formatParts().listIterator();
@@ -518,6 +528,7 @@ final class CodeWriter {
      * unnecessary trailing whitespace.
      */
     CodeWriter emitAndIndent(String s) throws IOException {
+        checkNotNull(s, "s == null");
         boolean first = true;
         for (String line : LINE_BREAKING_PATTERN.split(s, -1)) {
             // Emit a newline character. Make sure blank lines in Javadoc & comments look good.

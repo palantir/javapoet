@@ -36,7 +36,7 @@ public final class ArrayTypeName extends TypeName {
 
     private ArrayTypeName(TypeName componentType, List<AnnotationSpec> annotations) {
         super(annotations);
-        this.componentType = checkNotNull(componentType, "rawType == null");
+        this.componentType = checkNotNull(componentType, "componentType == null");
     }
 
     public TypeName componentType() {
@@ -100,6 +100,7 @@ public final class ArrayTypeName extends TypeName {
     }
 
     static ArrayTypeName get(ArrayType mirror, Map<TypeParameterElement, TypeVariableName> typeVariables) {
+        checkNotNull(mirror, "mirror == null");
         return new ArrayTypeName(get(mirror.getComponentType(), typeVariables));
     }
 
@@ -109,6 +110,6 @@ public final class ArrayTypeName extends TypeName {
     }
 
     static ArrayTypeName get(GenericArrayType type, Map<Type, TypeVariableName> map) {
-        return ArrayTypeName.of(get(type.getGenericComponentType(), map));
+        return of(get(type.getGenericComponentType(), map));
     }
 }

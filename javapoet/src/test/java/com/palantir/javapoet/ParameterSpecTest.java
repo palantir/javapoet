@@ -57,8 +57,8 @@ public class ParameterSpecTest {
         assertThat(a.equals(b)).isTrue();
         assertThat(a.hashCode()).isEqualTo(b.hashCode());
         assertThat(a.toString()).isEqualTo(b.toString());
-        a = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
-        b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.STATIC).build();
+        a = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.FINAL).build();
+        b = ParameterSpec.builder(int.class, "i").addModifiers(Modifier.FINAL).build();
         assertThat(a.equals(b)).isTrue();
         assertThat(a.hashCode()).isEqualTo(b.hashCode());
         assertThat(a.toString()).isEqualTo(b.toString());

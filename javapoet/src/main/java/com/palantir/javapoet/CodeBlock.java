@@ -16,6 +16,7 @@
 package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
+import static com.palantir.javapoet.Util.checkNotNull;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -129,6 +130,8 @@ public final class CodeBlock {
      * would produce {@code String s, Object o, int i}.
      */
     public static CodeBlock join(Iterable<CodeBlock> codeBlocks, String separator) {
+        checkNotNull(codeBlocks, "codeBlocks == null");
+        checkNotNull(separator, "separator == null");
         return StreamSupport.stream(codeBlocks.spliterator(), false).collect(joining(separator));
     }
 
@@ -138,6 +141,7 @@ public final class CodeBlock {
      * {@code int i} using {@code ", "} would produce {@code String s, Object o, int i}.
      */
     public static Collector<CodeBlock, ?, CodeBlock> joining(String separator) {
+        checkNotNull(separator, "separator == null");
         return Collector.of(
                 () -> new CodeBlockJoiner(separator, builder()),
                 CodeBlockJoiner::add,
@@ -151,6 +155,9 @@ public final class CodeBlock {
      * {@code int i} using {@code ", "} would produce {@code String s, Object o, int i}.
      */
     public static Collector<CodeBlock, ?, CodeBlock> joining(String separator, String prefix, String suffix) {
+        checkNotNull(separator, "separator == null");
+        checkNotNull(prefix, "prefix == null");
+        checkNotNull(suffix, "suffix == null");
         Builder builder = builder().add("$N", prefix);
         return Collector.of(
                 () -> new CodeBlockJoiner(separator, builder), CodeBlockJoiner::add, CodeBlockJoiner::merge, joiner -> {
@@ -192,6 +199,8 @@ public final class CodeBlock {
          * value {@code java.lang.Integer.class} in the argument map.
          */
         public Builder addNamed(String format, Map<String, ?> arguments) {
+            checkNotNull(format, "format == null");
+            checkNotNull(arguments, "arguments == null");
             int p = 0;
 
             for (String argument : arguments.keySet()) {
@@ -243,6 +252,7 @@ public final class CodeBlock {
         }
 
         public Builder add(CodeBlock codeBlock) {
+            checkNotNull(codeBlock, "codeBlock == null");
             formatParts.addAll(codeBlock.formatParts);
             args.addAll(codeBlock.args);
             return this;
@@ -260,6 +270,8 @@ public final class CodeBlock {
          * error.
          */
         public Builder add(String format, Object... args) {
+            checkNotNull(format, "format == null");
+            checkNotNull(args, "args == null");
             boolean hasRelative = false;
             boolean hasIndexed = false;
 
@@ -421,6 +433,7 @@ public final class CodeBlock {
          * Shouldn't contain braces or newline characters.
          */
         public Builder beginControlFlow(String controlFlow, Object... args) {
+            checkNotNull(controlFlow, "controlFlow == null"); // otherwise string concat turns this into non-null
             add(controlFlow + " {\n", args);
             indent();
             return this;
@@ -431,6 +444,7 @@ public final class CodeBlock {
          *     Shouldn't contain braces or newline characters.
          */
         public Builder nextControlFlow(String controlFlow, Object... args) {
+            checkNotNull(controlFlow, "controlFlow == null"); // otherwise string concat turns this into non-null
             unindent();
             add("} " + controlFlow + " {\n", args);
             indent();
@@ -448,6 +462,7 @@ public final class CodeBlock {
          *     "while(foo == 20)". Only used for "do/while" control flows.
          */
         public Builder endControlFlow(String controlFlow, Object... args) {
+            checkNotNull(controlFlow, "controlFlow == null"); // otherwise string concat turns this into non-null
             unindent();
             add("} " + controlFlow + ";\n", args);
             return this;
@@ -461,6 +476,7 @@ public final class CodeBlock {
         }
 
         public Builder addStatement(CodeBlock codeBlock) {
+            checkNotNull(codeBlock, "codeBlock == null");
             return addStatement("$L", codeBlock);
         }
 

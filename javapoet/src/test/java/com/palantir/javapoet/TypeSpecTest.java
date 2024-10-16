@@ -496,9 +496,9 @@ public final class TypeSpecTest {
     @Test
     public void onlyEnumsMayHaveEnumConstants() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Roshambo")
-                        .addEnumConstant("ROCK")
-                        .build())
-                .isInstanceOf(IllegalStateException.class);
+                        .addEnumConstant("ROCK"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("only enums can have enum constants");
     }
 
     @Test
@@ -979,6 +979,39 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void compactConstructorAsMethod() {
+        MethodSpec compactConstructor = MethodSpec.compactConstructorBuilder().build();
+        assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addMethod(compactConstructor))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("cannot add additional compact record constructor");
+    }
+
+    @Test
+    public void compactConstructorAsRecordMethod() {
+        MethodSpec compactConstructor = MethodSpec.compactConstructorBuilder().build();
+        assertThatThrownBy(() -> TypeSpec.recordBuilder("Taco").addMethod(compactConstructor))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("cannot add additional compact record constructor");
+    }
+
+    @Test
+    public void recordConstructorAlreadySet() {
+        MethodSpec constructor = MethodSpec.constructorBuilder().build();
+        TypeSpec.Builder builder = TypeSpec.recordBuilder("Taco").recordConstructor(constructor);
+        assertThatThrownBy(() -> builder.recordConstructor(constructor))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("record constructor already set");
+    }
+
+    @Test
+    public void regularMethodAsRecordConstructor() {
+        MethodSpec method = MethodSpec.methodBuilder("test").build();
+        assertThatThrownBy(() -> TypeSpec.recordBuilder("Taco").recordConstructor(method))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("must provide a constructor, not a regular method");
+    }
+
+    @Test
     public void nestedClasses() {
         ClassName taco = ClassName.get(tacosPackage, "Combo", "Taco");
         ClassName topping = ClassName.get(tacosPackage, "Combo", "Taco", "Topping");
@@ -1127,9 +1160,9 @@ public final class TypeSpecTest {
                                 .addModifiers(Modifier.PUBLIC)
                                 .defaultValue("0")
                                 .returns(int.class)
-                                .build())
-                        .build())
-                .isInstanceOf(IllegalStateException.class);
+                                .build()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("method with default value is only allowed for annotation type");
     }
 
     @Test
@@ -2084,6 +2117,13 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void nullAnonymousClass() {
+        assertThatThrownBy(() -> TypeSpec.anonymousClassBuilder(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("typeArguments == null");
+    }
+
+    @Test
     public void interfaceClassToString() {
         TypeSpec type = TypeSpec.interfaceBuilder("Taco").build();
         assertThat(type.toString())
@@ -2245,7 +2285,7 @@ public final class TypeSpecTest {
     @Test
     public void nullAnnotationsAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addAnnotations(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("annotationSpecs == null");
     }
 
@@ -2276,7 +2316,7 @@ public final class TypeSpecTest {
     @Test
     public void nullFieldsAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addFields(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("fieldSpecs == null");
     }
 
@@ -2307,7 +2347,7 @@ public final class TypeSpecTest {
     @Test
     public void nullMethodsAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addMethods(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("methodSpecs == null");
     }
 
@@ -2350,14 +2390,14 @@ public final class TypeSpecTest {
     @Test
     public void nullSuperinterfacesAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addSuperinterfaces(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("superinterfaces == null");
     }
 
     @Test
     public void nullSingleSuperinterfaceAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addSuperinterface((TypeName) null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("superinterface == null");
     }
 
@@ -2368,7 +2408,7 @@ public final class TypeSpecTest {
         superinterfaces.add(null);
 
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addSuperinterfaces(superinterfaces))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("superinterface == null");
     }
 
@@ -2393,14 +2433,14 @@ public final class TypeSpecTest {
     @Test
     public void nullPermittedSubclassesAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addPermittedSubclasses(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("permittedSubclasses == null");
     }
 
     @Test
     public void nullPermittedSubclassAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addPermittedSubclass((TypeName) null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("permittedSubclass == null");
     }
 
@@ -2411,7 +2451,7 @@ public final class TypeSpecTest {
         permittedSublclasses.add(null);
 
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addPermittedSubclasses(permittedSublclasses))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("permittedSubclass == null");
     }
 
@@ -2438,14 +2478,14 @@ public final class TypeSpecTest {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco")
                         .addModifiers((Modifier) null)
                         .build())
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("modifiers contain null");
     }
 
     @Test
     public void nullTypeVariablesAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addTypeVariables(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("typeVariables == null");
     }
 
@@ -2469,7 +2509,7 @@ public final class TypeSpecTest {
     @Test
     public void nullTypesAddition() {
         assertThatThrownBy(() -> TypeSpec.classBuilder("Taco").addTypes(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NullPointerException.class)
                 .hasMessage("typeSpecs == null");
     }
 
@@ -2867,19 +2907,21 @@ public final class TypeSpecTest {
     }
 
     @Test
-    public void initializerBlockUnsupportedExceptionOnInterface() {
+    public void initializerBlockIllegalStateExceptionOnInterface() {
         TypeSpec.Builder interfaceBuilder = TypeSpec.interfaceBuilder("Taco");
         assertThatThrownBy(() ->
                         interfaceBuilder.addInitializerBlock(CodeBlock.builder().build()))
-                .isInstanceOf(UnsupportedOperationException.class);
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("INTERFACE can't have initializer blocks");
     }
 
     @Test
-    public void initializerBlockUnsupportedExceptionOnAnnotation() {
+    public void initializerBlockIllegalStateExceptionOnAnnotation() {
         TypeSpec.Builder annotationBuilder = TypeSpec.annotationBuilder("Taco");
         assertThatThrownBy(() -> annotationBuilder.addInitializerBlock(
                         CodeBlock.builder().build()))
-                .isInstanceOf(UnsupportedOperationException.class);
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("ANNOTATION can't have initializer blocks");
     }
 
     @Test

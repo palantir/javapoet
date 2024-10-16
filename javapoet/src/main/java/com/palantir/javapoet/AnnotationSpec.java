@@ -127,6 +127,7 @@ public final class AnnotationSpec {
     }
 
     public static AnnotationSpec get(Annotation annotation, boolean includeDefaultValues) {
+        checkNotNull(annotation, "annotation == null");
         Builder builder = builder(annotation.annotationType());
         try {
             Method[] methods = annotation.annotationType().getDeclaredMethods();
@@ -157,6 +158,7 @@ public final class AnnotationSpec {
     }
 
     public static AnnotationSpec get(AnnotationMirror annotation) {
+        checkNotNull(annotation, "annotation == null");
         TypeElement element = (TypeElement) annotation.getAnnotationType().asElement();
         AnnotationSpec.Builder builder = AnnotationSpec.builder(ClassName.get(element));
         Visitor visitor = new Visitor(builder);
@@ -230,6 +232,8 @@ public final class AnnotationSpec {
         }
 
         public Builder addMember(String name, CodeBlock codeBlock) {
+            checkNotNull(name, "name == null");
+            checkNotNull(codeBlock, "codeBlock == null");
             List<CodeBlock> values = members.computeIfAbsent(name, _k -> new ArrayList<>());
             values.add(codeBlock);
             return this;

@@ -127,6 +127,7 @@ public final class NameAllocator implements Cloneable {
     }
 
     public static String toJavaIdentifier(String suggestion) {
+        checkNotNull(suggestion, "suggestion == null");
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < suggestion.length(); ) {
             int codePoint = suggestion.codePointAt(i);
@@ -143,6 +144,7 @@ public final class NameAllocator implements Cloneable {
 
     /** Retrieve a name created with {@link #newName(String, Object)}. */
     public String get(Object tag) {
+        checkNotNull(tag, "tag == null");
         String result = tagToName.get(tag);
         if (result == null) {
             throw new IllegalArgumentException("unknown tag: " + tag);

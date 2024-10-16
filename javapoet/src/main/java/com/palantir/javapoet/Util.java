@@ -63,6 +63,27 @@ final class Util {
         return reference;
     }
 
+    static <T> T[] checkNoNullElement(T[] array, String name) {
+        checkNotNull(array, "%s == null", name);
+        for (T element : array) {
+            checkNotNull(element, "%s contain null", name);
+        }
+        return array;
+    }
+
+    static <C extends Collection<?>> C checkNoNullElement(C collection, String name) {
+        checkNotNull(collection, "%s == null", name);
+        for (Object element : collection) {
+            checkNotNull(element, "%s contain null", name);
+        }
+        return collection;
+    }
+
+    static <T> List<T> nonNullList(T[] args, String name) {
+        checkNoNullElement(args, name);
+        return Arrays.asList(args);
+    }
+
     static void checkState(boolean condition, String format, Object... args) {
         if (!condition) {
             throw new IllegalStateException(String.format(format, args));

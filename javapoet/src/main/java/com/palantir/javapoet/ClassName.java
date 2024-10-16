@@ -17,13 +17,13 @@ package com.palantir.javapoet;
 
 import static com.palantir.javapoet.Util.checkArgument;
 import static com.palantir.javapoet.Util.checkNotNull;
+import static com.palantir.javapoet.Util.checkState;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -68,9 +68,11 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
     private ClassName(
             String packageName, ClassName enclosingClassName, String simpleName, List<AnnotationSpec> annotations) {
         super(annotations);
-        this.packageName = Objects.requireNonNull(packageName, "packageName == null");
+        this.packageName = checkNotNull(packageName, "packageName == null");
+        checkState(enclosingClassName == null || enclosingClassName.packageName.equals(packageName),
+                "enclosing class is in wrong package");
         this.enclosingClassName = enclosingClassName;
-        this.simpleName = simpleName;
+        this.simpleName = checkNotNull(simpleName, "simpleName == null");
         this.canonicalName = enclosingClassName != null
                 ? (enclosingClassName.canonicalName + '.' + simpleName)
                 : (packageName.isEmpty() ? simpleName : packageName + '.' + simpleName);
@@ -168,7 +170,7 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
     /**
      * Returns the full class name of this class.
      * Like {@code "java.util.Map.Entry"} for {@link Map.Entry}.
-     * */
+     */
     public String canonicalName() {
         return canonicalName;
     }
@@ -250,6 +252,7 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
      * instances without such restrictions.
      */
     public static ClassName bestGuess(String classNameString) {
+        checkNotNull(classNameString, "classNameString == null");
         // Add the package name, like "java.util.concurrent", or "" for no package.
         int p = 0;
         while (p < classNameString.length() && Character.isLowerCase(classNameString.codePointAt(p))) {

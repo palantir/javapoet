@@ -18,6 +18,7 @@ package com.palantir.javapoet;
 import static com.palantir.javapoet.Util.checkArgument;
 import static com.palantir.javapoet.Util.checkNotNull;
 import static com.palantir.javapoet.Util.checkState;
+import static com.palantir.javapoet.Util.nonNullList;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -116,6 +117,7 @@ public final class FieldSpec {
 
     public static Builder builder(TypeName type, String name, Modifier... modifiers) {
         checkNotNull(type, "type == null");
+        checkNotNull(name, "name == null");
         checkArgument(SourceVersion.isName(name), "not a valid name: %s", name);
         return new Builder(type, name).addModifiers(modifiers);
     }
@@ -159,21 +161,21 @@ public final class FieldSpec {
         }
 
         public Builder addAnnotations(Iterable<AnnotationSpec> annotationSpecs) {
-            checkArgument(annotationSpecs != null, "annotationSpecs == null");
+            checkNotNull(annotationSpecs, "annotationSpecs == null");
             for (AnnotationSpec annotationSpec : annotationSpecs) {
-                this.annotations.add(annotationSpec);
+                addAnnotation(annotationSpec);
             }
             return this;
         }
 
         public Builder addAnnotation(AnnotationSpec annotationSpec) {
+            checkNotNull(annotationSpec, "annotationSpec == null");
             this.annotations.add(annotationSpec);
             return this;
         }
 
         public Builder addAnnotation(ClassName annotation) {
-            this.annotations.add(AnnotationSpec.builder(annotation).build());
-            return this;
+            return addAnnotation(AnnotationSpec.builder(annotation).build());
         }
 
         public Builder addAnnotation(Class<?> annotation) {
@@ -181,7 +183,15 @@ public final class FieldSpec {
         }
 
         public Builder addModifiers(Modifier... modifiers) {
-            Collections.addAll(this.modifiers, modifiers);
+            return addModifiers(nonNullList(modifiers, "modifiers"));
+        }
+
+        public Builder addModifiers(Iterable<Modifier> modifiers) {
+            checkNotNull(modifiers, "modifiers == null");
+            for (Modifier modifier : modifiers) {
+                checkNotNull(modifier, "modifiers contain null");
+                this.modifiers.add(modifier);
+            }
             return this;
         }
 

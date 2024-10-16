@@ -374,9 +374,8 @@ public final class AnnotationSpecTest {
 
     @Test
     public void disallowsNullMemberName() {
-        AnnotationSpec.Builder builder =
-                AnnotationSpec.builder(HasDefaultsAnnotation.class).addMember(null, "$L", "");
-        assertThatThrownBy(() -> builder.build().toString())
+        AnnotationSpec.Builder builder = AnnotationSpec.builder(HasDefaultsAnnotation.class);
+        assertThatThrownBy(() -> builder.addMember(null, "$L", ""))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("name == null");
     }
