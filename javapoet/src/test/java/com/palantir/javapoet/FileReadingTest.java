@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -35,9 +36,8 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -45,8 +45,8 @@ import org.junit.runners.JUnit4;
 public class FileReadingTest {
 
     // Used for storing compilation output.
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     @Test
     public void javaFileObjectUri() {
