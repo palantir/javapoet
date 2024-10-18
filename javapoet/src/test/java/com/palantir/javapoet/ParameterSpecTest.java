@@ -50,6 +50,27 @@ public class ParameterSpecTest {
         return elements.getTypeElement(clazz.getCanonicalName());
     }
 
+    /**
+     * Performs round-trip check that {@code parameterSpec.toBuilder().build()} is identical to the
+     * original {@code parameterSpec}.
+     */
+    private static void checkToBuilderRoundtrip(ParameterSpec parameterSpec) {
+        String originalMethodString = toMethodString(parameterSpec);
+        String originalToString = parameterSpec.toString();
+        int originalHashCode = parameterSpec.hashCode();
+
+        ParameterSpec roundtripParameterSpec = parameterSpec.toBuilder().build();
+        assertThat(toMethodString(roundtripParameterSpec)).isEqualTo(originalMethodString);
+        assertThat(roundtripParameterSpec.toString()).isEqualTo(originalToString);
+        assertThat(roundtripParameterSpec.hashCode()).isEqualTo(originalHashCode);
+        assertThat(roundtripParameterSpec).isEqualTo(parameterSpec);
+    }
+
+    private static String toMethodString(ParameterSpec parameterSpec) {
+        // Add parameter to MethodSpec because at least parameter Javadoc is only emitted when part of a method
+        return MethodSpec.methodBuilder("test").addParameter(parameterSpec).build().toString();
+    }
+
     @Test
     public void equalsAndHashCode() {
         ParameterSpec a = ParameterSpec.builder(int.class, "foo").build();
@@ -62,18 +83,22 @@ public class ParameterSpecTest {
         assertThat(a.equals(b)).isTrue();
         assertThat(a.hashCode()).isEqualTo(b.hashCode());
         assertThat(a.toString()).isEqualTo(b.toString());
+
+        checkToBuilderRoundtrip(a);
     }
 
     @Test
     public void receiverParameterInstanceMethod() {
-        ParameterSpec.Builder builder = ParameterSpec.builder(int.class, "this");
-        assertThat(builder.build().name()).isEqualTo("this");
+        ParameterSpec parameterSpec = ParameterSpec.builder(int.class, "this").build();
+        assertThat(parameterSpec.name()).isEqualTo("this");
+        checkToBuilderRoundtrip(parameterSpec);
     }
 
     @Test
     public void receiverParameterNestedClass() {
-        ParameterSpec.Builder builder = ParameterSpec.builder(int.class, "Foo.this");
-        assertThat(builder.build().name()).isEqualTo("Foo.this");
+        ParameterSpec parameterSpec = ParameterSpec.builder(int.class, "Foo.this").build();
+        assertThat(parameterSpec.name()).isEqualTo("Foo.this");
+        checkToBuilderRoundtrip(parameterSpec);
     }
 
     @Test
@@ -116,7 +141,9 @@ public class ParameterSpecTest {
         ExecutableElement element = findFirst(methods, "foo");
         VariableElement parameterElement = element.getParameters().get(0);
 
-        assertThat(ParameterSpec.get(parameterElement).toString()).isEqualTo("final java.lang.String bar");
+        ParameterSpec parameterSpec = ParameterSpec.get(parameterElement);
+        assertThat(parameterSpec.toString()).isEqualTo("final java.lang.String bar");
+        checkToBuilderRoundtrip(parameterSpec);
     }
 
     @Test
@@ -128,5 +155,20 @@ public class ParameterSpecTest {
         assertThatThrownBy(() -> ParameterSpec.builder(int.class, "foo").addModifiers(modifiers))
                 .isInstanceOf(Exception.class)
                 .hasMessage("unexpected parameter modifier: public");
+    }
+
+    @Test
+    public void parameterJavadoc() {
+        ParameterSpec parameterSpec = ParameterSpec.builder(int.class, "i").addJavadoc("My param").build();
+        assertThat(toMethodString(parameterSpec))
+                .isEqualTo(
+                        """
+                        /**
+                         * @param i My param
+                         */
+                        void test(int i) {
+                        }
+                        """);
+        checkToBuilderRoundtrip(parameterSpec);
     }
 }
