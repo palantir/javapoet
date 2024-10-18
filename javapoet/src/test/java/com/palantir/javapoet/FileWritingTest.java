@@ -28,9 +28,8 @@ import java.nio.file.Path;
 import java.util.Date;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
@@ -38,8 +37,8 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class FileWritingTest {
     // Used for testing java.io File behavior.
-    @Rule
-    public final TemporaryFolder tmp = new TemporaryFolder();
+    @TempDir
+    public File tmp;
 
     // Used for testing java.nio.file Path behavior.
     private final FileSystem fs = Jimfs.newFileSystem(Configuration.unix());

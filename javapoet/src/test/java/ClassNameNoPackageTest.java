@@ -17,7 +17,7 @@
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.palantir.javapoet.ClassName;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Since it is impossible to import classes from the default package into other
