@@ -30,9 +30,9 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"ClassCanBeStatic", "StrictUnusedVariable"})
 public class ParameterSpecTest {
@@ -41,7 +41,7 @@ public class ParameterSpecTest {
 
     private Elements elements;
 
-    @Before
+    @BeforeEach
     public void before() {
         elements = compilation.getElements();
     }

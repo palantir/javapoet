@@ -42,7 +42,7 @@ import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public abstract class AbstractTypesTest {
     protected abstract Elements getElements();
