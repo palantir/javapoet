@@ -18,6 +18,8 @@ the need to write boilerplate while also keeping a single source of truth for th
 _This repo is forked from the excellent [square/javapoet](https://github.com/square/javapoet) project which is [no longer actively maintained](https://github.com/square/javapoet/discussions/866)._\
 Significant changes:
 
+- Requires JDK 17 or newer\
+  However depending on what JavaPoet methods you use, the generated code can be compiled with older JDK versions as well.
 - Changed package name to `com.palantir.javapoet`
 - Made implementation-specific fields `private` and instead added getter methods
 - Added support for record classes (`TypeSpec#recordBuilder`)
