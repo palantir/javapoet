@@ -406,6 +406,11 @@ public final class MethodSpec {
             return this;
         }
 
+        public Builder clearModifiers() {
+            this.modifiers.clear();
+            return this;
+        }
+
         public Builder addTypeVariables(Iterable<TypeVariableName> typeVariables) {
             checkArgument(typeVariables != null, "typeVariables == null");
             for (TypeVariableName typeVariable : typeVariables) {

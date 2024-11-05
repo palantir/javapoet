@@ -389,6 +389,31 @@ public final class MethodSpecTest {
     }
 
     @Test
+    public void clearModifiers() {
+        MethodSpec method = MethodSpec.methodBuilder("getRandomNumber")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(TypeName.INT)
+                .addCode("return 4; // chosen by fair dice roll. guaranteed to be random.")
+                .build();
+        assertThat(method.toString())
+                .isEqualTo(
+                        """
+                        public static int getRandomNumber() {
+                          return 4; // chosen by fair dice roll. guaranteed to be random.
+                        }
+                        """);
+
+        MethodSpec updatedMethod = method.toBuilder().clearModifiers().build();
+        assertThat(updatedMethod.toString())
+                .isEqualTo(
+                        """
+                        int getRandomNumber() {
+                          return 4; // chosen by fair dice roll. guaranteed to be random.
+                        }
+                        """);
+    }
+
+    @Test
     public void modifyMethodName() {
         MethodSpec methodSpec = MethodSpec.methodBuilder("initialMethod").build().toBuilder()
                 .setName("revisedMethod")
