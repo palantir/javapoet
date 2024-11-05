@@ -1,0 +1,5 @@
+type: feature
+feature:
+  description: Add MethodSpec.Builder.clearModifiers() method
+  links:
+  - https://github.com/palantir/javapoet/pull/114
