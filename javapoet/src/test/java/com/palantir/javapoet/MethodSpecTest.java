@@ -121,7 +121,11 @@ public final class MethodSpecTest {
         <S extends T> void doStuff(S input);
     }
 
-    interface ExtendsOthers extends Callable<Integer>, Comparable<ExtendsOthers>, Throws<IllegalStateException>, CustomExtensible<Double> {}
+    interface ExtendsOthers
+            extends Callable<Integer>,
+                    Comparable<ExtendsOthers>,
+                    Throws<IllegalStateException>,
+                    CustomExtensible<Double> {}
 
     interface ExtendsIterableWithDefaultMethods extends Iterable<Object> {}
 
