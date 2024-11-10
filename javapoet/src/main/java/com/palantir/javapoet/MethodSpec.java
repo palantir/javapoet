@@ -35,6 +35,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Types;
@@ -295,6 +296,7 @@ public final class MethodSpec {
      */
     public static Builder overriding(ExecutableElement method, DeclaredType enclosing, Types types) {
         ExecutableType executableType = (ExecutableType) types.asMemberOf(enclosing, method);
+        List<? extends TypeVariable> resolvedTypeVariables = executableType.getTypeVariables();
         List<? extends TypeMirror> resolvedParameterTypes = executableType.getParameterTypes();
         List<? extends TypeMirror> resolvedThrownTypes = executableType.getThrownTypes();
         TypeMirror resolvedReturnType = executableType.getReturnType();
@@ -306,6 +308,18 @@ public final class MethodSpec {
             TypeName type = TypeName.get(resolvedParameterTypes.get(i));
             builder.parameters.set(
                     i, parameter.toBuilder(type, parameter.name()).build());
+        }
+        for (int i = 0, size = builder.typeVariables.size(); i < size; i++) {
+            String name =
+                    resolvedTypeVariables.get(i).asElement().getSimpleName().toString();
+            List<TypeName> bounds = new ArrayList<>();
+            if (resolvedTypeVariables.get(i).getUpperBound().getKind() != TypeKind.NULL) {
+                bounds.add(TypeName.get(resolvedTypeVariables.get(i).getUpperBound()));
+            }
+            if (resolvedTypeVariables.get(i).getLowerBound().getKind() != TypeKind.NULL) {
+                bounds.add(TypeName.get(resolvedTypeVariables.get(i).getLowerBound()));
+            }
+            builder.typeVariables.set(i, TypeVariableName.get(name, bounds.toArray(new TypeName[0])));
         }
         builder.exceptions.clear();
         for (TypeMirror resolvedThrownType : resolvedThrownTypes) {

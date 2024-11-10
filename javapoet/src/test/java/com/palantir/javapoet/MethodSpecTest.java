@@ -117,7 +117,11 @@ public final class MethodSpecTest {
         void fail() throws R;
     }
 
-    interface ExtendsOthers extends Callable<Integer>, Comparable<ExtendsOthers>, Throws<IllegalStateException> {}
+    interface CustomExtensible<T> {
+        <S extends T> void doStuff(S input);
+    }
+
+    interface ExtendsOthers extends Callable<Integer>, Comparable<ExtendsOthers>, Throws<IllegalStateException>, CustomExtensible<Double> {}
 
     interface ExtendsIterableWithDefaultMethods extends Iterable<Object> {}
 
@@ -225,6 +229,15 @@ public final class MethodSpecTest {
                         """
                         @java.lang.Override
                         public void fail() throws java.lang.IllegalStateException {
+                        }
+                        """);
+        exec = findFirst(methods, "doStuff");
+        method = MethodSpec.overriding(exec, classType, types).build();
+        assertThat(method.toString())
+                .isEqualTo(
+                        """
+                        @java.lang.Override
+                        public <S extends java.lang.Double> void doStuff(S input) {
                         }
                         """);
     }
