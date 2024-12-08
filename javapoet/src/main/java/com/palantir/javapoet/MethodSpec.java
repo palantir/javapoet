@@ -313,8 +313,8 @@ public final class MethodSpec {
             TypeVariable resolvedTypeVariable = resolvedTypeVariables.get(i);
             String name = resolvedTypeVariable.asElement().getSimpleName().toString();
             List<TypeName> bounds = new ArrayList<>();
-            if (resolvedTypeVariables.get(i).getUpperBound().getKind() != TypeKind.NULL) {
-                bounds.add(TypeName.get(resolvedTypeVariables.get(i).getUpperBound()));
+            if (resolvedTypeVariable.getUpperBound().getKind() != TypeKind.NULL) {
+                bounds.add(TypeName.get(resolvedTypeVariable.getUpperBound()));
             }
             builder.typeVariables.set(i, TypeVariableName.get(name, bounds.toArray(new TypeName[0])));
         }
