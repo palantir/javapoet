@@ -310,14 +310,11 @@ public final class MethodSpec {
                     i, parameter.toBuilder(type, parameter.name()).build());
         }
         for (int i = 0, size = builder.typeVariables.size(); i < size; i++) {
-            String name =
-                    resolvedTypeVariables.get(i).asElement().getSimpleName().toString();
+            TypeVariable resolvedTypeVariable = resolvedTypeVariables.get(i);
+            String name = resolvedTypeVariable.asElement().getSimpleName().toString();
             List<TypeName> bounds = new ArrayList<>();
             if (resolvedTypeVariables.get(i).getUpperBound().getKind() != TypeKind.NULL) {
                 bounds.add(TypeName.get(resolvedTypeVariables.get(i).getUpperBound()));
-            }
-            if (resolvedTypeVariables.get(i).getLowerBound().getKind() != TypeKind.NULL) {
-                bounds.add(TypeName.get(resolvedTypeVariables.get(i).getLowerBound()));
             }
             builder.typeVariables.set(i, TypeVariableName.get(name, bounds.toArray(new TypeName[0])));
         }
