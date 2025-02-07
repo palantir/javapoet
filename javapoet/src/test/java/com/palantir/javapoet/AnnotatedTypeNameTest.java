@@ -21,7 +21,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class AnnotatedTypeNameTest {
 
@@ -38,14 +39,18 @@ public class AnnotatedTypeNameTest {
     @Target(ElementType.TYPE_USE)
     public @interface TypeUseAnnotation {}
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void nullAnnotationArray() {
-        TypeName.BOOLEAN.annotated((AnnotationSpec[]) null);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            TypeName.BOOLEAN.annotated((AnnotationSpec[]) null);
+        });
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void nullAnnotationList() {
-        TypeName.DOUBLE.annotated((List<AnnotationSpec>) null);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            TypeName.DOUBLE.annotated((List<AnnotationSpec>) null);
+        });
     }
 
     @Test

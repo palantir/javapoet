@@ -43,9 +43,9 @@ import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"ClassCanBeStatic", "TypeParameterUnusedInFormals", "StrictUnusedVariable", "UnusedMethod"})
 public final class MethodSpecTest {
@@ -55,7 +55,7 @@ public final class MethodSpecTest {
     private Elements elements;
     private Types types;
 
-    @Before
+    @BeforeEach
     public void before() {
         elements = compilation.getElements();
         types = compilation.getTypes();
