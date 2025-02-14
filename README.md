@@ -1,7 +1,6 @@
 <p align="right">
 <a href="https://autorelease.general.dmz.palantir.tech/palantir/javapoet"><img src="https://img.shields.io/badge/Perform%20an-Autorelease-success.svg" alt="Autorelease"></a>
 </p>
-
 <p align="center">
 <a href="https://search.maven.org/artifact/com.palantir.javapoet/javapoet"><img src="https://img.shields.io/maven-central/v/com.palantir.javapoet/javapoet" alt="Maven Central Version"></a>
 <a href="https://javadoc.io/doc/com.palantir.javapoet/javapoet"><img src="https://javadoc.io/badge2/com.palantir.javapoet/javapoet/javadoc.svg" alt="Javadoc Version"></a>
