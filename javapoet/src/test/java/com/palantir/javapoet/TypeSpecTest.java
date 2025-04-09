@@ -3010,4 +3010,25 @@ public final class TypeSpecTest {
                         }
                         """);
     }
+
+    @Test
+    public void longImplementsList() {
+        TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
+                .addSuperinterface(ClassName.get(tacosPackage, "One"))
+                .addSuperinterface(ClassName.get(tacosPackage, "Two"))
+                .addSuperinterface(ClassName.get(tacosPackage, "Three"))
+                .addSuperinterface(ClassName.get(tacosPackage, "Four"))
+                .build();
+        assertThat(toString(typeSpec))
+                .isEqualTo(
+                        """
+                        package com.palantir.tacos;
+
+                        class Taco implements One,
+                            Two,
+                            Three,
+                            Four {
+                        }
+                        """);
+    }
 }

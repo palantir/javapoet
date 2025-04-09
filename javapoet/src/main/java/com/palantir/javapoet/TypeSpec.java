@@ -326,26 +326,12 @@ public final class TypeSpec {
 
                 if (!extendsTypes.isEmpty()) {
                     codeWriter.emit(" extends");
-                    boolean firstType = true;
-                    for (TypeName type : extendsTypes) {
-                        if (!firstType) {
-                            codeWriter.emit(",");
-                        }
-                        codeWriter.emit(" $T", type);
-                        firstType = false;
-                    }
+                    typeList(codeWriter, extendsTypes);
                 }
 
                 if (!implementsTypes.isEmpty()) {
                     codeWriter.emit(" implements");
-                    boolean firstType = true;
-                    for (TypeName type : implementsTypes) {
-                        if (!firstType) {
-                            codeWriter.emit(",");
-                        }
-                        codeWriter.emit(" $T", type);
-                        firstType = false;
-                    }
+                    typeList(codeWriter, implementsTypes);
                 }
 
                 if (!permittedSubclasses.isEmpty()) {
@@ -484,6 +470,23 @@ public final class TypeSpec {
         } finally {
             codeWriter.statementLine = previousStatementLine;
         }
+    }
+
+    private void typeList(CodeWriter codeWriter, List<TypeName> types) throws IOException {
+        boolean firstType = true;
+        boolean wrap = types.size() > 3;
+        codeWriter.indent(2);
+        for (TypeName type : types) {
+            if (!firstType) {
+                codeWriter.emit(",");
+                codeWriter.emit(wrap ? "\n" : " ");
+            } else {
+                codeWriter.emit(" ");
+            }
+            codeWriter.emit("$T", type);
+            firstType = false;
+        }
+        codeWriter.unindent(2);
     }
 
     @Override
