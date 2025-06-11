@@ -284,7 +284,10 @@ public class TypeName {
         return get(mirror, new LinkedHashMap<>());
     }
 
-    static TypeName get(TypeMirror mirror, final Map<TypeParameterElement, TypeVariableName> typeVariables) {
+    static TypeName get(
+            TypeMirror mirror,
+            @SuppressWarnings("for-rollout:UnnecessaryFinal")
+                    final Map<TypeParameterElement, TypeVariableName> typeVariables) {
         return mirror.accept(
                 new SimpleTypeVisitor8<TypeName, Void>() {
                     @Override
@@ -318,9 +321,8 @@ public class TypeName {
                         for (TypeMirror mirror : t.getTypeArguments()) {
                             typeArgumentNames.add(get(mirror, typeVariables));
                         }
-                        return enclosing instanceof ParameterizedTypeName
-                                ? ((ParameterizedTypeName) enclosing)
-                                        .nestedClass(rawType.simpleName(), typeArgumentNames)
+                        return enclosing instanceof ParameterizedTypeName parameterizedTypeName
+                                ? parameterizedTypeName.nestedClass(rawType.simpleName(), typeArgumentNames)
                                 : new ParameterizedTypeName(null, rawType, typeArgumentNames);
                     }
 
@@ -431,11 +433,12 @@ public class TypeName {
 
     /** Returns the array component of {@code type}, or null if {@code type} is not an array. */
     static TypeName arrayComponent(TypeName type) {
-        return type instanceof ArrayTypeName ? ((ArrayTypeName) type).componentType() : null;
+        return type instanceof ArrayTypeName arrayTypeName ? arrayTypeName.componentType() : null;
     }
 
     /** Returns {@code type} as an array, or null if {@code type} is not an array. */
+    @SuppressWarnings("for-rollout:UnnecessaryParentheses")
     static ArrayTypeName asArray(TypeName type) {
-        return type instanceof ArrayTypeName ? ((ArrayTypeName) type) : null;
+        return type instanceof ArrayTypeName arrayTypeName ? (arrayTypeName) : null;
     }
 }

@@ -106,7 +106,7 @@ public class ParameterSpecTest {
     }
 
     final class VariableElementParameterClass {
-        public void foo(@Nullable final String bar) {}
+        public void foo(@SuppressWarnings("for-rollout:UnnecessaryFinal") @Nullable final String bar) {}
     }
 
     @Test

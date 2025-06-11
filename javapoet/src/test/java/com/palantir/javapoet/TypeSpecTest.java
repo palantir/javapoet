@@ -667,6 +667,7 @@ public final class TypeSpecTest {
 
     @Test
     public void typeVariableWithBounds() {
+        @SuppressWarnings("for-rollout:DeduplicateConstants")
         AnnotationSpec a =
                 AnnotationSpec.builder(ClassName.get("com.palantir.tacos", "A")).build();
         TypeVariableName p = TypeVariableName.get("P", Number.class);
@@ -725,6 +726,7 @@ public final class TypeSpecTest {
     @Test
     public void classImplementsExtendsPermits() {
         ClassName taco = ClassName.get(tacosPackage, "Taco");
+        @SuppressWarnings("for-rollout:DeduplicateConstants")
         ClassName food = ClassName.get("com.palantir.tacos", "Food");
         TypeSpec typeSpec = TypeSpec.classBuilder("Taco")
                 .addModifiers(Modifier.ABSTRACT, Modifier.SEALED)
@@ -1361,8 +1363,10 @@ public final class TypeSpecTest {
 
     @Test
     public void simpleNameConflictsWithTypeVariable() {
+        @SuppressWarnings("for-rollout:DeduplicateConstants")
         ClassName inPackage = ClassName.get("com.palantir.tacos", "InPackage");
         ClassName otherType = ClassName.get("com.other", "OtherType");
+        @SuppressWarnings("for-rollout:DeduplicateConstants")
         ClassName methodInPackage = ClassName.get("com.palantir.tacos", "MethodInPackage");
         ClassName methodOtherType = ClassName.get("com.other", "MethodOtherType");
         TypeSpec gen = TypeSpec.classBuilder("Gen")
@@ -2497,6 +2501,7 @@ public final class TypeSpecTest {
 
     @Test
     public void tryCatch() {
+        @SuppressWarnings("for-rollout:DeduplicateConstants")
         TypeSpec taco = TypeSpec.classBuilder("Taco")
                 .addMethod(MethodSpec.methodBuilder("addTopping")
                         .addParameter(ClassName.get("com.palantir.tacos", "Topping"), "topping")
