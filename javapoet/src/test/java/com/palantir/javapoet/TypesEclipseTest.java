@@ -63,10 +63,12 @@ public final class TypesEclipseTest extends AbstractTypesTest {
         private Types types;
 
         @Override
-        public Statement apply(final Statement base, Description _description) {
+        public Statement apply(
+                @SuppressWarnings("for-rollout:UnnecessaryFinal") final Statement base, Description _description) {
             return new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
+                    @SuppressWarnings("for-rollout:UnnecessaryFinal")
                     final AtomicReference<Throwable> thrown = new AtomicReference<>();
                     boolean successful = compile(ImmutableList.of(new AbstractProcessor() {
                         @Override
@@ -74,6 +76,7 @@ public final class TypesEclipseTest extends AbstractTypesTest {
                             return SourceVersion.latest();
                         }
 
+                        @SuppressWarnings("for-rollout:PreferredInterfaceType")
                         @Override
                         public Set<String> getSupportedAnnotationTypes() {
                             return ImmutableSet.of("*");

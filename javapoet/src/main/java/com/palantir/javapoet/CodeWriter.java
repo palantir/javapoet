@@ -80,6 +80,7 @@ final class CodeWriter {
         this(out, indent, Collections.emptyMap(), staticImports, alwaysQualify);
     }
 
+    @SuppressWarnings("for-rollout:InconsistentOverloads")
     CodeWriter(
             Appendable out,
             String indent,
@@ -273,6 +274,7 @@ final class CodeWriter {
         return emit(codeBlock, false);
     }
 
+    @SuppressWarnings("for-rollout:StatementSwitchToExpressionSwitch")
     public CodeWriter emit(CodeBlock codeBlock, boolean ensureTrailingNewline) throws IOException {
         int a = 0;
         ClassName deferredTypeName = null; // used by "import static" logic
@@ -297,12 +299,12 @@ final class CodeWriter {
                 case "$T":
                     TypeName typeName = (TypeName) codeBlock.args().get(a++);
                     // defer "typeName.emit(this)" if next format part will be handled by the default case
-                    if (typeName instanceof ClassName && partIterator.hasNext()) {
+                    if (typeName instanceof ClassName candidate && partIterator.hasNext()) {
                         if (!codeBlock
                                 .formatParts()
                                 .get(partIterator.nextIndex())
                                 .startsWith("$")) {
-                            ClassName candidate = (ClassName) typeName;
+
                             if (staticImportClassNames.contains(candidate.canonicalName())) {
                                 checkState(deferredTypeName == null, "pending type for static import?!");
                                 deferredTypeName = candidate;

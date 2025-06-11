@@ -354,6 +354,7 @@ public final class CodeBlock {
             return c == '$' || c == '>' || c == '<' || c == '[' || c == ']' || c == 'W' || c == 'Z';
         }
 
+        @SuppressWarnings("for-rollout:StatementSwitchToExpressionSwitch")
         private void addArgument(String format, char c, Object arg) {
             switch (c) {
                 case 'N':

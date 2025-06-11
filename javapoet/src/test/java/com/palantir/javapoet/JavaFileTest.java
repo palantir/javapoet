@@ -1160,6 +1160,7 @@ public final class JavaFileTest {
         static class NestedTypeB {}
     }
 
+    @SuppressWarnings("for-rollout:InterfaceWithOnlyStatics")
     interface FooInterface {
         class NestedTypeA {}
 
@@ -1297,6 +1298,7 @@ public final class JavaFileTest {
         static class Pattern {}
     }
 
+    @SuppressWarnings("for-rollout:InterfaceWithOnlyStatics")
     interface ParentInterface {
         class Optional {}
     }

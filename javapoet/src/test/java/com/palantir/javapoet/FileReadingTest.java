@@ -97,6 +97,7 @@ public class FileReadingTest {
 
     @Test
     public void compileJavaFile() throws Exception {
+        @SuppressWarnings("for-rollout:UnnecessaryFinal")
         final String value = "Hello World!";
         TypeSpec type = TypeSpec.classBuilder("Test")
                 .addModifiers(Modifier.PUBLIC)

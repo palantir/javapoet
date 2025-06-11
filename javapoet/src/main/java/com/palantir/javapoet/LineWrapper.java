@@ -123,6 +123,7 @@ final class LineWrapper {
     }
 
     /** Write the space followed by any buffered text that follows it. */
+    @SuppressWarnings({"for-rollout:StatementSwitchToExpressionSwitch", "for-rollout:UnnecessaryDefaultInEnumSwitch"})
     private void flush(FlushType flushType) throws IOException {
         switch (flushType) {
             case WRAP:

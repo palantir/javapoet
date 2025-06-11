@@ -134,9 +134,7 @@ public final class ClassNameTest {
         when(spy.getKind()).thenThrow(new AssertionError());
         when(spy.getEnclosingElement()).thenAnswer(invocation -> {
             Object enclosingElement = invocation.callRealMethod();
-            return enclosingElement instanceof TypeElement
-                    ? preventGetKind((TypeElement) enclosingElement)
-                    : enclosingElement;
+            return enclosingElement instanceof TypeElement typeElement ? preventGetKind(typeElement) : enclosingElement;
         });
         return spy;
     }

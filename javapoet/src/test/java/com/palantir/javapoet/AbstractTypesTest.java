@@ -73,6 +73,7 @@ public abstract class AbstractTypesTest {
 
     @Test
     public void errorTypes() {
+        @SuppressWarnings("for-rollout:StringConcatToTextBlock")
         JavaFileObject hasErrorTypes = JavaFileObjects.forSourceLines(
                 "com.palantir.tacos.ErrorTypes",
                 "package com.palantir.tacos;",
