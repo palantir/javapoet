@@ -61,7 +61,6 @@ public final class AnnotationSpec {
         return members;
     }
 
-    @SuppressWarnings("for-rollout:DeduplicateConstants")
     void emit(CodeWriter codeWriter, boolean inline) throws IOException {
         String whitespace = inline ? "" : "\n";
         String memberSeparator = inline ? ", " : ",\n";
@@ -127,7 +126,6 @@ public final class AnnotationSpec {
         return get(annotation, false);
     }
 
-    @SuppressWarnings("for-rollout:ThrowSpecificExceptions")
     public static AnnotationSpec get(Annotation annotation, boolean includeDefaultValues) {
         Builder builder = builder(annotation.annotationType());
         try {

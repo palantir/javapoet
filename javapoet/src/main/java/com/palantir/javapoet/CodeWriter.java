@@ -80,7 +80,6 @@ final class CodeWriter {
         this(out, indent, Collections.emptyMap(), staticImports, alwaysQualify);
     }
 
-    @SuppressWarnings("for-rollout:InconsistentOverloads")
     CodeWriter(
             Appendable out,
             String indent,

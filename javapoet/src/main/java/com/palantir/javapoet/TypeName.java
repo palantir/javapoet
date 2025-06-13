@@ -284,10 +284,7 @@ public class TypeName {
         return get(mirror, new LinkedHashMap<>());
     }
 
-    static TypeName get(
-            TypeMirror mirror,
-            @SuppressWarnings("for-rollout:UnnecessaryFinal")
-                    final Map<TypeParameterElement, TypeVariableName> typeVariables) {
+    static TypeName get(TypeMirror mirror, final Map<TypeParameterElement, TypeVariableName> typeVariables) {
         return mirror.accept(
                 new SimpleTypeVisitor8<TypeName, Void>() {
                     @Override
@@ -437,8 +434,7 @@ public class TypeName {
     }
 
     /** Returns {@code type} as an array, or null if {@code type} is not an array. */
-    @SuppressWarnings("for-rollout:UnnecessaryParentheses")
     static ArrayTypeName asArray(TypeName type) {
-        return type instanceof ArrayTypeName arrayTypeName ? (arrayTypeName) : null;
+        return type instanceof ArrayTypeName arrayTypeName ? arrayTypeName : null;
     }
 }
