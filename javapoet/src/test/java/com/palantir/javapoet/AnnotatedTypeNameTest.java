@@ -38,13 +38,11 @@ public class AnnotatedTypeNameTest {
     @Target(ElementType.TYPE_USE)
     public @interface TypeUseAnnotation {}
 
-    @SuppressWarnings("for-rollout:TestExceptionChecker")
     @Test(expected = NullPointerException.class)
     public void nullAnnotationArray() {
         TypeName.BOOLEAN.annotated((AnnotationSpec[]) null);
     }
 
-    @SuppressWarnings("for-rollout:TestExceptionChecker")
     @Test(expected = NullPointerException.class)
     public void nullAnnotationList() {
         TypeName.DOUBLE.annotated((List<AnnotationSpec>) null);

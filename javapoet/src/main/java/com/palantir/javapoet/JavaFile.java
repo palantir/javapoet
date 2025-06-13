@@ -128,7 +128,6 @@ public final class JavaFile {
     }
 
     /** Writes this to {@code filer}. */
-    @SuppressWarnings("for-rollout:CatchingUnchecked")
     public void writeTo(Filer filer) throws IOException {
         String fileName = packageName.isEmpty() ? typeSpec.name() : packageName + "." + typeSpec.name();
         List<Element> originatingElements = typeSpec.originatingElements();
@@ -150,7 +149,6 @@ public final class JavaFile {
      * Returns the {@link File} instance to which source is actually written.
      */
     public File writeToFile(File directory) throws IOException {
-        @SuppressWarnings("for-rollout:UnnecessaryFinal")
         final Path outputPath = writeToPath(directory.toPath());
         return outputPath.toFile();
     }
