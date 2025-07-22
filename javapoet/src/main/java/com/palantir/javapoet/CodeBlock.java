@@ -354,23 +354,13 @@ public final class CodeBlock {
             return c == '$' || c == '>' || c == '<' || c == '[' || c == ']' || c == 'W' || c == 'Z';
         }
 
-        @SuppressWarnings("for-rollout:StatementSwitchToExpressionSwitch")
         private void addArgument(String format, char c, Object arg) {
             switch (c) {
-                case 'N':
-                    this.args.add(argToName(arg));
-                    break;
-                case 'L':
-                    this.args.add(argToLiteral(arg));
-                    break;
-                case 'S':
-                    this.args.add(argToString(arg));
-                    break;
-                case 'T':
-                    this.args.add(argToType(arg));
-                    break;
-                default:
-                    throw new IllegalArgumentException(String.format("invalid format string: '%s'", format));
+                case 'N' -> this.args.add(argToName(arg));
+                case 'L' -> this.args.add(argToLiteral(arg));
+                case 'S' -> this.args.add(argToString(arg));
+                case 'T' -> this.args.add(argToType(arg));
+                default -> throw new IllegalArgumentException(String.format("invalid format string: '%s'", format));
             }
         }
 
