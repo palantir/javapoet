@@ -28,18 +28,14 @@ import java.nio.file.Path;
 import java.util.Date;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-@RunWith(JUnit4.class)
 public final class FileWritingTest {
     // Used for testing java.io File behavior.
-    @Rule
-    public final TemporaryFolder tmp = new TemporaryFolder();
+    @TempDir
+    public File tmp;
 
     // Used for testing java.nio.file Path behavior.
     private final FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
@@ -64,7 +60,7 @@ public final class FileWritingTest {
     public void fileNotDirectory() throws IOException {
         TypeSpec type = TypeSpec.classBuilder("Test").build();
         JavaFile javaFile = JavaFile.builder("example", type).build();
-        File file = new File(tmp.newFolder("foo"), "bar");
+        File file = new File(tmp, "bar");
         file.createNewFile();
         assertThatThrownBy(() -> javaFile.writeTo(file))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -83,9 +79,9 @@ public final class FileWritingTest {
     @Test
     public void fileDefaultPackage() throws IOException {
         TypeSpec type = TypeSpec.classBuilder("Test").build();
-        JavaFile.builder("", type).build().writeTo(tmp.getRoot());
+        JavaFile.builder("", type).build().writeTo(tmp);
 
-        File testFile = new File(tmp.getRoot(), "Test.java");
+        File testFile = new File(tmp, "Test.java");
         assertThat(testFile.exists()).isTrue();
     }
 
@@ -116,11 +112,11 @@ public final class FileWritingTest {
     @Test
     public void fileNestedClasses() throws IOException {
         TypeSpec type = TypeSpec.classBuilder("Test").build();
-        JavaFile.builder("foo", type).build().writeTo(tmp.getRoot());
-        JavaFile.builder("foo.bar", type).build().writeTo(tmp.getRoot());
-        JavaFile.builder("foo.bar.baz", type).build().writeTo(tmp.getRoot());
+        JavaFile.builder("foo", type).build().writeTo(tmp);
+        JavaFile.builder("foo.bar", type).build().writeTo(tmp);
+        JavaFile.builder("foo.bar.baz", type).build().writeTo(tmp);
 
-        File fooDir = new File(tmp.getRoot(), "foo");
+        File fooDir = new File(tmp, "foo");
         File fooFile = new File(fooDir, "Test.java");
         File barDir = new File(fooDir, "bar");
         File barFile = new File(barDir, "Test.java");

@@ -15,6 +15,7 @@ dependencies {
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.eclipse.jdt.core.compiler:ecj'
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.mockito:mockito-core'
 
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'

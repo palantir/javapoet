@@ -16,12 +16,13 @@
 package com.palantir.javapoet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AnnotatedTypeNameTest {
 
@@ -38,14 +39,20 @@ public class AnnotatedTypeNameTest {
     @Target(ElementType.TYPE_USE)
     public @interface TypeUseAnnotation {}
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void nullAnnotationArray() {
-        TypeName.BOOLEAN.annotated((AnnotationSpec[]) null);
+        assertThatThrownBy(() -> {
+                    TypeName.BOOLEAN.annotated((AnnotationSpec[]) null);
+                })
+                .isInstanceOf(NullPointerException.class);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void nullAnnotationList() {
-        TypeName.DOUBLE.annotated((List<AnnotationSpec>) null);
+        assertThatThrownBy(() -> {
+                    TypeName.DOUBLE.annotated((List<AnnotationSpec>) null);
+                })
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
