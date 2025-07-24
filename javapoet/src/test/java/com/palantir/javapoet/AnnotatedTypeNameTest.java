@@ -42,15 +42,17 @@ public class AnnotatedTypeNameTest {
     @Test
     public void nullAnnotationArray() {
         assertThatThrownBy(() -> {
-            TypeName.BOOLEAN.annotated((AnnotationSpec[]) null);
-        }).isInstanceOf(NullPointerException.class);
+                    TypeName.BOOLEAN.annotated((AnnotationSpec[]) null);
+                })
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     public void nullAnnotationList() {
         assertThatThrownBy(() -> {
-            TypeName.DOUBLE.annotated((List<AnnotationSpec>) null);
-        }).isInstanceOf(NullPointerException.class);
+                    TypeName.DOUBLE.annotated((List<AnnotationSpec>) null);
+                })
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
