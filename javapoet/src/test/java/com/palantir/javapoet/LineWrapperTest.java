@@ -17,11 +17,8 @@ package com.palantir.javapoet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
-@RunWith(JUnit4.class)
 public final class LineWrapperTest {
     @Test
     public void wrap() throws Exception {

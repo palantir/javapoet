@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import javax.lang.model.element.TypeElement;
 import org.junit.Rule;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 @SuppressWarnings("ClassCanBeStatic")
 public final class AnnotationSpecTest {

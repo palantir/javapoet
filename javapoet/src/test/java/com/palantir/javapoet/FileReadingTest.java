@@ -36,12 +36,9 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
 public class FileReadingTest {
 
     // Used for storing compilation output.
@@ -113,7 +110,7 @@ public class FileReadingTest {
         DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
         StandardJavaFileManager fileManager =
                 compiler.getStandardFileManager(diagnosticCollector, Locale.getDefault(), StandardCharsets.UTF_8);
-        fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singleton(temporaryFolder.newFolder()));
+        fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singleton(temporaryFolder));
         CompilationTask task = compiler.getTask(
                 null,
                 fileManager,
