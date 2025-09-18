@@ -28,13 +28,13 @@ com.google.truth:truth:1.4.5 (1 constraints: 1d1219fb)
 
 junit:junit:4.13.2 (4 constraints: c8327933)
 
-net.bytebuddy:byte-buddy:1.17.6 (2 constraints: c716ff4f)
+net.bytebuddy:byte-buddy:1.17.7 (2 constraints: 9e161a3f)
 
 net.bytebuddy:byte-buddy-agent:1.17.6 (1 constraints: 490b4dde)
 
 org.apiguardian:apiguardian-api:1.1.2 (7 constraints: cc761de9)
 
-org.assertj:assertj-core:3.27.4 (1 constraints: 4205523b)
+org.assertj:assertj-core:3.27.5 (1 constraints: 4305533b)
 
 org.eclipse.jdt.core.compiler:ecj:4.6.1 (1 constraints: 0d051236)
 
