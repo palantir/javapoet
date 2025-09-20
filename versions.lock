@@ -28,9 +28,9 @@ com.google.truth:truth:1.4.5 (1 constraints: 1d1219fb)
 
 junit:junit:4.13.2 (4 constraints: c8327933)
 
-net.bytebuddy:byte-buddy:1.17.7 (2 constraints: 9e161a3f)
+net.bytebuddy:byte-buddy:1.17.7 (2 constraints: 9f161b3f)
 
-net.bytebuddy:byte-buddy-agent:1.17.6 (1 constraints: 490b4dde)
+net.bytebuddy:byte-buddy-agent:1.17.7 (1 constraints: 4a0b4ede)
 
 org.apiguardian:apiguardian-api:1.1.2 (7 constraints: cc761de9)
 
@@ -58,7 +58,7 @@ org.junit.platform:junit-platform-launcher:1.13.4 (1 constraints: 3b05363b)
 
 org.junit.vintage:junit-vintage-engine:5.13.4 (1 constraints: 3f054e3b)
 
-org.mockito:mockito-core:5.19.0 (1 constraints: 41055c3b)
+org.mockito:mockito-core:5.20.0 (1 constraints: 3905453b)
 
 org.objenesis:objenesis:3.3 (1 constraints: b20a14bd)
 
