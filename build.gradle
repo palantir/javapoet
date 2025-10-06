@@ -43,7 +43,6 @@ allprojects {
 
     tasks.withType(JavaCompile) {
         options.compilerArgs += [
-            '-Xlint:deprecation',
             '-Werror',
         ]
         options.errorprone {
