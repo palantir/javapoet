@@ -132,36 +132,34 @@ public final class AnnotationSpecTest {
                 AnnotationSpec.get(element.getAnnotationMirrors().get(0));
 
         TypeSpec taco = TypeSpec.classBuilder("Taco").addAnnotation(annotation).build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import com.palantir.javapoet.AnnotationSpecTest;
-                        import java.lang.Double;
-                        import java.lang.Float;
-                        import java.lang.Override;
+            import com.palantir.javapoet.AnnotationSpecTest;
+            import java.lang.Double;
+            import java.lang.Float;
+            import java.lang.Override;
 
-                        @AnnotationSpecTest.HasDefaultsAnnotation(
-                            o = AnnotationSpecTest.Breakfast.PANCAKES,
-                            p = 1701,
-                            f = 11.1,
-                            m = {
-                                9,
-                                8,
-                                1
-                            },
-                            l = Override.class,
-                            j = @AnnotationSpecTest.AnnotationA,
-                            q = @AnnotationSpecTest.AnnotationC("bar"),
-                            r = {
-                                Float.class,
-                                Double.class
-                            }
-                        )
-                        class Taco {
-                        }
-                        """);
+            @AnnotationSpecTest.HasDefaultsAnnotation(
+                o = AnnotationSpecTest.Breakfast.PANCAKES,
+                p = 1701,
+                f = 11.1,
+                m = {
+                    9,
+                    8,
+                    1
+                },
+                l = Override.class,
+                j = @AnnotationSpecTest.AnnotationA,
+                q = @AnnotationSpecTest.AnnotationC("bar"),
+                r = {
+                    Float.class,
+                    Double.class
+                }
+            )
+            class Taco {
+            }
+            """);
     }
 
     @Test
@@ -174,35 +172,33 @@ public final class AnnotationSpecTest {
         typeBuilder.addAnnotation(annotation);
         JavaFile file =
                 JavaFile.builder("com.palantir.javapoet", typeBuilder.build()).build();
-        assertThat(file.toString())
-                .isEqualTo(
-                        """
-                        package com.palantir.javapoet;
+        assertThat(file.toString()).isEqualTo("""
+            package com.palantir.javapoet;
 
-                        import java.lang.Double;
-                        import java.lang.Float;
-                        import java.lang.Override;
+            import java.lang.Double;
+            import java.lang.Float;
+            import java.lang.Override;
 
-                        @AnnotationSpecTest.HasDefaultsAnnotation(
-                            o = AnnotationSpecTest.Breakfast.PANCAKES,
-                            p = 1701,
-                            f = 11.1,
-                            m = {
-                                9,
-                                8,
-                                1
-                            },
-                            l = Override.class,
-                            j = @AnnotationSpecTest.AnnotationA,
-                            q = @AnnotationSpecTest.AnnotationC("bar"),
-                            r = {
-                                Float.class,
-                                Double.class
-                            }
-                        )
-                        class IsAnnotated {
-                        }
-                        """);
+            @AnnotationSpecTest.HasDefaultsAnnotation(
+                o = AnnotationSpecTest.Breakfast.PANCAKES,
+                p = 1701,
+                f = 11.1,
+                m = {
+                    9,
+                    8,
+                    1
+                },
+                l = Override.class,
+                j = @AnnotationSpecTest.AnnotationA,
+                q = @AnnotationSpecTest.AnnotationC("bar"),
+                r = {
+                    Float.class,
+                    Double.class
+                }
+            )
+            class IsAnnotated {
+            }
+            """);
     }
 
     @Test
@@ -281,35 +277,33 @@ public final class AnnotationSpecTest {
         HasDefaultsAnnotation annotation = IsAnnotated.class.getAnnotation(HasDefaultsAnnotation.class);
         AnnotationSpec spec = AnnotationSpec.get(annotation);
         TypeSpec taco = TypeSpec.classBuilder("Taco").addAnnotation(spec).build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import com.palantir.javapoet.AnnotationSpecTest;
-                        import java.lang.Double;
-                        import java.lang.Float;
-                        import java.lang.Override;
+            import com.palantir.javapoet.AnnotationSpecTest;
+            import java.lang.Double;
+            import java.lang.Float;
+            import java.lang.Override;
 
-                        @AnnotationSpecTest.HasDefaultsAnnotation(
-                            f = 11.1,
-                            l = Override.class,
-                            m = {
-                                9,
-                                8,
-                                1
-                            },
-                            o = AnnotationSpecTest.Breakfast.PANCAKES,
-                            p = 1701,
-                            q = @AnnotationSpecTest.AnnotationC("bar"),
-                            r = {
-                                Float.class,
-                                Double.class
-                            }
-                        )
-                        class Taco {
-                        }
-                        """);
+            @AnnotationSpecTest.HasDefaultsAnnotation(
+                f = 11.1,
+                l = Override.class,
+                m = {
+                    9,
+                    8,
+                    1
+                },
+                o = AnnotationSpecTest.Breakfast.PANCAKES,
+                p = 1701,
+                q = @AnnotationSpecTest.AnnotationC("bar"),
+                r = {
+                    Float.class,
+                    Double.class
+                }
+            )
+            class Taco {
+            }
+            """);
     }
 
     @Test
@@ -317,59 +311,57 @@ public final class AnnotationSpecTest {
         HasDefaultsAnnotation annotation = IsAnnotated.class.getAnnotation(HasDefaultsAnnotation.class);
         AnnotationSpec spec = AnnotationSpec.get(annotation, true);
         TypeSpec taco = TypeSpec.classBuilder("Taco").addAnnotation(spec).build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import com.palantir.javapoet.AnnotationSpecTest;
-                        import java.lang.Double;
-                        import java.lang.Float;
-                        import java.lang.Override;
+            import com.palantir.javapoet.AnnotationSpecTest;
+            import java.lang.Double;
+            import java.lang.Float;
+            import java.lang.Override;
 
-                        @AnnotationSpecTest.HasDefaultsAnnotation(
-                            a = 5,
-                            b = 6,
-                            c = 7,
-                            d = 12345678910L,
-                            e = 9.0f,
-                            f = 11.1,
-                            g = {
-                                '\\u0000',
-                                '쫾',
-                                'z',
-                                '€',
-                                'ℕ',
-                                '"',
-                                '\\'',
-                                '\\t',
-                                '\\n'
-                            },
-                            h = true,
-                            i = AnnotationSpecTest.Breakfast.WAFFLES,
-                            j = @AnnotationSpecTest.AnnotationA,
-                            k = "maple",
-                            l = Override.class,
-                            m = {
-                                9,
-                                8,
-                                1
-                            },
-                            n = {
-                                AnnotationSpecTest.Breakfast.WAFFLES,
-                                AnnotationSpecTest.Breakfast.PANCAKES
-                            },
-                            o = AnnotationSpecTest.Breakfast.PANCAKES,
-                            p = 1701,
-                            q = @AnnotationSpecTest.AnnotationC("bar"),
-                            r = {
-                                Float.class,
-                                Double.class
-                            }
-                        )
-                        class Taco {
-                        }
-                        """);
+            @AnnotationSpecTest.HasDefaultsAnnotation(
+                a = 5,
+                b = 6,
+                c = 7,
+                d = 12345678910L,
+                e = 9.0f,
+                f = 11.1,
+                g = {
+                    '\\u0000',
+                    '쫾',
+                    'z',
+                    '€',
+                    'ℕ',
+                    '"',
+                    '\\'',
+                    '\\t',
+                    '\\n'
+                },
+                h = true,
+                i = AnnotationSpecTest.Breakfast.WAFFLES,
+                j = @AnnotationSpecTest.AnnotationA,
+                k = "maple",
+                l = Override.class,
+                m = {
+                    9,
+                    8,
+                    1
+                },
+                n = {
+                    AnnotationSpecTest.Breakfast.WAFFLES,
+                    AnnotationSpecTest.Breakfast.PANCAKES
+                },
+                o = AnnotationSpecTest.Breakfast.PANCAKES,
+                p = 1701,
+                q = @AnnotationSpecTest.AnnotationC("bar"),
+                r = {
+                    Float.class,
+                    Double.class
+                }
+            )
+            class Taco {
+            }
+            """);
     }
 
     @Test
