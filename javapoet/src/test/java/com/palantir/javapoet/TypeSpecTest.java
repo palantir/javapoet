@@ -66,21 +66,19 @@ public final class TypeSpecTest {
                         .addCode("return $S;\n", "taco")
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
-                        import java.lang.String;
+            import java.lang.Override;
+            import java.lang.String;
 
-                        class Taco {
-                          @Override
-                          public final String toString() {
-                            return "taco";
-                          }
-                        }
-                        """);
+            class Taco {
+              @Override
+              public final String toString() {
+                return "taco";
+              }
+            }
+            """);
         assertThat(taco.hashCode()).isEqualTo(472949424); // update expected number if source changes
     }
 
@@ -97,23 +95,21 @@ public final class TypeSpecTest {
                 .addField(listOfExtends, "extendsSerializable")
                 .addField(listOfSuper, "superString")
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.io.Serializable;
-                        import java.lang.String;
-                        import java.util.List;
+            import java.io.Serializable;
+            import java.lang.String;
+            import java.util.List;
 
-                        class Taco {
-                          List<?> extendsObject;
+            class Taco {
+              List<?> extendsObject;
 
-                          List<? extends Serializable> extendsSerializable;
+              List<? extends Serializable> extendsSerializable;
 
-                          List<? super String> superString;
-                        }
-                        """);
+              List<? super String> superString;
+            }
+            """);
     }
 
     @Test
@@ -157,27 +153,25 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
+            import java.lang.Override;
 
-                        class Taco {
-                          static final Thing.Thang<Foo, Bar> NAME = new Thing.Thang<Foo, Bar>() {
-                            @Override
-                            public Thung<? super Bar> call(final Thung<? super Foo> thung) {
-                              return new SimpleThung<Bar>(thung) {
-                                @Override
-                                public void doSomething(Bar bar) {
-                                  /* code snippets */
-                                }
-                              };
-                            }
-                          };
-                        }
-                        """);
+            class Taco {
+              static final Thing.Thang<Foo, Bar> NAME = new Thing.Thang<Foo, Bar>() {
+                @Override
+                public Thung<? super Bar> call(final Thung<? super Foo> thung) {
+                  return new SimpleThung<Bar>(thung) {
+                    @Override
+                    public void doSomething(Bar bar) {
+                      /* code snippets */
+                    }
+                  };
+                }
+              };
+            }
+            """);
     }
 
     @Test
@@ -204,20 +198,18 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(service))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(service)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        class Foo {
-                          public Foo(long id, @Ping String one, @Ping String two, @Pong("pong") String three,
-                              @Ping String four) {
-                            /* code snippets */
-                          }
-                        }
-                        """);
+            class Foo {
+              public Foo(long id, @Ping String one, @Ping String two, @Pong("pong") String three,
+                  @Ping String four) {
+                /* code snippets */
+              }
+            }
+            """);
     }
 
     /**
@@ -234,18 +226,16 @@ public final class TypeSpecTest {
                         "meat")
                 .build();
 
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
-                        import javax.annotation.FreeRange;
+            import java.lang.String;
+            import javax.annotation.FreeRange;
 
-                        class EthicalTaco {
-                          @FreeRange String meat;
-                        }
-                        """);
+            class EthicalTaco {
+              @FreeRange String meat;
+            }
+            """);
     }
 
     @Test
@@ -288,25 +278,23 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(service))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(service)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
-                        import java.util.Map;
+            import java.lang.String;
+            import java.util.Map;
 
-                        interface Service {
-                          @Headers({
-                              "Accept: application/json",
-                              "User-Agent: foobar"
-                          })
-                          @POST("/foo/bar")
-                          Observable<FooBar> fooBar(@Body Things<Thing> things,
-                              @QueryMap(encodeValues = false) Map<String, String> query,
-                              @Header("Authorization") String authorization);
-                        }
-                        """);
+            interface Service {
+              @Headers({
+                  "Accept: application/json",
+                  "User-Agent: foobar"
+              })
+              @POST("/foo/bar")
+              Observable<FooBar> fooBar(@Body Things<Thing> things,
+                  @QueryMap(encodeValues = false) Map<String, String> query,
+                  @Header("Authorization") String authorization);
+            }
+            """);
     }
 
     @Test
@@ -318,18 +306,16 @@ public final class TypeSpecTest {
                                 .build())
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        class Taco {
-                          @JsonAdapter(Foo.class)
-                          private final String thing;
-                        }
-                        """);
+            class Taco {
+              @JsonAdapter(Foo.class)
+              private final String thing;
+            }
+            """);
     }
 
     @Test
@@ -343,19 +329,17 @@ public final class TypeSpecTest {
                         .build())
                 .addModifiers(Modifier.PUBLIC)
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        @Something(
-                            hi = SomeType.FIELD,
-                            hey = 12,
-                            hello = "goodbye"
-                        )
-                        public class Foo {
-                        }
-                        """);
+            @Something(
+                hi = SomeType.FIELD,
+                hey = 12,
+                hello = "goodbye"
+            )
+            public class Foo {
+            }
+            """);
     }
 
     @Test
@@ -402,40 +386,38 @@ public final class TypeSpecTest {
                         .addCode("this($S);\n", "fist")
                         .build())
                 .build();
-        assertThat(toString(roshambo))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(roshambo)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
-                        import java.lang.String;
+            import java.lang.Override;
+            import java.lang.String;
 
-                        public enum Roshambo {
-                          /**
-                           * Avalanche!
-                           */
-                          ROCK,
+            public enum Roshambo {
+              /**
+               * Avalanche!
+               */
+              ROCK,
 
-                          PAPER("flat") {
-                            @Override
-                            public String toString() {
-                              return "paper airplane!";
-                            }
-                          },
+              PAPER("flat") {
+                @Override
+                public String toString() {
+                  return "paper airplane!";
+                }
+              },
 
-                          SCISSORS("peace sign");
+              SCISSORS("peace sign");
 
-                          private final String handPosition;
+              private final String handPosition;
 
-                          Roshambo(String handPosition) {
-                            this.handPosition = handPosition;
-                          }
+              Roshambo(String handPosition) {
+                this.handPosition = handPosition;
+              }
 
-                          Roshambo() {
-                            this("fist");
-                          }
-                        }
-                        """);
+              Roshambo() {
+                this("fist");
+              }
+            }
+            """);
     }
 
     /** https://github.com/square/javapoet/issues/193 */
@@ -455,23 +437,21 @@ public final class TypeSpecTest {
                         .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                         .build())
                 .build();
-        assertThat(toString(roshambo))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(roshambo)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
+            import java.lang.Override;
 
-                        public enum Tortilla {
-                          CORN {
-                            @Override
-                            public void fold() {
-                            }
-                          };
+            public enum Tortilla {
+              CORN {
+                @Override
+                public void fold() {
+                }
+              };
 
-                          public abstract void fold();
-                        }
-                        """);
+              public abstract void fold();
+            }
+            """);
     }
 
     @Test
@@ -479,18 +459,16 @@ public final class TypeSpecTest {
         TypeSpec roshambo = TypeSpec.enumBuilder("Roshambo")
                 .addField(String.class, "NO_ENUM", Modifier.STATIC)
                 .build();
-        assertThat(toString(roshambo))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(roshambo)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        enum Roshambo {
-                          ;
-                          static String NO_ENUM;
-                        }
-                        """);
+            enum Roshambo {
+              ;
+              static String NO_ENUM;
+            }
+            """);
     }
 
     @Test
@@ -515,23 +493,21 @@ public final class TypeSpecTest {
                                         .build())
                                 .build())
                 .build();
-        assertThat(toString(roshambo))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(roshambo)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
-                        import java.lang.String;
+            import java.lang.Override;
+            import java.lang.String;
 
-                        enum Roshambo {
-                          SPOCK {
-                            @Override
-                            public String toString() {
-                              return "west side";
-                            }
-                          }
-                        }
-                        """);
+            enum Roshambo {
+              SPOCK {
+                @Override
+                public String toString() {
+                  return "west side";
+                }
+              }
+            }
+            """);
     }
 
     /** https://github.com/square/javapoet/issues/253 */
@@ -547,22 +523,20 @@ public final class TypeSpecTest {
                 .addEnumConstant("PAPER")
                 .addEnumConstant("SCISSORS")
                 .build();
-        assertThat(toString(roshambo))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(roshambo)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Deprecated;
+            import java.lang.Deprecated;
 
-                        public enum Roshambo {
-                          @Deprecated
-                          ROCK,
+            public enum Roshambo {
+              @Deprecated
+              ROCK,
 
-                          PAPER,
+              PAPER,
 
-                          SCISSORS
-                        }
-                        """);
+              SCISSORS
+            }
+            """);
     }
 
     @Test
@@ -585,25 +559,23 @@ public final class TypeSpecTest {
                         .addException(IOException.class)
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.io.IOException;
+            import java.io.IOException;
 
-                        abstract class Taco {
-                          void throwOne() throws IOException {
-                          }
+            abstract class Taco {
+              void throwOne() throws IOException {
+              }
 
-                          void throwTwo() throws IOException, SourCreamException {
-                          }
+              void throwTwo() throws IOException, SourCreamException {
+              }
 
-                          abstract void abstractThrow() throws IOException;
+              abstract void abstractThrow() throws IOException;
 
-                          native void nativeThrow() throws IOException;
-                        }
-                        """);
+              native void nativeThrow() throws IOException;
+            }
+            """);
     }
 
     @Test
@@ -636,33 +608,31 @@ public final class TypeSpecTest {
                         .addCode("throw new $T($S);\n", UnsupportedOperationException.class, "TODO")
                         .build())
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Comparable;
-                        import java.lang.Number;
-                        import java.lang.Override;
-                        import java.lang.UnsupportedOperationException;
+            import java.lang.Comparable;
+            import java.lang.Number;
+            import java.lang.Override;
+            import java.lang.UnsupportedOperationException;
 
-                        class Location<T, P extends Number> implements Comparable<P> {
-                          T label;
+            class Location<T, P extends Number> implements Comparable<P> {
+              T label;
 
-                          P x;
+              P x;
 
-                          P y;
+              P y;
 
-                          @Override
-                          public int compareTo(P p) {
-                            return 0;
-                          }
+              @Override
+              public int compareTo(P p) {
+                return 0;
+              }
 
-                          public static <T, P extends Number> Location<T, P> of(T label, P x, P y) {
-                            throw new UnsupportedOperationException("TODO");
-                          }
-                        }
-                        """);
+              public static <T, P extends Number> Location<T, P> of(T label, P x, P y) {
+                throw new UnsupportedOperationException("TODO");
+              }
+            }
+            """);
     }
 
     @Test
@@ -678,48 +648,42 @@ public final class TypeSpecTest {
                 .addField(p, "x")
                 .addField(q, "y")
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Comparable;
-                        import java.lang.Number;
+            import java.lang.Comparable;
+            import java.lang.Number;
 
-                        class Location<P extends Number & Comparable, @A Q extends Number & Comparable> {
-                          P x;
+            class Location<P extends Number & Comparable, @A Q extends Number & Comparable> {
+              P x;
 
-                          @A Q y;
-                        }
-                        """);
+              @A Q y;
+            }
+            """);
     }
 
     @Test
     public void classSealed() {
         TypeSpec typeSpec =
                 TypeSpec.classBuilder("Taco").addModifiers(Modifier.SEALED).build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        sealed class Taco {
-                        }
-                        """);
+            sealed class Taco {
+            }
+            """);
     }
 
     @Test
     public void classNonSealed() {
         TypeSpec typeSpec =
                 TypeSpec.classBuilder("Taco").addModifiers(Modifier.NON_SEALED).build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        non-sealed class Taco {
-                        }
-                        """);
+            non-sealed class Taco {
+            }
+            """);
     }
 
     @Test
@@ -734,19 +698,17 @@ public final class TypeSpecTest {
                 .addPermittedSubclass(ClassName.bestGuess("com.palantir.tacos.BeefTaco"))
                 .addPermittedSubclass(ClassName.bestGuess("com.palantir.tacos.ChickenTaco"))
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.io.Serializable;
-                        import java.lang.Comparable;
-                        import java.util.AbstractSet;
+            import java.io.Serializable;
+            import java.lang.Comparable;
+            import java.util.AbstractSet;
 
-                        abstract sealed class Taco extends AbstractSet<Food> implements Serializable, Comparable<Taco> \
-                        permits BeefTaco, ChickenTaco {
-                        }
-                        """);
+            abstract sealed class Taco extends AbstractSet<Food> implements Serializable, Comparable<Taco> \
+            permits BeefTaco, ChickenTaco {
+            }
+            """);
     }
 
     @Test
@@ -761,18 +723,16 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.util.concurrent.Callable;
+            import java.util.concurrent.Callable;
 
-                        class Outer extends Callable<Outer.Inner> {
-                          static class Inner {
-                          }
-                        }
-                        """);
+            class Outer extends Callable<Outer.Inner> {
+              static class Inner {
+              }
+            }
+            """);
     }
 
     @Test
@@ -783,34 +743,30 @@ public final class TypeSpecTest {
                 .addEnumConstant("LEAN_GROUND_BEEF")
                 .addEnumConstant("SHREDDED_CHEESE")
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.io.Serializable;
-                        import java.lang.Cloneable;
+            import java.io.Serializable;
+            import java.lang.Cloneable;
 
-                        enum Food implements Serializable, Cloneable {
-                          LEAN_GROUND_BEEF,
+            enum Food implements Serializable, Cloneable {
+              LEAN_GROUND_BEEF,
 
-                          SHREDDED_CHEESE
-                        }
-                        """);
+              SHREDDED_CHEESE
+            }
+            """);
     }
 
     @Test
     public void interfaceSealed() {
         TypeSpec typeSpec =
                 TypeSpec.interfaceBuilder("Taco").addModifiers(Modifier.SEALED).build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        sealed interface Taco {
-                        }
-                        """);
+            sealed interface Taco {
+            }
+            """);
     }
 
     @Test
@@ -818,14 +774,12 @@ public final class TypeSpecTest {
         TypeSpec typeSpec = TypeSpec.interfaceBuilder("Taco")
                 .addModifiers(Modifier.NON_SEALED)
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        non-sealed interface Taco {
-                        }
-                        """);
+            non-sealed interface Taco {
+            }
+            """);
     }
 
     @Test
@@ -838,17 +792,15 @@ public final class TypeSpecTest {
                 .addPermittedSubclass(ClassName.bestGuess("com.palantir.tacos.BeefTaco"))
                 .addPermittedSubclass(ClassName.bestGuess("com.palantir.tacos.ChickenTaco"))
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.io.Serializable;
-                        import java.lang.Comparable;
+            import java.io.Serializable;
+            import java.lang.Comparable;
 
-                        sealed interface Taco extends Serializable, Comparable<Taco> permits BeefTaco, ChickenTaco {
-                        }
-                        """);
+            sealed interface Taco extends Serializable, Comparable<Taco> permits BeefTaco, ChickenTaco {
+            }
+            """);
     }
 
     @Test
@@ -859,16 +811,14 @@ public final class TypeSpecTest {
                                 ParameterSpec.builder(String.class, "name").build())
                         .build())
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        record Taco(String name) {
-                        }
-                        """);
+            record Taco(String name) {
+            }
+            """);
     }
 
     @Test
@@ -881,17 +831,15 @@ public final class TypeSpecTest {
                                 ParameterSpec.builder(Integer.class, "size").build())
                         .build())
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Integer;
-                        import java.lang.String;
+            import java.lang.Integer;
+            import java.lang.String;
 
-                        record Taco(String name, Integer size) {
-                        }
-                        """);
+            record Taco(String name, Integer size) {
+            }
+            """);
     }
 
     @Test
@@ -905,16 +853,14 @@ public final class TypeSpecTest {
                         .varargs()
                         .build())
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        record Taco(String name, String... names) {
-                        }
-                        """);
+            record Taco(String name, String... names) {
+            }
+            """);
     }
 
     @Test
@@ -927,20 +873,18 @@ public final class TypeSpecTest {
                         .build())
                 .addJavadoc("A taco class that stores the id of a taco.")
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        /**
-                         * A taco class that stores the id of a taco.
-                         * @param id Id of the taco.
-                         */
-                        record Taco(String id) {
-                        }
-                        """);
+            /**
+             * A taco class that stores the id of a taco.
+             * @param id Id of the taco.
+             */
+            record Taco(String id) {
+            }
+            """);
     }
 
     @Test
@@ -952,30 +896,26 @@ public final class TypeSpecTest {
                                 .build())
                         .build())
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Deprecated;
-                        import java.lang.String;
+            import java.lang.Deprecated;
+            import java.lang.String;
 
-                        record Taco(@Deprecated String id) {
-                        }
-                        """);
+            record Taco(@Deprecated String id) {
+            }
+            """);
     }
 
     @Test
     public void recordNoField() {
         TypeSpec typeSpec = TypeSpec.recordBuilder("Taco").build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        record Taco() {
-                        }
-                        """);
+            record Taco() {
+            }
+            """);
     }
 
     @Test
@@ -1010,49 +950,47 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.util.List;
+            import java.util.List;
 
-                        class Combo {
-                          Taco taco;
+            class Combo {
+              Taco taco;
 
-                          Chips chips;
+              Chips chips;
 
-                          static class Taco {
-                            List<Topping> toppings;
+              static class Taco {
+                List<Topping> toppings;
 
-                            Sauce sauce;
+                Sauce sauce;
 
-                            enum Topping {
-                              SHREDDED_CHEESE,
+                enum Topping {
+                  SHREDDED_CHEESE,
 
-                              LEAN_GROUND_BEEF
-                            }
-                          }
+                  LEAN_GROUND_BEEF
+                }
+              }
 
-                          static class Chips {
-                            Taco.Topping topping;
+              static class Chips {
+                Taco.Topping topping;
 
-                            Sauce dippingSauce;
-                          }
+                Sauce dippingSauce;
+              }
 
-                          enum Sauce {
-                            SOUR_CREAM,
+              enum Sauce {
+                SOUR_CREAM,
 
-                            SALSA,
+                SALSA,
 
-                            QUESO,
+                QUESO,
 
-                            MILD,
+                MILD,
 
-                            FIRE
-                          }
-                        }
-                        """);
+                FIRE
+              }
+            }
+            """);
     }
 
     @Test
@@ -1066,15 +1004,13 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(annotation))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(annotation)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        public @interface MyAnnotation {
-                          int test() default 0;
-                        }
-                        """);
+            public @interface MyAnnotation {
+              int test() default 0;
+            }
+            """);
     }
 
     @Test
@@ -1087,17 +1023,15 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(bar)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Deprecated;
+            import java.lang.Deprecated;
 
-                        @interface Bar {
-                          Deprecated value() default @Deprecated;
-                        }
-                        """);
+            @interface Bar {
+              Deprecated value() default @Deprecated;
+            }
+            """);
     }
 
     @Test
@@ -1109,15 +1043,13 @@ public final class TypeSpecTest {
 
         TypeSpec anno = TypeSpec.annotationBuilder("Anno").addField(field).build();
 
-        assertThat(toString(anno))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(anno)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        @interface Anno {
-                          int FOO = 101;
-                        }
-                        """);
+            @interface Anno {
+              int FOO = 101;
+            }
+            """);
     }
 
     @Test
@@ -1156,17 +1088,15 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(bar)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        interface Tacos {
-                          static int test() {
-                            return 0;
-                          }
-                        }
-                        """);
+            interface Tacos {
+              static int test() {
+                return 0;
+              }
+            }
+            """);
     }
 
     @Test
@@ -1179,17 +1109,15 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(bar)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        interface Tacos {
-                          default int test() {
-                            return 0;
-                          }
-                        }
-                        """);
+            interface Tacos {
+              default int test() {
+                return 0;
+              }
+            }
+            """);
     }
 
     @Test
@@ -1235,17 +1163,15 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(bar)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        interface Tacos {
-                          private int test() {
-                            return 0;
-                          }
-                        }
-                        """);
+            interface Tacos {
+              private int test() {
+                return 0;
+              }
+            }
+            """);
 
         bar = TypeSpec.interfaceBuilder("Tacos")
                 .addMethod(MethodSpec.methodBuilder("test")
@@ -1255,17 +1181,15 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(bar))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(bar)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        interface Tacos {
-                          private static int test() {
-                            return 0;
-                          }
-                        }
-                        """);
+            interface Tacos {
+              private static int test() {
+                return 0;
+              }
+            }
+            """);
     }
 
     @Test
@@ -1297,43 +1221,41 @@ public final class TypeSpecTest {
                                 .build())
                         .build())
                 .build();
-        assertThat(toString(top))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(top)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import com.palantir.donuts.Bottom;
+            import com.palantir.donuts.Bottom;
 
-                        class Top {
-                          Top internalTop;
+            class Top {
+              Top internalTop;
 
-                          Middle.Bottom internalBottom;
+              Middle.Bottom internalBottom;
 
-                          com.palantir.donuts.Top externalTop;
+              com.palantir.donuts.Top externalTop;
 
-                          Bottom externalBottom;
+              Bottom externalBottom;
 
-                          class Middle {
-                            Top internalTop;
+              class Middle {
+                Top internalTop;
 
-                            Bottom internalBottom;
+                Bottom internalBottom;
 
-                            com.palantir.donuts.Top externalTop;
+                com.palantir.donuts.Top externalTop;
 
-                            com.palantir.donuts.Bottom externalBottom;
+                com.palantir.donuts.Bottom externalBottom;
 
-                            class Bottom {
-                              Top internalTop;
+                class Bottom {
+                  Top internalTop;
 
-                              Bottom internalBottom;
+                  Bottom internalBottom;
 
-                              com.palantir.donuts.Top externalTop;
+                  com.palantir.donuts.Top externalTop;
 
-                              com.palantir.donuts.Bottom externalBottom;
-                            }
-                          }
-                        }
-                        """);
+                  com.palantir.donuts.Bottom externalBottom;
+                }
+              }
+            }
+            """);
     }
 
     @Test
@@ -1346,17 +1268,15 @@ public final class TypeSpecTest {
                 .addField(internalOther)
                 .addField(externalOther)
                 .build();
-        assertThat(toString(gen))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(gen)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        class Gen {
-                          Other internalOther;
+            class Gen {
+              Other internalOther;
 
-                          com.palantir.donuts.Other externalOther;
-                        }
-                        """);
+              com.palantir.donuts.Other externalOther;
+            }
+            """);
     }
 
     @Test
@@ -1394,41 +1314,39 @@ public final class TypeSpecTest {
                         .addStatement("$T inPackage = null", inPackage)
                         .build())
                 .build();
-        assertThat(toString(gen))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(gen)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import com.other.MethodOtherType;
+            import com.other.MethodOtherType;
 
-                        class Gen<InPackage, OtherType> {
-                          com.palantir.tacos.InPackage inPackage;
+            class Gen<InPackage, OtherType> {
+              com.palantir.tacos.InPackage inPackage;
 
-                          com.other.OtherType otherType;
+              com.other.OtherType otherType;
 
-                          <MethodInPackage, MethodOtherType> void withTypeVariables() {
-                            com.palantir.tacos.MethodInPackage inPackage = null;
-                            com.other.MethodOtherType otherType = null;
-                          }
+              <MethodInPackage, MethodOtherType> void withTypeVariables() {
+                com.palantir.tacos.MethodInPackage inPackage = null;
+                com.other.MethodOtherType otherType = null;
+              }
 
-                          void withoutTypeVariables() {
-                            MethodInPackage inPackage = null;
-                            MethodOtherType otherType = null;
-                          }
+              void withoutTypeVariables() {
+                MethodInPackage inPackage = null;
+                MethodOtherType otherType = null;
+              }
 
-                          <MethodInPackage, MethodOtherType> void againWithTypeVariables() {
-                            com.palantir.tacos.MethodInPackage inPackage = null;
-                            com.other.MethodOtherType otherType = null;
-                          }
+              <MethodInPackage, MethodOtherType> void againWithTypeVariables() {
+                com.palantir.tacos.MethodInPackage inPackage = null;
+                com.other.MethodOtherType otherType = null;
+              }
 
-                          <InPackage> void masksEnclosingTypeVariable() {
-                          }
+              <InPackage> void masksEnclosingTypeVariable() {
+              }
 
-                          void hasSimpleNameThatWasPreviouslyMasked() {
-                            com.palantir.tacos.InPackage inPackage = null;
-                          }
-                        }
-                        """);
+              void hasSimpleNameThatWasPreviouslyMasked() {
+                com.palantir.tacos.InPackage inPackage = null;
+              }
+            }
+            """);
     }
 
     @Test
@@ -1454,35 +1372,31 @@ public final class TypeSpecTest {
                         .addCode("return null;\n")
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.io.Serializable;
-                        import java.util.Comparator;
+            import java.io.Serializable;
+            import java.util.Comparator;
 
-                        class Taco {
-                          <T extends Comparator & Serializable> T getComparator() {
-                            return null;
-                          }
-                        }
-                        """);
+            class Taco {
+              <T extends Comparator & Serializable> T getComparator() {
+                return null;
+              }
+            }
+            """);
     }
 
     @Test
     public void arrayType() {
         TypeSpec taco =
                 TypeSpec.classBuilder("Taco").addField(int[].class, "ints").build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        class Taco {
-                          int[] ints;
-                        }
-                        """);
+            class Taco {
+              int[] ints;
+            }
+            """);
     }
 
     @Test
@@ -1495,47 +1409,43 @@ public final class TypeSpecTest {
                         .addJavadoc("True for a soft flour tortilla; false for a crunchy corn tortilla.\n")
                         .build())
                 .addMethod(MethodSpec.methodBuilder("refold")
-                        .addJavadoc(
-                                """
-                                Folds the back of this taco to reduce sauce leakage.
+                        .addJavadoc("""
+                            Folds the back of this taco to reduce sauce leakage.
 
-                                <p>For {@link $T#KOREAN}, the front may also be folded.
-                                """,
-                                Locale.class)
+                            <p>For {@link $T#KOREAN}, the front may also be folded.
+                            """, Locale.class)
                         .addParameter(Locale.class, "locale")
                         .build())
                 .build();
         // Mentioning a type in Javadoc will not cause an import to be added (java.util.Random here),
         // but the short name will be used if it's already imported (java.util.Locale here).
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
-                        import java.util.Locale;
-                        import java.util.Random;
+            import java.lang.String;
+            import java.util.Locale;
+            import java.util.Random;
 
-                        /**
-                         * A hard or soft tortilla, loosely folded and filled with whatever
-                         * {@link Random random} tex-mex stuff we could find in the pantry
-                         * and some {@link String} cheese.
-                         */
-                        class Taco {
-                          /**
-                           * True for a soft flour tortilla; false for a crunchy corn tortilla.
-                           */
-                          boolean soft;
+            /**
+             * A hard or soft tortilla, loosely folded and filled with whatever
+             * {@link Random random} tex-mex stuff we could find in the pantry
+             * and some {@link String} cheese.
+             */
+            class Taco {
+              /**
+               * True for a soft flour tortilla; false for a crunchy corn tortilla.
+               */
+              boolean soft;
 
-                          /**
-                           * Folds the back of this taco to reduce sauce leakage.
-                           *
-                           * <p>For {@link Locale#KOREAN}, the front may also be folded.
-                           */
-                          void refold(Locale locale) {
-                          }
-                        }
-                        """);
+              /**
+               * Folds the back of this taco to reduce sauce leakage.
+               *
+               * <p>For {@link Locale#KOREAN}, the front may also be folded.
+               */
+              void refold(Locale locale) {
+              }
+            }
+            """);
     }
 
     @Test
@@ -1563,21 +1473,19 @@ public final class TypeSpecTest {
                                         .build())
                         .build())
                 .build();
-        assertThat(toString(menu))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(menu)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        @MealDeal(
-                            price = 500,
-                            options = {
-                                @Option(name = "taco", meat = Beef.class),
-                                @Option(name = "quesadilla", meat = Chicken.class)
-                            }
-                        )
-                        class Menu {
-                        }
-                        """);
+            @MealDeal(
+                price = 500,
+                options = {
+                    @Option(name = "taco", meat = Beef.class),
+                    @Option(name = "quesadilla", meat = Chicken.class)
+                }
+            )
+            class Menu {
+            }
+            """);
     }
 
     @Test
@@ -1589,18 +1497,16 @@ public final class TypeSpecTest {
                         .varargs()
                         .build())
                 .build();
-        assertThat(toString(taqueria))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taqueria)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Runnable;
+            import java.lang.Runnable;
 
-                        class Taqueria {
-                          void prepare(int workers, Runnable... jobs) {
-                          }
-                        }
-                        """);
+            class Taqueria {
+              void prepare(int workers, Runnable... jobs) {
+              }
+            }
+            """);
     }
 
     @Test
@@ -1643,39 +1549,37 @@ public final class TypeSpecTest {
                         .addCode(methodBody)
                         .build())
                 .build();
-        assertThat(toString(util))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(util)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import com.google.common.collect.ImmutableMap;
-                        import java.lang.Math;
-                        import java.lang.String;
-                        import java.util.List;
-                        import java.util.Map;
+            import com.google.common.collect.ImmutableMap;
+            import java.lang.Math;
+            import java.lang.String;
+            import java.util.List;
+            import java.util.Map;
 
-                        class Util {
-                          private static final Map<String, String> ESCAPE_HTML =\s
-                              ImmutableMap.<String, String>builder()
-                                  .add("'", "&#39;")
-                                  .add("&", "&amp;")
-                                  .add("<", "&lt;")
-                                  .add(">", "&gt;")
-                                  .build();
+            class Util {
+              private static final Map<String, String> ESCAPE_HTML =\s
+                  ImmutableMap.<String, String>builder()
+                      .add("'", "&#39;")
+                      .add("&", "&amp;")
+                      .add("<", "&lt;")
+                      .add(">", "&gt;")
+                      .build();
 
-                          int commonPrefixLength(List<String> listA, List<String> listB) {
-                            int size = Math.min(listA.size(), listB.size());
-                            for (int i = 0; i < size; i++) {
-                              String a = listA.get(i);
-                              String b = listB.get(i);
-                              if (!a.equals(b)) {
-                                return i;
-                              }
-                            }
-                            return size;
-                          }
-                        }
-                        """);
+              int commonPrefixLength(List<String> listA, List<String> listB) {
+                int size = Math.min(listA.size(), listB.size());
+                for (int i = 0; i < size; i++) {
+                  String a = listA.get(i);
+                  String b = listB.get(i);
+                  if (!a.equals(b)) {
+                    return i;
+                  }
+                }
+                return size;
+              }
+            }
+            """);
     }
 
     @Test
@@ -1689,23 +1593,21 @@ public final class TypeSpecTest {
                         .endControlFlow()
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.System;
+            import java.lang.System;
 
-                        class Taco {
-                          void choices() {
-                            if (taco != null || taco == otherTaco) {
-                              System.out.println("only one taco? NOO!");
-                            } else if (taco.isSupreme() && otherTaco.isSupreme()) {
-                              System.out.println("taco heaven");
-                            }
-                          }
-                        }
-                        """);
+            class Taco {
+              void choices() {
+                if (taco != null || taco == otherTaco) {
+                  System.out.println("only one taco? NOO!");
+                } else if (taco.isSupreme() && otherTaco.isSupreme()) {
+                  System.out.println("taco heaven");
+                }
+              }
+            }
+            """);
     }
 
     @Test
@@ -1719,23 +1621,21 @@ public final class TypeSpecTest {
                         .endControlFlow()
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.System;
+            import java.lang.System;
 
-                        class Taco {
-                          void choices() {
-                            if (5 < 4)  {
-                              System.out.println("wat");
-                            } else if (5 < 6) {
-                              System.out.println("hello");
-                            }
-                          }
-                        }
-                        """);
+            class Taco {
+              void choices() {
+                if (5 < 4)  {
+                  System.out.println("wat");
+                } else if (5 < 6) {
+                  System.out.println("hello");
+                }
+              }
+            }
+            """);
     }
 
     @Test
@@ -1747,21 +1647,19 @@ public final class TypeSpecTest {
                         .endControlFlow("while (5 < 6)")
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.System;
+            import java.lang.System;
 
-                        class Taco {
-                          void loopForever() {
-                            do {
-                              System.out.println("hello");
-                            } while (5 < 6);
-                          }
-                        }
-                        """);
+            class Taco {
+              void loopForever() {
+                do {
+                  System.out.println("hello");
+                } while (5 < 6);
+              }
+            }
+            """);
     }
 
     @Test
@@ -1771,21 +1669,19 @@ public final class TypeSpecTest {
                         .addCode("if (3 < 4) {\n$>$T.out.println($S);\n$<}\n", System.class, "hello")
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.System;
+            import java.lang.System;
 
-                        class Taco {
-                          void inlineIndent() {
-                            if (3 < 4) {
-                              System.out.println("hello");
-                            }
-                          }
-                        }
-                        """);
+            class Taco {
+              void inlineIndent() {
+                if (3 < 4) {
+                  System.out.println("hello");
+                }
+              }
+            }
+            """);
     }
 
     @Test
@@ -1802,22 +1698,20 @@ public final class TypeSpecTest {
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        interface Taco {
-                          String SHELL = "crunchy corn";
+            interface Taco {
+              String SHELL = "crunchy corn";
 
-                          void fold();
+              void fold();
 
-                          class Topping {
-                          }
-                        }
-                        """);
+              class Topping {
+              }
+            }
+            """);
     }
 
     @Test
@@ -1834,23 +1728,21 @@ public final class TypeSpecTest {
                         .addEnumConstant("SALSA")
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        class Taco {
-                          static class Meat {
-                          }
+            class Taco {
+              static class Meat {
+              }
 
-                          interface Tortilla {
-                          }
+              interface Tortilla {
+              }
 
-                          enum Topping {
-                            SALSA
-                          }
-                        }
-                        """);
+              enum Topping {
+                SALSA
+              }
+            }
+            """);
     }
 
     @Test
@@ -1879,47 +1771,45 @@ public final class TypeSpecTest {
                         .build())
                 .build();
         // Static fields, instance fields, constructors, methods, classes.
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        class Members {
-                          static String X;
+            class Members {
+              static String X;
 
-                          static String V;
+              static String V;
 
-                          String W;
+              String W;
 
-                          String U;
+              String U;
 
-                          Members(int p) {
-                          }
+              Members(int p) {
+              }
 
-                          Members(long o) {
-                          }
+              Members(long o) {
+              }
 
-                          static void T() {
-                          }
+              static void T() {
+              }
 
-                          void S() {
-                          }
+              void S() {
+              }
 
-                          static void R() {
-                          }
+              static void R() {
+              }
 
-                          void Q() {
-                          }
+              void Q() {
+              }
 
-                          class Z {
-                          }
+              class Z {
+              }
 
-                          class Y {
-                          }
-                        }
-                        """);
+              class Y {
+              }
+            }
+            """);
     }
 
     @Test
@@ -1942,21 +1832,19 @@ public final class TypeSpecTest {
                                 .build())
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        class Taco {
-                          native int nativeInt();
+            class Taco {
+              native int nativeInt();
 
-                          public static native void alert(String msg) /*-{
-                            $wnd.alert(msg);
-                          }-*/;
-                        }
-                        """);
+              public static native void alert(String msg) /*-{
+                $wnd.alert(msg);
+              }-*/;
+            }
+            """);
     }
 
     @Test
@@ -1966,17 +1854,15 @@ public final class TypeSpecTest {
                         .initializer("$S", (Object) null)
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        class Taco {
-                          String NULL = null;
-                        }
-                        """);
+            class Taco {
+              String NULL = null;
+            }
+            """);
     }
 
     @Test
@@ -2018,14 +1904,12 @@ public final class TypeSpecTest {
                 .returns(String.class)
                 .addStatement("return $S", "taco")
                 .build();
-        assertThat(method.toString())
-                .isEqualTo(
-                        """
-                        @java.lang.Override
-                        public java.lang.String toString() {
-                          return "taco";
-                        }
-                        """);
+        assertThat(method.toString()).isEqualTo("""
+            @java.lang.Override
+            public java.lang.String toString() {
+              return "taco";
+            }
+            """);
     }
 
     @Test
@@ -2035,13 +1919,11 @@ public final class TypeSpecTest {
                 .addParameter(ClassName.get(tacosPackage, "Taco"), "taco")
                 .addStatement("this.$N = $N", "taco", "taco")
                 .build();
-        assertThat(constructor.toString())
-                .isEqualTo(
-                        """
-                        public Constructor(com.palantir.tacos.Taco taco) {
-                          this.taco = taco;
-                        }
-                        """);
+        assertThat(constructor.toString()).isEqualTo("""
+            public Constructor(com.palantir.tacos.Taco taco) {
+              this.taco = taco;
+            }
+            """);
     }
 
     @Test
@@ -2056,12 +1938,10 @@ public final class TypeSpecTest {
     @Test
     public void classToString() {
         TypeSpec type = TypeSpec.classBuilder("Taco").build();
-        assertThat(type.toString())
-                .isEqualTo(
-                        """
-                        class Taco {
-                        }
-                        """);
+        assertThat(type.toString()).isEqualTo("""
+            class Taco {
+            }
+            """);
     }
 
     @Test
@@ -2073,36 +1953,31 @@ public final class TypeSpecTest {
                         .addModifiers(Modifier.PUBLIC)
                         .build())
                 .build();
-        assertThat(type.toString())
-                .isEqualTo(
-                        """
-                        new java.lang.Runnable() {
-                          @java.lang.Override
-                          public void run() {
-                          }
-                        }""");
+        assertThat(type.toString()).isEqualTo("""
+            new java.lang.Runnable() {
+              @java.lang.Override
+              public void run() {
+              }
+            }\
+            """);
     }
 
     @Test
     public void interfaceClassToString() {
         TypeSpec type = TypeSpec.interfaceBuilder("Taco").build();
-        assertThat(type.toString())
-                .isEqualTo(
-                        """
-                        interface Taco {
-                        }
-                        """);
+        assertThat(type.toString()).isEqualTo("""
+            interface Taco {
+            }
+            """);
     }
 
     @Test
     public void annotationDeclarationToString() {
         TypeSpec type = TypeSpec.annotationBuilder("Taco").build();
-        assertThat(type.toString())
-                .isEqualTo(
-                        """
-                        @interface Taco {
-                        }
-                        """);
+        assertThat(type.toString()).isEqualTo("""
+            @interface Taco {
+            }
+            """);
     }
 
     private String toString(TypeSpec typeSpec) {
@@ -2119,25 +1994,23 @@ public final class TypeSpecTest {
                         .addStatement("return $S\n+ $S\n+ $S\n+ $S\n+ $S", "Taco(", "beef,", "lettuce,", "cheese", ")")
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
-                        import java.lang.String;
+            import java.lang.Override;
+            import java.lang.String;
 
-                        class Taco {
-                          @Override
-                          public String toString() {
-                            return "Taco("
-                                + "beef,"
-                                + "lettuce,"
-                                + "cheese"
-                                + ")";
-                          }
-                        }
-                        """);
+            class Taco {
+              @Override
+              public String toString() {
+                return "Taco("
+                    + "beef,"
+                    + "lettuce,"
+                    + "cheese"
+                    + ")";
+              }
+            }
+            """);
     }
 
     @Test
@@ -2167,41 +2040,39 @@ public final class TypeSpecTest {
                         .addStatement("$T.sort(\nlist,\n$L)", Collections.class, prefixComparator)
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
-                        import java.lang.String;
-                        import java.util.Collections;
-                        import java.util.Comparator;
-                        import java.util.List;
+            import java.lang.Override;
+            import java.lang.String;
+            import java.util.Collections;
+            import java.util.Comparator;
+            import java.util.List;
 
-                        class Taco {
-                          Comparator<String> comparePrefix(final int length) {
-                            return new Comparator<String>() {
-                              @Override
-                              public int compare(String a, String b) {
-                                return a.substring(0, length)
-                                    .compareTo(b.substring(0, length));
-                              }
-                            };
-                          }
+            class Taco {
+              Comparator<String> comparePrefix(final int length) {
+                return new Comparator<String>() {
+                  @Override
+                  public int compare(String a, String b) {
+                    return a.substring(0, length)
+                        .compareTo(b.substring(0, length));
+                  }
+                };
+              }
 
-                          void sortPrefix(List<String> list, final int length) {
-                            Collections.sort(
-                                list,
-                                new Comparator<String>() {
-                                  @Override
-                                  public int compare(String a, String b) {
-                                    return a.substring(0, length)
-                                        .compareTo(b.substring(0, length));
-                                  }
-                                });
-                          }
-                        }
-                        """);
+              void sortPrefix(List<String> list, final int length) {
+                Collections.sort(
+                    list,
+                    new Comparator<String>() {
+                      @Override
+                      public int compare(String a, String b) {
+                        return a.substring(0, length)
+                            .compareTo(b.substring(0, length));
+                      }
+                    });
+              }
+            }
+            """);
     }
 
     @Test
@@ -2211,20 +2082,18 @@ public final class TypeSpecTest {
                         .initializer("$S", "shell\nbeef\nlettuce\ncheese\n")
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        class Taco {
-                          String toppings = "shell\\n"
-                              + "beef\\n"
-                              + "lettuce\\n"
-                              + "cheese\\n";
-                        }
-                        """);
+            class Taco {
+              String toppings = "shell\\n"
+                  + "beef\\n"
+                  + "lettuce\\n"
+                  + "cheese\\n";
+            }
+            """);
     }
 
     @Test
@@ -2258,19 +2127,17 @@ public final class TypeSpecTest {
                                 .build(),
                         AnnotationSpec.builder(Deprecated.class).build()))
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Deprecated;
-                        import java.lang.SuppressWarnings;
+            import java.lang.Deprecated;
+            import java.lang.SuppressWarnings;
 
-                        @SuppressWarnings("unchecked")
-                        @Deprecated
-                        class Taco {
-                        }
-                        """);
+            @SuppressWarnings("unchecked")
+            @Deprecated
+            class Taco {
+            }
+            """);
     }
 
     @Test
@@ -2289,19 +2156,17 @@ public final class TypeSpecTest {
                         FieldSpec.builder(BigDecimal.class, "price", Modifier.PRIVATE)
                                 .build()))
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.math.BigDecimal;
+            import java.math.BigDecimal;
 
-                        class Taco {
-                          static final int ANSWER;
+            class Taco {
+              static final int ANSWER;
 
-                          private BigDecimal price;
-                        }
-                        """);
+              private BigDecimal price;
+            }
+            """);
     }
 
     @Test
@@ -2327,24 +2192,22 @@ public final class TypeSpecTest {
                                 .addStatement("return $L", 4)
                                 .build()))
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        class Taco {
-                          public static int getAnswer() {
-                            return 42;
-                          }
+            class Taco {
+              public static int getAnswer() {
+                return 42;
+              }
 
-                          /**
-                           * chosen by fair dice roll ;)
-                           */
-                          public int getRandomQuantity() {
-                            return 4;
-                          }
-                        }
-                        """);
+              /**
+               * chosen by fair dice roll ;)
+               */
+              public int getRandomQuantity() {
+                return 4;
+              }
+            }
+            """);
     }
 
     @Test
@@ -2377,17 +2240,15 @@ public final class TypeSpecTest {
         TypeSpec taco = TypeSpec.classBuilder("Taco")
                 .addSuperinterfaces(Arrays.asList(TypeName.get(Serializable.class), TypeName.get(EventListener.class)))
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.io.Serializable;
-                        import java.util.EventListener;
+            import java.io.Serializable;
+            import java.util.EventListener;
 
-                        class Taco implements Serializable, EventListener {
-                        }
-                        """);
+            class Taco implements Serializable, EventListener {
+            }
+            """);
     }
 
     @Test
@@ -2423,14 +2284,12 @@ public final class TypeSpecTest {
                         ClassName.bestGuess("com.palantir.tacos.BeefTaco"),
                         ClassName.bestGuess("com.palantir.tacos.ChickenTaco")))
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        sealed class Taco permits BeefTaco, ChickenTaco {
-                        }
-                        """);
+            sealed class Taco permits BeefTaco, ChickenTaco {
+            }
+            """);
     }
 
     @Test
@@ -2454,16 +2313,14 @@ public final class TypeSpecTest {
         TypeSpec location = TypeSpec.classBuilder("Location")
                 .addTypeVariables(Arrays.asList(TypeVariableName.get("T"), TypeVariableName.get("P", Number.class)))
                 .build();
-        assertThat(toString(location))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(location)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Number;
+            import java.lang.Number;
 
-                        class Location<T, P extends Number> {
-                        }
-                        """);
+            class Location<T, P extends Number> {
+            }
+            """);
     }
 
     @Test
@@ -2480,19 +2337,17 @@ public final class TypeSpecTest {
                         TypeSpec.classBuilder("Topping").build(),
                         TypeSpec.classBuilder("Sauce").build()))
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        class Taco {
-                          class Topping {
-                          }
+            class Taco {
+              class Topping {
+              }
 
-                          class Sauce {
-                          }
-                        }
-                        """);
+              class Sauce {
+              }
+            }
+            """);
     }
 
     @Test
@@ -2506,20 +2361,18 @@ public final class TypeSpecTest {
                         .endControlFlow()
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        class Taco {
-                          void addTopping(Topping topping) {
-                            try {
-                              /* do something tricky with the topping */
-                            } catch (IllegalToppingException e) {
-                            }
-                          }
-                        }
-                        """);
+            class Taco {
+              void addTopping(Topping topping) {
+                try {
+                  /* do something tricky with the topping */
+                } catch (IllegalToppingException e) {
+                }
+              }
+            }
+            """);
     }
 
     @Test
@@ -2535,21 +2388,19 @@ public final class TypeSpecTest {
                         .endControlFlow()
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        class Taco {
-                          boolean isDelicious(int count) {
-                            if (count > 0) {
-                              return true;
-                            } else {
-                              return false;
-                            }
-                          }
-                        }
-                        """);
+            class Taco {
+              boolean isDelicious(int count) {
+                if (count > 0) {
+                  return true;
+                } else {
+                  return false;
+                }
+              }
+            }
+            """);
     }
 
     @Test
@@ -2718,29 +2569,27 @@ public final class TypeSpecTest {
                         .addCode("return FOO;\n")
                         .build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
-                        import java.lang.String;
+            import java.lang.Override;
+            import java.lang.String;
 
-                        class Taco {
-                          private static final String FOO;
+            class Taco {
+              private static final String FOO;
 
-                          static {
-                            FOO = "FOO";
-                          }
+              static {
+                FOO = "FOO";
+              }
 
-                          private String foo;
+              private String foo;
 
-                          @Override
-                          public String toString() {
-                            return FOO;
-                          }
-                        }
-                        """);
+              @Override
+              public String toString() {
+                return FOO;
+              }
+            }
+            """);
     }
 
     @Test
@@ -2760,36 +2609,34 @@ public final class TypeSpecTest {
                 .addInitializerBlock(
                         CodeBlock.builder().addStatement("foo = $S", "FOO").build())
                 .build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
-                        import java.lang.String;
+            import java.lang.Override;
+            import java.lang.String;
 
-                        class Taco {
-                          private static final String FOO;
+            class Taco {
+              private static final String FOO;
 
-                          static {
-                            FOO = "FOO";
-                          }
+              static {
+                FOO = "FOO";
+              }
 
-                          private String foo;
+              private String foo;
 
-                          {
-                            foo = "FOO";
-                          }
+              {
+                foo = "FOO";
+              }
 
-                          Taco() {
-                          }
+              Taco() {
+              }
 
-                          @Override
-                          public String toString() {
-                            return FOO;
-                          }
-                        }
-                        """);
+              @Override
+              public String toString() {
+                return FOO;
+              }
+            }
+            """);
     }
 
     @Test
@@ -2828,42 +2675,40 @@ public final class TypeSpecTest {
                         .build())
                 .build();
 
-        assertThat(toString(initializersAdded))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(initializersAdded)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.Override;
-                        import java.lang.String;
+            import java.lang.Override;
+            import java.lang.String;
 
-                        class Taco {
-                          private static final String FOO;
+            class Taco {
+              private static final String FOO;
 
-                          static {
-                            FOO = "FOO";
-                          }
-                          static {
-                            FOO = "staticFoo";
-                          }
+              static {
+                FOO = "FOO";
+              }
+              static {
+                FOO = "staticFoo";
+              }
 
-                          private String foo;
+              private String foo;
 
-                          {
-                            foo = "FOO";
-                          }
-                          {
-                            foo = "instanceFoo";
-                          }
+              {
+                foo = "FOO";
+              }
+              {
+                foo = "instanceFoo";
+              }
 
-                          Taco() {
-                          }
+              Taco() {
+              }
 
-                          @Override
-                          public String toString() {
-                            return FOO;
-                          }
-                        }
-                        """);
+              @Override
+              public String toString() {
+                return FOO;
+              }
+            }
+            """);
     }
 
     @Test
@@ -2894,28 +2739,26 @@ public final class TypeSpecTest {
 
         TypeSpec taco =
                 TypeSpec.classBuilder("Taco").addMethod(methodBuilder.build()).build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        import java.lang.String;
+            import java.lang.String;
 
-                        class Taco {
-                          void call(String s0, String s1, String s2, String s3, String s4, String s5, String s6, \
-                        String s7,
-                              String s8, String s9, String s10, String s11, String s12, String s13, String s14, \
-                        String s15,
-                              String s16, String s17, String s18, String s19, String s20, String s21, String s22,
-                              String s23, String s24, String s25, String s26, String s27, String s28, String s29,
-                              String s30, String s31) {
-                            call("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", \
-                        "16",
-                                "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", \
-                        "31");
-                          }
-                        }
-                        """);
+            class Taco {
+              void call(String s0, String s1, String s2, String s3, String s4, String s5, String s6, \
+            String s7,
+                  String s8, String s9, String s10, String s11, String s12, String s13, String s14, \
+            String s15,
+                  String s16, String s17, String s18, String s19, String s20, String s21, String s22,
+                  String s23, String s24, String s25, String s26, String s27, String s28, String s29,
+                  String s30, String s31) {
+                call("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", \
+            "16",
+                    "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", \
+            "31");
+              }
+            }
+            """);
     }
 
     @Test
@@ -2928,19 +2771,17 @@ public final class TypeSpecTest {
                 .build();
 
         TypeSpec taco = TypeSpec.classBuilder("Taco").addMethod(method).build();
-        assertThat(toString(taco))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        class Taco {
-                          void call() {
-                            iAmSickOfWaitingInLine(
-                                it, has, been, far, too, long, of, a, wait, and, i, would, like, to, eat, this, is, a, \
-                        run, on, sentence);
-                          }
-                        }
-                        """);
+            class Taco {
+              void call() {
+                iAmSickOfWaitingInLine(
+                    it, has, been, far, too, long, of, a, wait, and, i, would, like, to, eat, this, is, a, \
+            run, on, sentence);
+              }
+            }
+            """);
     }
 
     @Test
@@ -2979,17 +2820,15 @@ public final class TypeSpecTest {
                 .addJavadoc("Some doc with a newline\n")
                 .build();
 
-        assertThat(toString(spec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(spec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        /**
-                         * Some doc with a newline
-                         */
-                        class Taco {
-                        }
-                        """);
+            /**
+             * Some doc with a newline
+             */
+            class Taco {
+            }
+            """);
     }
 
     @Test
@@ -2998,17 +2837,15 @@ public final class TypeSpecTest {
                 .addJavadoc("Some doc with a newline")
                 .build();
 
-        assertThat(toString(spec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(spec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        /**
-                         * Some doc with a newline
-                         */
-                        class Taco {
-                        }
-                        """);
+            /**
+             * Some doc with a newline
+             */
+            class Taco {
+            }
+            """);
     }
 
     @Test
@@ -3019,16 +2856,14 @@ public final class TypeSpecTest {
                 .addSuperinterface(ClassName.get(tacosPackage, "Three"))
                 .addSuperinterface(ClassName.get(tacosPackage, "Four"))
                 .build();
-        assertThat(toString(typeSpec))
-                .isEqualTo(
-                        """
-                        package com.palantir.tacos;
+        assertThat(toString(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
 
-                        class Taco implements One,
-                            Two,
-                            Three,
-                            Four {
-                        }
-                        """);
+            class Taco implements One,
+                Two,
+                Three,
+                Four {
+            }
+            """);
     }
 }

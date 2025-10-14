@@ -180,23 +180,21 @@ public final class FileWritingTest {
         assertThat(Files.exists(fooPath)).isTrue();
         String source = Files.readString(fooPath);
 
-        assertThat(source)
-                .isEqualTo(
-                        """
-                        package foo;
+        assertThat(source).isEqualTo("""
+            package foo;
 
-                        import java.lang.String;
-                        import java.lang.System;
-                        import java.util.Date;
+            import java.lang.String;
+            import java.lang.System;
+            import java.util.Date;
 
-                        class Test {
-                        \tDate madeFreshDate;
+            class Test {
+            \tDate madeFreshDate;
 
-                        \tpublic static void main(String[] args) {
-                        \t\tSystem.out.println("Hello World!");
-                        \t}
-                        }
-                        """);
+            \tpublic static void main(String[] args) {
+            \t\tSystem.out.println("Hello World!");
+            \t}
+            }
+            """);
     }
 
     /**
@@ -212,15 +210,13 @@ public final class FileWritingTest {
         javaFile.writeTo(fsRoot);
 
         Path fooPath = fsRoot.resolve(fs.getPath("foo", "Taco.java"));
-        assertThat(Files.readString(fooPath))
-                .isEqualTo(
-                        """
-                        // Pi\u00f1ata\u00a1
-                        package foo;
+        assertThat(Files.readString(fooPath)).isEqualTo("""
+            // Pi\u00f1ata\u00a1
+            package foo;
 
-                        class Taco {
-                        }
-                        """);
+            class Taco {
+            }
+            """);
     }
 
     @Test
