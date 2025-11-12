@@ -43,7 +43,8 @@ public final class ParameterizedTypeName extends TypeName {
             List<TypeName> typeArguments,
             List<AnnotationSpec> annotations) {
         super(annotations);
-        this.rawType = checkNotNull(rawType, "rawType == null").annotated(annotations);
+        this.rawType =
+                checkNotNull(rawType, "rawType == null").withoutAnnotations().annotated(annotations);
         this.enclosingType = enclosingType;
         this.typeArguments = Util.immutableList(typeArguments);
 
