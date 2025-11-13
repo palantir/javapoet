@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,6 +57,11 @@ public final class WildcardTypeName extends TypeName {
 
     public List<TypeName> lowerBounds() {
         return lowerBounds;
+    }
+
+    @Override
+    public WildcardTypeName annotated(AnnotationSpec... annotations) {
+        return annotated(Arrays.asList(annotations));
     }
 
     @Override

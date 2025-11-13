@@ -20,6 +20,7 @@ import static com.palantir.javapoet.Util.checkNotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,11 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
         this.canonicalName = enclosingClassName != null
                 ? (enclosingClassName.canonicalName + '.' + simpleName)
                 : (packageName.isEmpty() ? simpleName : packageName + '.' + simpleName);
+    }
+
+    @Override
+    public ClassName annotated(AnnotationSpec... annotations) {
+        return annotated(Arrays.asList(annotations));
     }
 
     @Override

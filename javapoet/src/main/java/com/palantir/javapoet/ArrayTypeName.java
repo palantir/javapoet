@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,11 @@ public final class ArrayTypeName extends TypeName {
 
     public TypeName componentType() {
         return componentType;
+    }
+
+    @Override
+    public ArrayTypeName annotated(AnnotationSpec... annotations) {
+        return annotated(Arrays.asList(annotations));
     }
 
     @Override

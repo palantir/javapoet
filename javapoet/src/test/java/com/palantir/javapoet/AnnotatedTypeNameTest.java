@@ -95,6 +95,13 @@ public class AnnotatedTypeNameTest {
     }
 
     @Test
+    public void annotatedRawTypeOfParameterizedType() {
+        ClassName type = ClassName.get(List.class).annotated(TYPE_USE_ANNOTATION);
+        TypeName actual = ParameterizedTypeName.get(type, TypeName.get(String.class));
+        assertThat(actual.toString()).isEqualTo("java.util. @" + TUA + " List<java.lang.String>");
+    }
+
+    @Test
     public void annotatedArgumentOfParameterizedType() {
         TypeName type = TypeName.get(String.class).annotated(TYPE_USE_ANNOTATION);
         TypeName actual = ParameterizedTypeName.get(ClassName.get(List.class), type);
