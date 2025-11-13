@@ -88,6 +88,20 @@ public class AnnotatedTypeNameTest {
     }
 
     @Test
+    public void annotatedParameterizedTypeTwice() {
+        TypeName type = ParameterizedTypeName.get(List.class, String.class);
+        TypeName actual = type.annotated(NEVER_NULL).annotated(TYPE_USE_ANNOTATION);
+        assertThat(actual.toString()).isEqualTo("java.util. @" + NN + " @" + TUA + " List<java.lang.String>");
+    }
+
+    @Test
+    public void annotatedRawTypeOfParameterizedType() {
+        ClassName type = ClassName.get(List.class).annotated(TYPE_USE_ANNOTATION);
+        TypeName actual = ParameterizedTypeName.get(type, TypeName.get(String.class));
+        assertThat(actual.toString()).isEqualTo("java.util. @" + TUA + " List<java.lang.String>");
+    }
+
+    @Test
     public void annotatedArgumentOfParameterizedType() {
         TypeName type = TypeName.get(String.class).annotated(TYPE_USE_ANNOTATION);
         TypeName actual = ParameterizedTypeName.get(ClassName.get(List.class), type);

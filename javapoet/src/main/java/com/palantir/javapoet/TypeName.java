@@ -103,7 +103,7 @@ public class TypeName {
         return annotations;
     }
 
-    public final TypeName annotated(AnnotationSpec... annotations) {
+    public TypeName annotated(AnnotationSpec... annotations) {
         return annotated(Arrays.asList(annotations));
     }
 

@@ -34,16 +34,8 @@ public final class ParameterizedTypeName extends TypeName {
     private final List<TypeName> typeArguments;
 
     ParameterizedTypeName(ParameterizedTypeName enclosingType, ClassName rawType, List<TypeName> typeArguments) {
-        this(enclosingType, rawType, typeArguments, new ArrayList<>());
-    }
-
-    private ParameterizedTypeName(
-            ParameterizedTypeName enclosingType,
-            ClassName rawType,
-            List<TypeName> typeArguments,
-            List<AnnotationSpec> annotations) {
-        super(annotations);
-        this.rawType = checkNotNull(rawType, "rawType == null").annotated(annotations);
+        super(rawType.annotations());
+        this.rawType = rawType;
         this.enclosingType = enclosingType;
         this.typeArguments = Util.immutableList(typeArguments);
 
@@ -67,13 +59,18 @@ public final class ParameterizedTypeName extends TypeName {
     }
 
     @Override
+    public ParameterizedTypeName annotated(AnnotationSpec... annotations) {
+        return annotated(Arrays.asList(annotations));
+    }
+
+    @Override
     public ParameterizedTypeName annotated(List<AnnotationSpec> annotations) {
-        return new ParameterizedTypeName(enclosingType, rawType, typeArguments, concatAnnotations(annotations));
+        return new ParameterizedTypeName(enclosingType, rawType.annotated(annotations), typeArguments);
     }
 
     @Override
     public TypeName withoutAnnotations() {
-        return new ParameterizedTypeName(enclosingType, rawType.withoutAnnotations(), typeArguments, new ArrayList<>());
+        return new ParameterizedTypeName(enclosingType, rawType.withoutAnnotations(), typeArguments);
     }
 
     @Override
@@ -110,7 +107,7 @@ public final class ParameterizedTypeName extends TypeName {
      */
     public ParameterizedTypeName nestedClass(String name) {
         checkNotNull(name, "name == null");
-        return new ParameterizedTypeName(this, rawType.nestedClass(name), new ArrayList<>(), new ArrayList<>());
+        return new ParameterizedTypeName(this, rawType.nestedClass(name), new ArrayList<>());
     }
 
     /**
@@ -119,7 +116,7 @@ public final class ParameterizedTypeName extends TypeName {
      */
     public ParameterizedTypeName nestedClass(String name, List<TypeName> typeArguments) {
         checkNotNull(name, "name == null");
-        return new ParameterizedTypeName(this, rawType.nestedClass(name), typeArguments, new ArrayList<>());
+        return new ParameterizedTypeName(this, rawType.nestedClass(name), typeArguments);
     }
 
     /** Returns a parameterized type, applying {@code typeArguments} to {@code rawType}. */
