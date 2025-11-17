@@ -47,7 +47,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-@SuppressWarnings({"ClassCanBeStatic", "TypeParameterUnusedInFormals", "StrictUnusedVariable", "UnusedMethod"})
+@SuppressWarnings({"ClassCanBeStatic", "StrictUnusedVariable", "TypeParameterUnusedInFormals", "UnusedMethod"})
 public final class MethodSpecTest {
     @Rule
     public final CompilationRule compilation = new CompilationRule();
