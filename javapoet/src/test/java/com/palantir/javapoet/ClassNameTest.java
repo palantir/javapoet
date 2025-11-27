@@ -78,6 +78,7 @@ public final class ClassNameTest {
         assertBestGuessThrows("java..util.Map.Entry");
         assertBestGuessThrows("java.util..Map.Entry");
         assertBestGuessThrows("java.util.Map..Entry");
+        assertBestGuessThrows("java.util.Map[]");
         assertBestGuessThrows("com.test.$");
         assertBestGuessThrows("com.test.LooksLikeAClass.pkg");
         assertBestGuessThrows("!@#$gibberish%^&*");

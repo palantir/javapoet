@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -75,6 +76,8 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
         this.canonicalName = enclosingClassName != null
                 ? (enclosingClassName.canonicalName + '.' + simpleName)
                 : (packageName.isEmpty() ? simpleName : packageName + '.' + simpleName);
+
+        checkArgument(SourceVersion.isName(simpleName), "not a valid name: %s", simpleName);
     }
 
     @Override
