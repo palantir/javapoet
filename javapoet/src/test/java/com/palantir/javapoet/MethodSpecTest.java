@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -349,6 +350,28 @@ public final class MethodSpecTest {
              * @param money the amount required to buy the taco.
              * @param count the number of Tacos to buy.
              */
+            void getTaco(double money, int count) {
+            }
+            """);
+    }
+
+    @Test
+    public void withParameterMarkdownJavaDoc() throws IOException {
+        MethodSpec methodSpec = MethodSpec.methodBuilder("getTaco")
+                .addParameter(ParameterSpec.builder(TypeName.DOUBLE, "money")
+                        .addJavadoc("the amount required to buy the taco.\n")
+                        .build())
+                .addParameter(ParameterSpec.builder(TypeName.INT, "count")
+                        .addJavadoc("the number of Tacos to buy.\n")
+                        .build())
+                .build();
+
+        StringBuilder out = new StringBuilder();
+        methodSpec.emit(TestUtil.codeWriterWithMarkdownJavadoc(out), "Constructor", Collections.emptySet());
+
+        assertThat(out.toString()).isEqualTo("""
+            /// @param money the amount required to buy the taco.
+            /// @param count the number of Tacos to buy.
             void getTaco(double money, int count) {
             }
             """);

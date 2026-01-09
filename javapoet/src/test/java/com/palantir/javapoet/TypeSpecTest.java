@@ -888,6 +888,29 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void recordWithMarkdownJavadoc() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(ParameterSpec.builder(String.class, "id")
+                                .addJavadoc("Id of the taco.")
+                                .build())
+                        .build())
+                .addJavadoc("A taco class that stores the id of a taco.")
+                .build();
+
+        assertThat(toStringWithMarkdownJavadocs(typeSpec)).isEqualTo("""
+            package com.palantir.tacos;
+
+            import java.lang.String;
+
+            /// A taco class that stores the id of a taco.
+            /// @param id Id of the taco.
+            record Taco(String id) {
+            }
+            """);
+    }
+
+    @Test
     public void recordWithAnnotationOnParam() {
         TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
@@ -1449,6 +1472,48 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void markdownJavadoc() {
+        TypeSpec taco = TypeSpec.classBuilder("Taco")
+                .addJavadoc("A hard or soft tortilla, loosely folded and filled with whatever\n")
+                .addJavadoc("[$T random] tex-mex stuff we could find in the pantry\n", Random.class)
+                .addJavadoc(CodeBlock.of("and some [$T] cheese.\n", String.class))
+                .addField(FieldSpec.builder(boolean.class, "soft")
+                        .addJavadoc("`true` for a soft flour tortilla; `false` for a crunchy corn tortilla.\n")
+                        .build())
+                .addMethod(MethodSpec.methodBuilder("refold")
+                        .addJavadoc("""
+                            # Folds the back of this taco to reduce sauce leakage.
+
+                            For [$T#KOREAN], the front may also be folded.
+                            """, Locale.class)
+                        .addParameter(Locale.class, "locale")
+                        .build())
+                .build();
+
+        assertThat(toStringWithMarkdownJavadocs(taco)).isEqualTo("""
+            package com.palantir.tacos;
+
+            import java.lang.String;
+            import java.util.Locale;
+            import java.util.Random;
+
+            /// A hard or soft tortilla, loosely folded and filled with whatever
+            /// [Random random] tex-mex stuff we could find in the pantry
+            /// and some [String] cheese.
+            class Taco {
+              /// `true` for a soft flour tortilla; `false` for a crunchy corn tortilla.
+              boolean soft;
+
+              /// # Folds the back of this taco to reduce sauce leakage.
+              ///
+              /// For [Locale#KOREAN], the front may also be folded.
+              void refold(Locale locale) {
+              }
+            }
+            """);
+    }
+
+    @Test
     public void annotationsInAnnotations() {
         ClassName beef = ClassName.get(tacosPackage, "Beef");
         ClassName chicken = ClassName.get(tacosPackage, "Chicken");
@@ -1982,6 +2047,13 @@ public final class TypeSpecTest {
 
     private String toString(TypeSpec typeSpec) {
         return JavaFile.builder(tacosPackage, typeSpec).build().toString();
+    }
+
+    private String toStringWithMarkdownJavadocs(TypeSpec typeSpec) {
+        return JavaFile.builder(tacosPackage, typeSpec)
+                .useMarkdownJavadoc()
+                .build()
+                .toString();
     }
 
     @Test
@@ -2832,6 +2904,21 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void markdownJavadocWithTrailingLineDoesNotAddAnother() {
+        TypeSpec spec = TypeSpec.classBuilder("Taco")
+                .addJavadoc("Some doc with a newline\n")
+                .build();
+
+        assertThat(toStringWithMarkdownJavadocs(spec)).isEqualTo("""
+            package com.palantir.tacos;
+
+            /// Some doc with a newline
+            class Taco {
+            }
+            """);
+    }
+
+    @Test
     public void javadocEnsuresTrailingLine() {
         TypeSpec spec = TypeSpec.classBuilder("Taco")
                 .addJavadoc("Some doc with a newline")
@@ -2843,6 +2930,21 @@ public final class TypeSpecTest {
             /**
              * Some doc with a newline
              */
+            class Taco {
+            }
+            """);
+    }
+
+    @Test
+    public void markdownJavadocEnsuresTrailingLine() {
+        TypeSpec spec = TypeSpec.classBuilder("Taco")
+                .addJavadoc("Some doc with a newline")
+                .build();
+
+        assertThat(toStringWithMarkdownJavadocs(spec)).isEqualTo("""
+            package com.palantir.tacos;
+
+            /// Some doc with a newline
             class Taco {
             }
             """);
