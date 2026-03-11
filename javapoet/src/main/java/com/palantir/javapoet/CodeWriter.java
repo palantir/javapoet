@@ -84,7 +84,7 @@ final class CodeWriter {
     }
 
     CodeWriter(Appendable out, String indent, Set<String> staticImports, Set<String> alwaysQualify) {
-        this(out, indent, importedTypes, staticImports, alwaysQualify, false);
+        this(out, indent, Collections.emptyMap(), staticImports, alwaysQualify, false);
     }
 
     CodeWriter(
