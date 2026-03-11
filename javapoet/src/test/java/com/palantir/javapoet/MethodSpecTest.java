@@ -355,6 +355,28 @@ public final class MethodSpecTest {
     }
 
     @Test
+    public void withParameterMarkdownJavaDoc() throws IOException {
+        MethodSpec methodSpec = MethodSpec.methodBuilder("getTaco")
+                .addParameter(ParameterSpec.builder(TypeName.DOUBLE, "money")
+                        .addJavadoc("the amount required to buy the taco.\n")
+                        .build())
+                .addParameter(ParameterSpec.builder(TypeName.INT, "count")
+                        .addJavadoc("the number of Tacos to buy.\n")
+                        .build())
+                .build();
+
+        StringBuilder out = new StringBuilder();
+        methodSpec.emit(TestUtil.codeWriterWithMarkdownJavadoc(out), "Constructor", Collections.emptySet());
+
+        assertThat(out.toString()).isEqualTo("""
+            /// @param money the amount required to buy the taco.
+            /// @param count the number of Tacos to buy.
+            void getTaco(double money, int count) {
+            }
+            """);
+    }
+
+    @Test
     public void duplicateExceptionsIgnored() {
         ClassName ioException = ClassName.get(IOException.class);
         ClassName timeoutException = ClassName.get(TimeoutException.class);

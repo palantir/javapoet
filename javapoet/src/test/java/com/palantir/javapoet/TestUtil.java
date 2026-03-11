@@ -16,6 +16,7 @@
 package com.palantir.javapoet;
 
 import java.util.Collection;
+import java.util.Collections;
 import javax.lang.model.element.Element;
 
 final class TestUtil {
@@ -29,5 +30,9 @@ final class TestUtil {
             }
         }
         throw new IllegalArgumentException(name + " not found in " + elements);
+    }
+
+    static CodeWriter codeWriterWithMarkdownJavadoc(Appendable out) {
+        return new CodeWriter(out, "  ", Collections.emptyMap(), Collections.emptySet(), Collections.emptySet(), true);
     }
 }

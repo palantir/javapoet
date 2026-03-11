@@ -42,6 +42,13 @@ import javax.lang.model.element.Modifier;
  * honors imports, indentation, and deferred variable names.
  */
 final class CodeWriter {
+
+    private enum CommentType {
+        LINE,
+        JAVADOC,
+        MARKDOWN_JAVADOC
+    }
+
     /** Sentinel value that indicates that no user-provided package has been set. */
     private static final String NO_PACKAGE = new String();
 
@@ -51,13 +58,13 @@ final class CodeWriter {
     private final LineWrapper out;
     private int indentLevel;
 
-    private boolean javadoc = false;
-    private boolean comment = false;
+    private CommentType comment = null;
     private String packageName = NO_PACKAGE;
     private final List<TypeSpec> typeSpecStack = new ArrayList<>();
     private final Set<String> staticImportClassNames;
     private final Set<String> staticImports;
     private final Set<String> alwaysQualify;
+    private final boolean useMarkdownJavadoc;
     private final Map<String, ClassName> importedTypes;
     private final Map<String, ClassName> importableTypes = new LinkedHashMap<>();
     private final Set<String> referencedNames = new LinkedHashSet<>();
@@ -77,7 +84,7 @@ final class CodeWriter {
     }
 
     CodeWriter(Appendable out, String indent, Set<String> staticImports, Set<String> alwaysQualify) {
-        this(out, indent, Collections.emptyMap(), staticImports, alwaysQualify);
+        this(out, indent, importedTypes, staticImports, alwaysQualify, false);
     }
 
     CodeWriter(
@@ -85,12 +92,14 @@ final class CodeWriter {
             String indent,
             Map<String, ClassName> importedTypes,
             Set<String> staticImports,
-            Set<String> alwaysQualify) {
+            Set<String> alwaysQualify,
+            boolean useMarkdownJavadoc) {
         this.out = new LineWrapper(out, indent, 100);
         this.indent = checkNotNull(indent, "indent == null");
         this.importedTypes = checkNotNull(importedTypes, "importedTypes == null");
         this.staticImports = checkNotNull(staticImports, "staticImports == null");
         this.alwaysQualify = checkNotNull(alwaysQualify, "alwaysQualify == null");
+        this.useMarkdownJavadoc = useMarkdownJavadoc;
         this.staticImportClassNames = new LinkedHashSet<>();
         for (String signature : staticImports) {
             staticImportClassNames.add(signature.substring(0, signature.lastIndexOf('.')));
@@ -145,11 +154,13 @@ final class CodeWriter {
     public void emitComment(CodeBlock codeBlock) throws IOException {
         trailingNewline = true; // Force the '//' prefix for the comment.
         comment = true;
+        comment = CommentType.LINE;
         try {
             emit(codeBlock);
             emit("\n");
         } finally {
             comment = false;
+            comment = null;
         }
     }
 
@@ -158,14 +169,22 @@ final class CodeWriter {
             return;
         }
 
-        emit("/**\n");
-        javadoc = true;
+        if (useMarkdownJavadoc) {
+            emit("/// ");
+            comment = CommentType.MARKDOWN_JAVADOC;
+        } else {
+            emit("/**\n");
+            comment = CommentType.JAVADOC;
+        }
         try {
             emit(javadocCodeBlock, true);
         } finally {
-            javadoc = false;
+            comment = null;
         }
-        emit(" */\n");
+
+        if (!useMarkdownJavadoc) {
+            emit(" */\n");
+        }
     }
 
     public void emitAnnotations(List<AnnotationSpec> annotations, boolean inline) throws IOException {
@@ -497,9 +516,14 @@ final class CodeWriter {
         for (String line : LINE_BREAKING_PATTERN.split(s, -1)) {
             // Emit a newline character. Make sure blank lines in Javadoc & comments look good.
             if (!first) {
-                if ((javadoc || comment) && trailingNewline) {
+                if ((comment != null) && trailingNewline) {
                     emitIndentation();
-                    out.append(javadoc ? " *" : "//");
+                    out.append(
+                            switch (comment) {
+                                case LINE -> "//";
+                                case JAVADOC -> " *";
+                                case MARKDOWN_JAVADOC -> "///";
+                            });
                 }
                 out.append("\n");
                 trailingNewline = true;
@@ -519,10 +543,13 @@ final class CodeWriter {
             // Emit indentation and comment prefix if necessary.
             if (trailingNewline) {
                 emitIndentation();
-                if (javadoc) {
-                    out.append(" * ");
-                } else if (comment) {
-                    out.append("// ");
+                if (comment != null) {
+                    out.append(
+                            switch (comment) {
+                                case LINE -> "// ";
+                                case JAVADOC -> " * ";
+                                case MARKDOWN_JAVADOC -> "/// ";
+                            });
                 }
             }
 

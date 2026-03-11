@@ -916,3 +916,44 @@ Which generates this:
 ```
 
 Use `$T` when referencing types in Javadoc to get automatic imports.
+
+### Markdown in Javadoc
+
+To output Markdown styled Javadoc (see [JEP 467](https://openjdk.org/jeps/467)),
+th method `useMarkdownJavadoc()` of the `JavaFile` builder has to be called:
+
+```java
+TypeSpec emptyClass = TypeSpec.classBuilder("EmptyClass")
+    .addJavadoc("# Empty Class\n"
+            + "\n"
+            + "A representation of nothing: /* empty */\n")
+    .addJavadoc("\n")
+    .addJavadoc("This is not to be confused with the [$T] datatype which\n"
+            + "is an uninstantiable placeholder class to hold a reference\n"
+            + "to the *Class* object representing the Java keyword `void`.\n", Void.class)
+    .build();
+
+JavaFile javaFile = JavaFile.builder("com.example.empty", emptyClass)
+    .useMarkdownJavadoc() // sets the Markdown output flag
+    .build();
+
+javaFile.writeTo(System.out);
+```
+
+which outputs:
+
+```java
+package com.example.empty;
+
+import java.lang.Void;
+
+/// # Empty Class
+///
+/// A representation of nothing: /* empty */
+///
+/// This is not to be confused with the [Void] datatype which
+/// is an uninstantiable placeholder class to hold a reference
+/// to the *Class* object representing the Java keyword `void`.
+class EmptyClass {
+}
+```
