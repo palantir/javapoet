@@ -153,13 +153,11 @@ final class CodeWriter {
 
     public void emitComment(CodeBlock codeBlock) throws IOException {
         trailingNewline = true; // Force the '//' prefix for the comment.
-        comment = true;
         comment = CommentType.LINE;
         try {
             emit(codeBlock);
             emit("\n");
         } finally {
-            comment = false;
             comment = null;
         }
     }
