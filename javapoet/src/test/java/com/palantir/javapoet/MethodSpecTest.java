@@ -25,12 +25,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.CompilationRule;
-import java.util.Collections;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
