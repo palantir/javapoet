@@ -8,4 +8,4 @@ org.eclipse.jdt.core.compiler:* = 4.6.1
 org.junit.jupiter:* = 6.0.3
 org.junit.platform:* = 6.0.3
 org.junit.vintage:* = 6.0.3
-org.mockito:* = 5.22.0
+org.mockito:* = 5.23.0
