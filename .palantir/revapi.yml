@@ -1,0 +1,23 @@
+acceptedBreaks:
+  "0.13.0":
+    com.palantir.javapoet:javapoet:
+    - code: "java.method.returnTypeChangedCovariantly"
+      old: "method com.palantir.javapoet.TypeName com.palantir.javapoet.ArrayTypeName::withoutAnnotations()"
+      new: "method com.palantir.javapoet.ArrayTypeName com.palantir.javapoet.ArrayTypeName::withoutAnnotations()"
+      justification: "Refining return type of overridden method - javac will insert\
+        \ synthetic bridge methods"
+    - code: "java.method.returnTypeChangedCovariantly"
+      old: "method com.palantir.javapoet.TypeName com.palantir.javapoet.ParameterizedTypeName::withoutAnnotations()"
+      new: "method com.palantir.javapoet.ParameterizedTypeName com.palantir.javapoet.ParameterizedTypeName::withoutAnnotations()"
+      justification: "Refining return type of overridden method - javac will insert\
+        \ synthetic bridge methods"
+    - code: "java.method.returnTypeChangedCovariantly"
+      old: "method com.palantir.javapoet.TypeName com.palantir.javapoet.TypeVariableName::withoutAnnotations()"
+      new: "method com.palantir.javapoet.TypeVariableName com.palantir.javapoet.TypeVariableName::withoutAnnotations()"
+      justification: "Refining return type of overridden method - javac will insert\
+        \ synthetic bridge methods"
+    - code: "java.method.returnTypeChangedCovariantly"
+      old: "method com.palantir.javapoet.TypeName com.palantir.javapoet.WildcardTypeName::withoutAnnotations()"
+      new: "method com.palantir.javapoet.WildcardTypeName com.palantir.javapoet.WildcardTypeName::withoutAnnotations()"
+      justification: "Refining return type of overridden method - javac will insert\
+        \ synthetic bridge methods"
