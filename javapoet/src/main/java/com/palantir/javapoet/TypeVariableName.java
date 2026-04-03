@@ -67,7 +67,7 @@ public final class TypeVariableName extends TypeName {
     }
 
     @Override
-    public TypeName withoutAnnotations() {
+    public TypeVariableName withoutAnnotations() {
         return new TypeVariableName(name, bounds);
     }
 
