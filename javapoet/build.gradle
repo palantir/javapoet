@@ -1,5 +1,5 @@
 apply plugin: 'com.palantir.external-publish-jar'
-apply plugin: 'org.revapi.revapi-gradle-plugin'
+apply plugin: 'com.palantir.revapi'
 
 jar{
     manifest{
