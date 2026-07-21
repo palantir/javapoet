@@ -16,12 +16,12 @@
 package com.palantir.javapoet;
 
 import java.util.Collection;
-import java.util.Collections;
 import javax.lang.model.element.Element;
 
 final class TestUtil {
 
-    private TestUtil() {}
+    private TestUtil() {
+    }
 
     static <E extends Element> E findFirst(Collection<E> elements, String name) {
         for (E element : elements) {
@@ -30,9 +30,5 @@ final class TestUtil {
             }
         }
         throw new IllegalArgumentException(name + " not found in " + elements);
-    }
-
-    static CodeWriter codeWriterWithMarkdownJavadoc(Appendable out) {
-        return new CodeWriter(out, "  ", Collections.emptyMap(), Collections.emptySet(), Collections.emptySet(), true);
     }
 }

@@ -514,7 +514,7 @@ final class CodeWriter {
         for (String line : LINE_BREAKING_PATTERN.split(s, -1)) {
             // Emit a newline character. Make sure blank lines in Javadoc & comments look good.
             if (!first) {
-                if ((comment != null) && trailingNewline) {
+                if (comment != null && trailingNewline) {
                     emitIndentation();
                     out.append(
                             switch (comment) {

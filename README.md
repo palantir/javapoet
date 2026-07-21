@@ -919,18 +919,23 @@ Use `$T` when referencing types in Javadoc to get automatic imports.
 
 ### Markdown in Javadoc
 
-To output Markdown styled Javadoc (see [JEP 467](https://openjdk.org/jeps/467)),
-th method `useMarkdownJavadoc()` of the `JavaFile` builder has to be called:
+To emit Markdown Javadoc (see [JEP 467](https://openjdk.org/jeps/467)),
+use `JavaFile.Builder.useMarkdownJavadoc()`:
 
 ```java
+MethodSpec dismiss = MethodSpec.methodBuilder("dismiss")
+        .addJavadoc("Hides `message` from the caller's history. Other\n"
+                + "participants in the conversation will continue to see the\n"
+                + "message in their own history unless they also delete it.\n")
+        .addJavadoc("\n")
+        .addJavadoc("Use [#delete($T)] to delete the entire\n"
+                + "conversation for all participants.\n", Conversation.class)
+        .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+        .addParameter(Message.class, "message")
+        .build();
+
 TypeSpec emptyClass = TypeSpec.classBuilder("EmptyClass")
-    .addJavadoc("# Empty Class\n"
-            + "\n"
-            + "A representation of nothing: /* empty */\n")
-    .addJavadoc("\n")
-    .addJavadoc("This is not to be confused with the [$T] datatype which\n"
-            + "is an uninstantiable placeholder class to hold a reference\n"
-            + "to the *Class* object representing the Java keyword `void`.\n", Void.class)
+    .addMethod(dismiss)
     .build();
 
 JavaFile javaFile = JavaFile.builder("com.example.empty", emptyClass)
@@ -940,20 +945,20 @@ JavaFile javaFile = JavaFile.builder("com.example.empty", emptyClass)
 javaFile.writeTo(System.out);
 ```
 
-which outputs:
+Which generates this:
 
 ```java
 package com.example.empty;
 
 import java.lang.Void;
 
-/// # Empty Class
-///
-/// A representation of nothing: /* empty */
-///
-/// This is not to be confused with the [Void] datatype which
-/// is an uninstantiable placeholder class to hold a reference
-/// to the *Class* object representing the Java keyword `void`.
 class EmptyClass {
+  /// Hides `message` from the caller's history. Other
+  /// participants in the conversation will continue to see the
+  /// message in their own history unless they also delete it.
+  /// 
+  /// Use [#delete(Conversation)] to delete the entire
+  /// conversation for all participants.
+ void dismiss(Message message);
 }
 ```

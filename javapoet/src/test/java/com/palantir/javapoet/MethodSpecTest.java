@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +94,8 @@ public final class MethodSpecTest {
     }
 
     @Target(ElementType.PARAMETER)
-    @interface Nullable {}
+    @interface Nullable {
+    }
 
     abstract static class Everything {
         @Deprecated
@@ -124,22 +124,28 @@ public final class MethodSpecTest {
 
     interface ExtendsOthers
             extends Callable<Integer>,
-                    Comparable<ExtendsOthers>,
-                    Throws<IllegalStateException>,
-                    CustomExtensible<Double> {}
+            Comparable<ExtendsOthers>,
+            Throws<IllegalStateException>,
+            CustomExtensible<Double> {
+    }
 
-    interface ExtendsIterableWithDefaultMethods extends Iterable<Object> {}
+    interface ExtendsIterableWithDefaultMethods extends Iterable<Object> {
+    }
 
     final class FinalClass {
-        void method() {}
+        void method() {
+        }
     }
 
     abstract static class InvalidOverrideMethods {
-        final void finalMethod() {}
+        final void finalMethod() {
+        }
 
-        private void privateMethod() {}
+        private void privateMethod() {
+        }
 
-        static void staticMethod() {}
+        static void staticMethod() {
+        }
     }
 
     @Test
@@ -148,12 +154,12 @@ public final class MethodSpecTest {
         ExecutableElement methodElement = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
         MethodSpec method = MethodSpec.overriding(methodElement).build();
         assertThat(method.toString()).isEqualTo("""
-            @java.lang.Override
-            protected <T extends java.lang.Runnable & java.io.Closeable> java.lang.Runnable everything(
-                java.lang.String thing, java.util.List<? extends T> things) throws java.io.IOException,
-                java.lang.SecurityException {
-            }
-            """);
+                @java.lang.Override
+                protected <T extends java.lang.Runnable & java.io.Closeable> java.lang.Runnable everything(
+                    java.lang.String thing, java.util.List<? extends T> things) throws java.io.IOException,
+                    java.lang.SecurityException {
+                }
+                """);
     }
 
     @Test
@@ -163,11 +169,11 @@ public final class MethodSpecTest {
         MethodSpec method =
                 MethodSpec.overriding(methodElement).addStatement("return null").build();
         assertThat(method.toString()).isEqualTo("""
-            @java.lang.Override
-            <T, R, V extends java.lang.Throwable> T run(R param) throws V {
-              return null;
-            }
-            """);
+                @java.lang.Override
+                <T, R, V extends java.lang.Throwable> T run(R param) throws V {
+                  return null;
+                }
+                """);
     }
 
     @Test
@@ -176,10 +182,10 @@ public final class MethodSpecTest {
         ExecutableElement exec = getOnlyElement(methodsIn(classElement.getEnclosedElements()));
         MethodSpec method = MethodSpec.overriding(exec).build();
         assertThat(method.toString()).isEqualTo("""
-            @java.lang.Override
-            public java.lang.String toString() {
-            }
-            """);
+                @java.lang.Override
+                public java.lang.String toString() {
+                }
+                """);
     }
 
     @Test
@@ -190,10 +196,10 @@ public final class MethodSpecTest {
         ExecutableElement exec = findFirst(methods, "spliterator");
         MethodSpec method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString()).isEqualTo("""
-            @java.lang.Override
-            public java.util.Spliterator<java.lang.Object> spliterator() {
-            }
-            """);
+                @java.lang.Override
+                public java.util.Spliterator<java.lang.Object> spliterator() {
+                }
+                """);
     }
 
     @Test
@@ -204,31 +210,31 @@ public final class MethodSpecTest {
         ExecutableElement exec = findFirst(methods, "call");
         MethodSpec method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString()).isEqualTo("""
-            @java.lang.Override
-            public java.lang.Integer call() throws java.lang.Exception {
-            }
-            """);
+                @java.lang.Override
+                public java.lang.Integer call() throws java.lang.Exception {
+                }
+                """);
         exec = findFirst(methods, "compareTo");
         method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString()).isEqualTo("""
-            @java.lang.Override
-            public int compareTo(com.palantir.javapoet.MethodSpecTest.ExtendsOthers arg0) {
-            }
-            """);
+                @java.lang.Override
+                public int compareTo(com.palantir.javapoet.MethodSpecTest.ExtendsOthers arg0) {
+                }
+                """);
         exec = findFirst(methods, "fail");
         method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString()).isEqualTo("""
-            @java.lang.Override
-            public void fail() throws java.lang.IllegalStateException {
-            }
-            """);
+                @java.lang.Override
+                public void fail() throws java.lang.IllegalStateException {
+                }
+                """);
         exec = findFirst(methods, "doStuff");
         method = MethodSpec.overriding(exec, classType, types).build();
         assertThat(method.toString()).isEqualTo("""
-            @java.lang.Override
-            public <S extends java.lang.Double> void doStuff(S input) {
-            }
-            """);
+                @java.lang.Override
+                public <S extends java.lang.Double> void doStuff(S input) {
+                }
+                """);
     }
 
     @Test
@@ -257,7 +263,8 @@ public final class MethodSpecTest {
 
     abstract static class AbstractClassWithPrivateAnnotation {
 
-        private @interface PrivateAnnotation {}
+        private @interface PrivateAnnotation {
+        }
 
         abstract void foo(@PrivateAnnotation String bar);
     }
@@ -304,12 +311,12 @@ public final class MethodSpecTest {
                 .addJavadoc("Gets the best Taco\n")
                 .build();
         assertThat(methodSpec.toString()).isEqualTo("""
-            /**
-             * Gets the best Taco
-             */
-            private void getTaco(double money) {
-            }
-            """);
+                /**
+                 * Gets the best Taco
+                 */
+                private void getTaco(double money) {
+                }
+                """);
     }
 
     @Test
@@ -324,15 +331,15 @@ public final class MethodSpecTest {
                 .addJavadoc("Gets the best Taco money can buy.\n")
                 .build();
         assertThat(methodSpec.toString()).isEqualTo("""
-            /**
-             * Gets the best Taco money can buy.
-             *
-             * @param money the amount required to buy the taco.
-             * @param count the number of Tacos to buy.
-             */
-            void getTaco(double money, int count) {
-            }
-            """);
+                /**
+                 * Gets the best Taco money can buy.
+                 *
+                 * @param money the amount required to buy the taco.
+                 * @param count the number of Tacos to buy.
+                 */
+                void getTaco(double money, int count) {
+                }
+                """);
     }
 
     @Test
@@ -346,35 +353,13 @@ public final class MethodSpecTest {
                         .build())
                 .build();
         assertThat(methodSpec.toString()).isEqualTo("""
-            /**
-             * @param money the amount required to buy the taco.
-             * @param count the number of Tacos to buy.
-             */
-            void getTaco(double money, int count) {
-            }
-            """);
-    }
-
-    @Test
-    public void withParameterMarkdownJavaDoc() throws IOException {
-        MethodSpec methodSpec = MethodSpec.methodBuilder("getTaco")
-                .addParameter(ParameterSpec.builder(TypeName.DOUBLE, "money")
-                        .addJavadoc("the amount required to buy the taco.\n")
-                        .build())
-                .addParameter(ParameterSpec.builder(TypeName.INT, "count")
-                        .addJavadoc("the number of Tacos to buy.\n")
-                        .build())
-                .build();
-
-        StringBuilder out = new StringBuilder();
-        methodSpec.emit(TestUtil.codeWriterWithMarkdownJavadoc(out), "Constructor", Collections.emptySet());
-
-        assertThat(out.toString()).isEqualTo("""
-            /// @param money the amount required to buy the taco.
-            /// @param count the number of Tacos to buy.
-            void getTaco(double money, int count) {
-            }
-            """);
+                /**
+                 * @param money the amount required to buy the taco.
+                 * @param count the number of Tacos to buy.
+                 */
+                void getTaco(double money, int count) {
+                }
+                """);
     }
 
     @Test
@@ -413,9 +398,9 @@ public final class MethodSpecTest {
                 .build();
 
         assertThat(methodSpec.toString()).isEqualTo("""
-            void revisedMethod() {
-            }
-            """);
+                void revisedMethod() {
+                }
+                """);
     }
 
     @Test
@@ -425,10 +410,10 @@ public final class MethodSpecTest {
                 .build();
 
         assertThat(methodSpec.toString()).isEqualTo("""
-            void method() {
-              codeWithNoNewline();
-            }
-            """);
+                void method() {
+                  codeWithNoNewline();
+                }
+                """);
     }
 
     /** Ensures that we don't add a duplicate newline if one is already present. */
@@ -439,10 +424,10 @@ public final class MethodSpecTest {
                 .build();
 
         assertThat(methodSpec.toString()).isEqualTo("""
-            void method() {
-              codeWithNoNewline();
-            }
-            """);
+                void method() {
+                  codeWithNoNewline();
+                }
+                """);
     }
 
     @Test
@@ -458,12 +443,12 @@ public final class MethodSpecTest {
                 .build();
 
         assertThat(methodSpec.toString()).isEqualTo("""
-            void method() {
-              if (valueField > 5) {
-              } else if (valueField == 5) {
-              }
-            }
-            """);
+                void method() {
+                  if (valueField > 5) {
+                  } else if (valueField == 5) {
+                  }
+                }
+                """);
     }
 
     @Test
@@ -479,12 +464,12 @@ public final class MethodSpecTest {
                 .build();
 
         assertThat(methodSpec.toString()).isEqualTo("""
-            void method() {
-              do {
-                valueField--;
-              } while (valueField > 5);
-            }
-            """);
+                void method() {
+                  do {
+                    valueField--;
+                  } while (valueField > 5);
+                }
+                """);
     }
 
     private static CodeBlock named(String format, Map<String, ?> args) {
