@@ -42,17 +42,17 @@ org.hamcrest:hamcrest-core:1.3 (1 constraints: cc05fe3f)
 
 org.jspecify:jspecify:1.0.0 (10 constraints: 349d0b11)
 
-org.junit.jupiter:junit-jupiter:6.1.1 (1 constraints: 74070b77)
+org.junit.jupiter:junit-jupiter:6.1.2 (1 constraints: 75070d77)
 
-org.junit.jupiter:junit-jupiter-api:6.1.1 (4 constraints: 6a3459b2)
+org.junit.jupiter:junit-jupiter-api:6.1.2 (4 constraints: 6e3470b3)
 
-org.junit.jupiter:junit-jupiter-engine:6.1.1 (1 constraints: 050ece3b)
+org.junit.jupiter:junit-jupiter-engine:6.1.2 (1 constraints: 060ecf3b)
 
-org.junit.jupiter:junit-jupiter-params:6.1.1 (1 constraints: 050ece3b)
+org.junit.jupiter:junit-jupiter-params:6.1.2 (1 constraints: 060ecf3b)
 
-org.junit.platform:junit-platform-commons:6.1.2 (2 constraints: d8207f4a)
+org.junit.platform:junit-platform-commons:6.1.2 (2 constraints: d920b14a)
 
-org.junit.platform:junit-platform-engine:6.1.2 (3 constraints: 6e339d22)
+org.junit.platform:junit-platform-engine:6.1.2 (3 constraints: 6f330023)
 
 org.junit.platform:junit-platform-launcher:6.1.2 (1 constraints: 0b050e36)
 
