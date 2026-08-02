@@ -42,6 +42,11 @@ public final class AnnotationSpecTest {
         String value();
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface HasAnnotationArray {
+        AnnotationC[] value();
+    }
+
     public enum Breakfast {
         WAFFLES,
         PANCAKES;
@@ -103,6 +108,10 @@ public final class AnnotationSpecTest {
             r = {Float.class, Double.class})
     public class IsAnnotated {
         // empty
+    }
+
+    @HasAnnotationArray({@AnnotationC("foo"), @AnnotationC("bar")})
+    public class IsAnnotatedWithArray {
     }
 
     @Rule
@@ -301,6 +310,25 @@ public final class AnnotationSpecTest {
                     Double.class
                 }
             )
+            class Taco {
+            }
+            """);
+    }
+
+    @Test
+    public void reflectAnnotationArray() {
+        HasAnnotationArray annotation = IsAnnotatedWithArray.class.getAnnotation(HasAnnotationArray.class);
+        AnnotationSpec spec = AnnotationSpec.get(annotation);
+        TypeSpec taco = TypeSpec.classBuilder("Taco").addAnnotation(spec).build();
+        assertThat(toString(taco)).isEqualTo("""
+            package com.palantir.tacos;
+
+            import com.palantir.javapoet.AnnotationSpecTest;
+
+            @AnnotationSpecTest.HasAnnotationArray({
+                @AnnotationSpecTest.AnnotationC("foo"),
+                @AnnotationSpecTest.AnnotationC("bar")
+            })
             class Taco {
             }
             """);

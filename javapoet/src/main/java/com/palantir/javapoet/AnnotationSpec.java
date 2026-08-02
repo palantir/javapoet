@@ -144,10 +144,6 @@ public final class AnnotationSpec {
                     }
                     continue;
                 }
-                if (value instanceof Annotation annotationValue) {
-                    builder.addMember(method.getName(), "$L", get(annotationValue));
-                    continue;
-                }
                 builder.addMemberForValue(method.getName(), value);
             }
         } catch (Exception e) {
@@ -244,6 +240,9 @@ public final class AnnotationSpec {
             checkNotNull(memberName, "memberName == null");
             checkNotNull(value, "value == null, constant non-null value expected for %s", memberName);
             checkArgument(SourceVersion.isName(memberName), "not a valid name: %s", memberName);
+            if (value instanceof Annotation annotationValue) {
+                return addMember(memberName, "$L", get(annotationValue));
+            }
             if (value instanceof Class<?>) {
                 return addMember(memberName, "$T.class", value);
             }
