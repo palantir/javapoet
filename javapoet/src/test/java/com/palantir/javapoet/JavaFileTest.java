@@ -23,8 +23,10 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import javax.lang.model.element.Modifier;
@@ -37,6 +39,8 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public final class JavaFileTest {
+
+    private final String tacosPackage = "com.palantir.tacos";
 
     @Rule
     public final CompilationRule compilation = new CompilationRule();
@@ -68,27 +72,27 @@ public final class JavaFileTest {
                 .addStaticImport(Collections.class, "*")
                 .build();
         assertThat(example.toString()).isEqualTo("""
-            package com.example.helloworld;
-
-            import static com.mattel.Hoverboard.Boards.*;
-            import static com.mattel.Hoverboard.createNimbus;
-            import static java.util.Collections.*;
-
-            import com.mattel.Hoverboard;
-            import java.util.ArrayList;
-            import java.util.List;
-
-            class HelloWorld {
-              List<Hoverboard> beyond() {
-                List<Hoverboard> result = new ArrayList<>();
-                result.add(createNimbus(2000));
-                result.add(createNimbus("2001"));
-                result.add(createNimbus(THUNDERBOLT));
-                sort(result);
-                return result.isEmpty() ? emptyList() : result;
-              }
-            }
-            """);
+                package com.example.helloworld;
+                
+                import static com.mattel.Hoverboard.Boards.*;
+                import static com.mattel.Hoverboard.createNimbus;
+                import static java.util.Collections.*;
+                
+                import com.mattel.Hoverboard;
+                import java.util.ArrayList;
+                import java.util.List;
+                
+                class HelloWorld {
+                  List<Hoverboard> beyond() {
+                    List<Hoverboard> result = new ArrayList<>();
+                    result.add(createNimbus(2000));
+                    result.add(createNimbus("2001"));
+                    result.add(createNimbus(THUNDERBOLT));
+                    sort(result);
+                    return result.isEmpty() ? emptyList() : result;
+                  }
+                }
+                """);
     }
 
     @Test
@@ -139,25 +143,25 @@ public final class JavaFileTest {
                 .addStaticImport(Thread.State.class, "valueOf")
                 .build();
         assertThat(source.toString()).isEqualTo("""
-            package com.palantir.tacos;
-
-            import static java.lang.System.*;
-            import static java.lang.Thread.State.BLOCKED;
-            import static java.lang.Thread.State.valueOf;
-
-            import java.lang.Thread;
-
-            class Taco {
-              static {
-                assert valueOf("BLOCKED") == BLOCKED;
-                gc();
-                out.println(nanoTime());
-              }
-
-              Taco(Thread.State... states) {
-              }
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import static java.lang.System.*;
+                import static java.lang.Thread.State.BLOCKED;
+                import static java.lang.Thread.State.valueOf;
+                
+                import java.lang.Thread;
+                
+                class Taco {
+                  static {
+                    assert valueOf("BLOCKED") == BLOCKED;
+                    gc();
+                    out.println(nanoTime());
+                  }
+                
+                  Taco(Thread.State... states) {
+                  }
+                }
+                """);
     }
 
     @Ignore("addStaticImport doesn't support members with $L")
@@ -173,105 +177,105 @@ public final class JavaFileTest {
                 .addStaticImport(System.class, "out")
                 .build();
         assertThat(source.toString()).isEqualTo("""
-            package com.palantir.tacos;
-
-            import static java.lang.System.out;
-
-            class Taco {
-              void main() {
-                out.println("hello");
-              }
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import static java.lang.System.out;
+                
+                class Taco {
+                  void main() {
+                    out.println("hello");
+                  }
+                }
+                """);
     }
 
     @Test
     public void importStaticNone() {
         assertThat(JavaFile.builder("readme", importStaticTypeSpec("Util"))
-                        .build()
-                        .toString())
+                .build()
+                .toString())
                 .isEqualTo("""
-                    package readme;
-
-                    import java.lang.System;
-                    import java.util.concurrent.TimeUnit;
-
-                    class Util {
-                      public static long minutesToSeconds(long minutes) {
-                        System.gc();
-                        return TimeUnit.SECONDS.convert(minutes, TimeUnit.MINUTES);
-                      }
-                    }
-                    """);
+                        package readme;
+                        
+                        import java.lang.System;
+                        import java.util.concurrent.TimeUnit;
+                        
+                        class Util {
+                          public static long minutesToSeconds(long minutes) {
+                            System.gc();
+                            return TimeUnit.SECONDS.convert(minutes, TimeUnit.MINUTES);
+                          }
+                        }
+                        """);
     }
 
     @Test
     public void importStaticOnce() {
         assertThat(JavaFile.builder("readme", importStaticTypeSpec("Util"))
-                        .addStaticImport(TimeUnit.SECONDS)
-                        .build()
-                        .toString())
+                .addStaticImport(TimeUnit.SECONDS)
+                .build()
+                .toString())
                 .isEqualTo("""
-                    package readme;
-
-                    import static java.util.concurrent.TimeUnit.SECONDS;
-
-                    import java.lang.System;
-                    import java.util.concurrent.TimeUnit;
-
-                    class Util {
-                      public static long minutesToSeconds(long minutes) {
-                        System.gc();
-                        return SECONDS.convert(minutes, TimeUnit.MINUTES);
-                      }
-                    }
-                    """);
+                        package readme;
+                        
+                        import static java.util.concurrent.TimeUnit.SECONDS;
+                        
+                        import java.lang.System;
+                        import java.util.concurrent.TimeUnit;
+                        
+                        class Util {
+                          public static long minutesToSeconds(long minutes) {
+                            System.gc();
+                            return SECONDS.convert(minutes, TimeUnit.MINUTES);
+                          }
+                        }
+                        """);
     }
 
     @Test
     public void importStaticTwice() {
         assertThat(JavaFile.builder("readme", importStaticTypeSpec("Util"))
-                        .addStaticImport(TimeUnit.SECONDS)
-                        .addStaticImport(TimeUnit.MINUTES)
-                        .build()
-                        .toString())
+                .addStaticImport(TimeUnit.SECONDS)
+                .addStaticImport(TimeUnit.MINUTES)
+                .build()
+                .toString())
                 .isEqualTo("""
-                    package readme;
-
-                    import static java.util.concurrent.TimeUnit.MINUTES;
-                    import static java.util.concurrent.TimeUnit.SECONDS;
-
-                    import java.lang.System;
-
-                    class Util {
-                      public static long minutesToSeconds(long minutes) {
-                        System.gc();
-                        return SECONDS.convert(minutes, MINUTES);
-                      }
-                    }
-                    """);
+                        package readme;
+                        
+                        import static java.util.concurrent.TimeUnit.MINUTES;
+                        import static java.util.concurrent.TimeUnit.SECONDS;
+                        
+                        import java.lang.System;
+                        
+                        class Util {
+                          public static long minutesToSeconds(long minutes) {
+                            System.gc();
+                            return SECONDS.convert(minutes, MINUTES);
+                          }
+                        }
+                        """);
     }
 
     @Test
     public void importStaticUsingWildcards() {
         assertThat(JavaFile.builder("readme", importStaticTypeSpec("Util"))
-                        .addStaticImport(TimeUnit.class, "*")
-                        .addStaticImport(System.class, "*")
-                        .build()
-                        .toString())
+                .addStaticImport(TimeUnit.class, "*")
+                .addStaticImport(System.class, "*")
+                .build()
+                .toString())
                 .isEqualTo("""
-                    package readme;
-
-                    import static java.lang.System.*;
-                    import static java.util.concurrent.TimeUnit.*;
-
-                    class Util {
-                      public static long minutesToSeconds(long minutes) {
-                        gc();
-                        return SECONDS.convert(minutes, MINUTES);
-                      }
-                    }
-                    """);
+                        package readme;
+                        
+                        import static java.lang.System.*;
+                        import static java.util.concurrent.TimeUnit.*;
+                        
+                        class Util {
+                          public static long minutesToSeconds(long minutes) {
+                            gc();
+                            return SECONDS.convert(minutes, MINUTES);
+                          }
+                        }
+                        """);
     }
 
     private TypeSpec importStaticTypeSpec(String name) {
@@ -292,11 +296,11 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class Taco {
-            }
-            """);
+                package com.palantir.tacos;
+                
+                class Taco {
+                }
+                """);
     }
 
     @Test
@@ -309,14 +313,14 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import java.util.Date;
-
-            class Taco {
-              Date madeFreshDate;
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import java.util.Date;
+                
+                class Taco {
+                  Date madeFreshDate;
+                }
+                """);
     }
 
     @Test
@@ -330,16 +334,16 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import java.util.Date;
-
-            class Taco {
-              Date madeFreshDate;
-
-              java.sql.Date madeFreshDatabaseDate;
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import java.util.Date;
+                
+                class Taco {
+                  Date madeFreshDate;
+                
+                  java.sql.Date madeFreshDatabaseDate;
+                }
+                """);
     }
 
     @Test
@@ -359,15 +363,15 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import com.palantir.meat.Chorizo;
-            import java.util.List;
-
-            class Taco {
-              List<@Spicy Chorizo> chorizo;
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import com.palantir.meat.Chorizo;
+                import java.util.List;
+                
+                class Taco {
+                  List<@Spicy Chorizo> chorizo;
+                }
+                """);
     }
 
     @Test
@@ -388,13 +392,13 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import java.util.List;
-
-            record Taco<T>(List<T> names) {
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import java.util.List;
+                
+                record Taco<T>(List<T> names) {
+                }
+                """);
     }
 
     @Test
@@ -412,13 +416,13 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import java.io.Serializable;
-
-            record Taco(String name) implements Serializable {
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import java.io.Serializable;
+                
+                record Taco(String name) implements Serializable {
+                }
+                """);
     }
 
     @Test
@@ -436,12 +440,12 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            @Deprecated
-            record Taco(String name) {
-            }
-            """);
+                package com.palantir.tacos;
+                
+                @Deprecated
+                record Taco(String name) {
+                }
+                """);
     }
 
     @Test
@@ -462,14 +466,14 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            record Taco(String name) {
-              Taco(int number) {
-                this(Integer.toString(number));
-              }
-            }
-            """);
+                package com.palantir.tacos;
+                
+                record Taco(String name) {
+                  Taco(int number) {
+                    this(Integer.toString(number));
+                  }
+                }
+                """);
     }
 
     @Test
@@ -494,16 +498,16 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            record Taco(String name) {
-              public Taco {
-                if (name.isEmpty()) {
-                  throw new IllegalArgumentException();
+                package com.palantir.tacos;
+                
+                record Taco(String name) {
+                  public Taco {
+                    if (name.isEmpty()) {
+                      throw new IllegalArgumentException();
+                    }
+                  }
                 }
-              }
-            }
-            """);
+                """);
     }
 
     @Test
@@ -570,24 +574,24 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class A {
-              class B {
-                class Twin {
+                package com.palantir.tacos;
+                
+                class A {
+                  class B {
+                    class Twin {
+                    }
+                
+                    class C {
+                      A.Twin.D d;
+                    }
+                  }
+                
+                  class Twin {
+                    class D {
+                    }
+                  }
                 }
-
-                class C {
-                  A.Twin.D d;
-                }
-              }
-
-              class Twin {
-                class D {
-                }
-              }
-            }
-            """);
+                """);
     }
 
     @Test
@@ -609,24 +613,24 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class A {
-              class B {
-                class C {
-                  A.Twin.D d;
-
+                package com.palantir.tacos;
+                
+                class A {
+                  class B {
+                    class C {
+                      A.Twin.D d;
+                
+                      class Twin {
+                      }
+                    }
+                  }
+                
                   class Twin {
+                    class D {
+                    }
                   }
                 }
-              }
-
-              class Twin {
-                class D {
-                }
-              }
-            }
-            """);
+                """);
     }
 
     @Test
@@ -650,26 +654,26 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class A {
-              class B {
-                class C {
-                  Twin.D d;
-
-                  class Nested {
-                    class Twin {
+                package com.palantir.tacos;
+                
+                class A {
+                  class B {
+                    class C {
+                      Twin.D d;
+                
+                      class Nested {
+                        class Twin {
+                        }
+                      }
+                    }
+                  }
+                
+                  class Twin {
+                    class D {
                     }
                   }
                 }
-              }
-
-              class Twin {
-                class D {
-                }
-              }
-            }
-            """);
+                """);
     }
 
     @Test
@@ -685,15 +689,15 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import com.palantir.wire.Message;
-
-            class Taco extends Message {
-              class Builder extends Message.Builder {
-              }
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import com.palantir.wire.Message;
+                
+                class Taco extends Message {
+                  class Builder extends Message.Builder {
+                  }
+                }
+                """);
     }
 
     @Test
@@ -706,11 +710,11 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class Taco extends com.taco.bell.Taco {
-            }
-            """);
+                package com.palantir.tacos;
+                
+                class Taco extends com.taco.bell.Taco {
+                }
+                """);
     }
 
     @Test
@@ -723,12 +727,12 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            @com.taco.bell.Taco
-            class Taco {
-            }
-            """);
+                package com.palantir.tacos;
+                
+                @com.taco.bell.Taco
+                class Taco {
+                }
+                """);
     }
 
     @Test
@@ -743,12 +747,12 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            @MyAnno(com.taco.bell.Taco.class)
-            class Taco {
-            }
-            """);
+                package com.palantir.tacos;
+                
+                @MyAnno(com.taco.bell.Taco.class)
+                class Taco {
+                }
+                """);
     }
 
     @Test
@@ -761,11 +765,11 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class Taco<T extends com.taco.bell.Taco> {
-            }
-            """);
+                package com.palantir.tacos;
+                
+                class Taco<T extends com.taco.bell.Taco> {
+                }
+                """);
     }
 
     @Test
@@ -779,13 +783,13 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import java.lang.Comparable;
-
-            class Taco extends Comparable<Taco> {
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import java.lang.Comparable;
+                
+                class Taco extends Comparable<Taco> {
+                }
+                """);
     }
 
     /** https://github.com/square/javapoet/issues/366 */
@@ -802,17 +806,17 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import dagger.Component;
-
-            @Component
-            class TestComponent {
-              @Component.Builder
-              class Builder {
-              }
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import dagger.Component;
+                
+                @Component
+                class TestComponent {
+                  @Component.Builder
+                  class Builder {
+                  }
+                }
+                """);
     }
 
     @Test
@@ -829,15 +833,15 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            import java.lang.String;
-            import java.lang.System;
-
-            class HelloWorld {
-              public static void main(String[] args) {
-                System.out.println("Hello World!");
-              }
-            }
-            """);
+                import java.lang.String;
+                import java.lang.System;
+                
+                class HelloWorld {
+                  public static void main(String[] args) {
+                    System.out.println("Hello World!");
+                  }
+                }
+                """);
     }
 
     @Test
@@ -850,11 +854,11 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package hello;
-
-            class World implements Test {
-            }
-            """);
+                package hello;
+                
+                class World implements Test {
+                }
+                """);
     }
 
     @Test
@@ -865,12 +869,12 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            // Generated 2015-01-13 by JavaPoet. DO NOT EDIT!
-            package com.palantir.tacos;
-
-            class Taco {
-            }
-            """);
+                // Generated 2015-01-13 by JavaPoet. DO NOT EDIT!
+                package com.palantir.tacos;
+                
+                class Taco {
+                }
+                """);
     }
 
     @Test
@@ -881,16 +885,16 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            //
-            // GENERATED FILE:
-            //
-            // DO NOT EDIT!
-            //
-            package com.palantir.tacos;
-
-            class Taco {
-            }
-            """);
+                //
+                // GENERATED FILE:
+                //
+                // DO NOT EDIT!
+                //
+                package com.palantir.tacos;
+                
+                class Taco {
+                }
+                """);
     }
 
     @Test
@@ -904,15 +908,15 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class Taco {
-              com.palantir.tacos.A a;
-
-              class A {
-              }
-            }
-            """);
+                package com.palantir.tacos;
+                
+                class Taco {
+                  com.palantir.tacos.A a;
+                
+                  class A {
+                  }
+                }
+                """);
     }
 
     @Test
@@ -926,12 +930,12 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class Taco extends com.taco.bell.A {
-              A a;
-            }
-            """);
+                package com.palantir.tacos;
+                
+                class Taco extends com.taco.bell.A {
+                  A a;
+                }
+                """);
     }
 
     @Test
@@ -945,12 +949,12 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class Taco {
-              java.lang.Thread thread;
-            }
-            """);
+                package com.palantir.tacos;
+                
+                class Taco {
+                  java.lang.Thread thread;
+                }
+                """);
     }
 
     @Test
@@ -965,12 +969,12 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            class Taco {
-              java.lang.Thread thread;
-            }
-            """);
+                package com.palantir.tacos;
+                
+                class Taco {
+                  java.lang.Thread thread;
+                }
+                """);
     }
 
     @Test
@@ -990,21 +994,21 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import other.Foo;
-            import other.NestedTypeC;
-
-            class Taco {
-              other.NestedTypeA nestedA;
-
-              other.NestedTypeB nestedB;
-
-              NestedTypeC nestedC;
-
-              Foo foo;
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import other.Foo;
+                import other.NestedTypeC;
+                
+                class Taco {
+                  other.NestedTypeA nestedA;
+                
+                  other.NestedTypeB nestedB;
+                
+                  NestedTypeC nestedC;
+                
+                  Foo foo;
+                }
+                """);
     }
 
     @Test
@@ -1024,21 +1028,21 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import other.Foo;
-            import other.NestedTypeC;
-
-            class Taco {
-              other.NestedTypeA nestedA;
-
-              other.NestedTypeB nestedB;
-
-              NestedTypeC nestedC;
-
-              Foo foo;
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import other.Foo;
+                import other.NestedTypeC;
+                
+                class Taco {
+                  other.NestedTypeA nestedA;
+                
+                  other.NestedTypeB nestedB;
+                
+                  NestedTypeC nestedC;
+                
+                  Foo foo;
+                }
+                """);
     }
 
     @Test
@@ -1060,40 +1064,44 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.tacos;
-
-            import com.palantir.javapoet.JavaFileTest;
-            import other.Foo;
-            import other.NestedTypeC;
-
-            class Taco implements JavaFileTest.FooInterface {
-              other.NestedTypeA nestedA;
-
-              other.NestedTypeB nestedB;
-
-              NestedTypeC nestedC;
-
-              Foo foo;
-
-              class NestedTypeA {
-              }
-
-              class NestedTypeB {
-              }
-            }
-            """);
+                package com.palantir.tacos;
+                
+                import com.palantir.javapoet.JavaFileTest;
+                import other.Foo;
+                import other.NestedTypeC;
+                
+                class Taco implements JavaFileTest.FooInterface {
+                  other.NestedTypeA nestedA;
+                
+                  other.NestedTypeB nestedB;
+                
+                  NestedTypeC nestedC;
+                
+                  Foo foo;
+                
+                  class NestedTypeA {
+                  }
+                
+                  class NestedTypeB {
+                  }
+                }
+                """);
     }
 
     static class Foo {
-        static class NestedTypeA {}
+        static class NestedTypeA {
+        }
 
-        static class NestedTypeB {}
+        static class NestedTypeB {
+        }
     }
 
     interface FooInterface {
-        class NestedTypeA {}
+        class NestedTypeA {
+        }
 
-        class NestedTypeB {}
+        class NestedTypeB {
+        }
     }
 
     private TypeSpec.Builder childTypeBuilder() {
@@ -1116,20 +1124,20 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.javapoet;
-
-            import java.lang.String;
-
-            class Child extends JavaFileTest.Parent {
-              java.util.Optional<String> optionalString() {
-                return java.util.Optional.empty();
-              }
-
-              java.util.regex.Pattern pattern() {
-                return null;
-              }
-            }
-            """);
+                package com.palantir.javapoet;
+                
+                import java.lang.String;
+                
+                class Child extends JavaFileTest.Parent {
+                  java.util.Optional<String> optionalString() {
+                    return java.util.Optional.empty();
+                  }
+                
+                  java.util.regex.Pattern pattern() {
+                    return null;
+                  }
+                }
+                """);
     }
 
     @Test
@@ -1142,20 +1150,20 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.javapoet;
-
-            import java.lang.String;
-
-            class Child extends JavaFileTest.Parent {
-              java.util.Optional<String> optionalString() {
-                return java.util.Optional.empty();
-              }
-
-              java.util.regex.Pattern pattern() {
-                return null;
-              }
-            }
-            """);
+                package com.palantir.javapoet;
+                
+                import java.lang.String;
+                
+                class Child extends JavaFileTest.Parent {
+                  java.util.Optional<String> optionalString() {
+                    return java.util.Optional.empty();
+                  }
+                
+                  java.util.regex.Pattern pattern() {
+                    return null;
+                  }
+                }
+                """);
     }
 
     @Test
@@ -1168,21 +1176,21 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.javapoet;
-
-            import java.lang.String;
-            import java.util.regex.Pattern;
-
-            class Child implements JavaFileTest.ParentInterface {
-              java.util.Optional<String> optionalString() {
-                return java.util.Optional.empty();
-              }
-
-              Pattern pattern() {
-                return null;
-              }
-            }
-            """);
+                package com.palantir.javapoet;
+                
+                import java.lang.String;
+                import java.util.regex.Pattern;
+                
+                class Child implements JavaFileTest.ParentInterface {
+                  java.util.Optional<String> optionalString() {
+                    return java.util.Optional.empty();
+                  }
+                
+                  Pattern pattern() {
+                    return null;
+                  }
+                }
+                """);
     }
 
     @Test
@@ -1196,31 +1204,33 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.javapoet;
-
-            import java.lang.String;
-            import java.util.regex.Pattern;
-
-            class Child implements JavaFileTest.ParentInterface {
-              java.util.Optional<String> optionalString() {
-                return java.util.Optional.empty();
-              }
-
-              Pattern pattern() {
-                return null;
-              }
-            }
-            """);
+                package com.palantir.javapoet;
+                
+                import java.lang.String;
+                import java.util.regex.Pattern;
+                
+                class Child implements JavaFileTest.ParentInterface {
+                  java.util.Optional<String> optionalString() {
+                    return java.util.Optional.empty();
+                  }
+                
+                  Pattern pattern() {
+                    return null;
+                  }
+                }
+                """);
     }
 
     // Regression test for https://github.com/square/javapoet/issues/77
     // This covers class and inheritance
     static class Parent implements ParentInterface {
-        static class Pattern {}
+        static class Pattern {
+        }
     }
 
     interface ParentInterface {
-        class Optional {}
+        class Optional {
+        }
     }
 
     // Regression test for case raised here: https://github.com/square/javapoet/issues/77#issuecomment-519972404
@@ -1238,15 +1248,117 @@ public final class JavaFileTest {
                 .build()
                 .toString();
         assertThat(source).isEqualTo("""
-            package com.palantir.javapoet;
+                package com.palantir.javapoet;
+                
+                import java.util.Map;
+                
+                class MapType implements Map {
+                  com.foo.Entry optionalString() {
+                    return null;
+                  }
+                }
+                """);
+    }
 
-            import java.util.Map;
+    @Test
+    public void recordWithMarkdownJavadoc() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(ParameterSpec.builder(String.class, "id")
+                                .addJavadoc("Id of the taco.")
+                                .build())
+                        .build())
+                .addJavadoc("A taco class that stores the id of a taco.")
+                .build();
 
-            class MapType implements Map {
-              com.foo.Entry optionalString() {
-                return null;
-              }
-            }
-            """);
+        assertThat(toStringWithMarkdownJavadoc(typeSpec)).isEqualTo("""
+                package com.palantir.tacos;
+                
+                import java.lang.String;
+                
+                /// A taco class that stores the id of a taco.
+                /// @param id Id of the taco.
+                record Taco(String id) {
+                }
+                """);
+    }
+
+    @Test
+    public void markdownJavadoc() {
+        TypeSpec taco = TypeSpec.classBuilder("Taco")
+                .addJavadoc("A hard or soft tortilla, loosely folded and filled with whatever\n")
+                .addJavadoc("[$T random] tex-mex stuff we could find in the pantry\n", Random.class)
+                .addJavadoc(CodeBlock.of("and some [$T] cheese.\n", String.class))
+                .addField(FieldSpec.builder(boolean.class, "soft")
+                        .addJavadoc("`true` for a soft flour tortilla; `false` for a crunchy corn tortilla.\n")
+                        .build())
+                .addMethod(MethodSpec.methodBuilder("refold")
+                        .addJavadoc("""
+                                # Folds the back of this taco to reduce sauce leakage.
+                                
+                                For [$T#KOREAN], the front may also be folded.
+                                """, Locale.class)
+                        .addParameter(Locale.class, "locale")
+                        .build())
+                .build();
+
+        assertThat(toStringWithMarkdownJavadoc(taco)).isEqualTo("""
+                package com.palantir.tacos;
+                
+                import java.lang.String;
+                import java.util.Locale;
+                import java.util.Random;
+                
+                /// A hard or soft tortilla, loosely folded and filled with whatever
+                /// [Random random] tex-mex stuff we could find in the pantry
+                /// and some [String] cheese.
+                class Taco {
+                  /// `true` for a soft flour tortilla; `false` for a crunchy corn tortilla.
+                  boolean soft;
+                
+                  /// # Folds the back of this taco to reduce sauce leakage.
+                  ///
+                  /// For [Locale#KOREAN], the front may also be folded.
+                  void refold(Locale locale) {
+                  }
+                }
+                """);
+    }
+
+    @Test
+    public void markdownJavadocEnsuresTrailingLine() {
+        TypeSpec spec = TypeSpec.classBuilder("Taco")
+                .addJavadoc("Some doc with a newline")
+                .build();
+
+        assertThat(toStringWithMarkdownJavadoc(spec)).isEqualTo("""
+                package com.palantir.tacos;
+                
+                /// Some doc with a newline
+                class Taco {
+                }
+                """);
+    }
+
+    @Test
+    public void markdownJavadocWithTrailingLineDoesNotAddAnother() {
+        TypeSpec spec = TypeSpec.classBuilder("Taco")
+                .addJavadoc("Some doc with a newline\n")
+                .build();
+
+        assertThat(toStringWithMarkdownJavadoc(spec)).isEqualTo("""
+                package com.palantir.tacos;
+                
+                /// Some doc with a newline
+                class Taco {
+                }
+                """);
+    }
+
+    private String toStringWithMarkdownJavadoc(TypeSpec typeSpec) {
+        return JavaFile.builder(tacosPackage, typeSpec)
+                .useMarkdownJavadoc()
+                .build()
+                .toString();
     }
 }
