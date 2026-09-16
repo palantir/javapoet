@@ -55,7 +55,7 @@ public final class ArrayTypeName extends TypeName {
     }
 
     @Override
-    public TypeName withoutAnnotations() {
+    public ArrayTypeName withoutAnnotations() {
         return new ArrayTypeName(componentType);
     }
 

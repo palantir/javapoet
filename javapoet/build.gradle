@@ -1,4 +1,5 @@
 apply plugin: 'com.palantir.external-publish-jar'
+apply plugin: 'com.palantir.revapi'
 
 jar{
     manifest{

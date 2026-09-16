@@ -70,7 +70,7 @@ public final class WildcardTypeName extends TypeName {
     }
 
     @Override
-    public TypeName withoutAnnotations() {
+    public WildcardTypeName withoutAnnotations() {
         return new WildcardTypeName(upperBounds, lowerBounds);
     }
 

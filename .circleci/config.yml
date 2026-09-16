@@ -20,7 +20,7 @@ aliases:
 jobs:
 
   check:
-    docker: [{ image: 'cimg/openjdk:17.0.10-node' }]
+    docker: [{ image: 'cimg/openjdk:17.0.19-node' }]
     resource_class: large
     environment:
       CIRCLE_TEST_REPORTS: /home/circleci/junit
@@ -79,7 +79,7 @@ jobs:
       - store_artifacts: { path: ~/artifacts }
 
   publish:
-    docker: [{ image: 'cimg/openjdk:17.0.10-node' }]
+    docker: [{ image: 'cimg/openjdk:17.0.19-node' }]
     resource_class: medium
     environment:
       CIRCLE_TEST_REPORTS: /home/circleci/junit
@@ -90,7 +90,7 @@ jobs:
       - attach_workspace: { at: /home/circleci }
       - restore_cache: { key: 'gradle-wrapper-v1-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}' }
       - restore_cache: { key: 'publish-gradle-cache-v1-{{ checksum "versions.props" }}-{{ checksum "build.gradle" }}' }
-      - deploy:
+      - run:
           command: ./gradlew --parallel --stacktrace --continue --no-configuration-cache publish -Porg.gradle.java.installations.fromEnv=JAVA_11_HOME,JAVA_17_HOME,JAVA_21_HOME,JAVA_HOME
       - run:
           command: git status --porcelain

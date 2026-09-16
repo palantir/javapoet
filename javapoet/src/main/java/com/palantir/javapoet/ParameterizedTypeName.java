@@ -69,7 +69,7 @@ public final class ParameterizedTypeName extends TypeName {
     }
 
     @Override
-    public TypeName withoutAnnotations() {
+    public ParameterizedTypeName withoutAnnotations() {
         return new ParameterizedTypeName(enclosingType, rawType.withoutAnnotations(), typeArguments);
     }
 
