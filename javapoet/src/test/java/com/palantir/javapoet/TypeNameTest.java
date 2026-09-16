@@ -36,14 +36,11 @@ public class TypeNameTest {
     }
 
     protected static class TestGeneric<T> {
-        class Inner {
-        }
+        class Inner {}
 
-        class InnerGeneric<T2> {
-        }
+        class InnerGeneric<T2> {}
 
-        static class NestedNonGeneric {
-        }
+        static class NestedNonGeneric {}
     }
 
     protected static TestGeneric<String>.Inner testGenericStringInner() {
@@ -186,8 +183,8 @@ public class TypeNameTest {
         assertThat(TypeName.VOID.isBoxedPrimitive()).isFalse();
         assertThat(ClassName.get("java.lang", "Void").isBoxedPrimitive()).isFalse();
         assertThat(ClassName.get("java.lang", "Integer")
-                .annotated(ANNOTATION_SPEC)
-                .isBoxedPrimitive())
+                        .annotated(ANNOTATION_SPEC)
+                        .isBoxedPrimitive())
                 .isTrue();
     }
 
@@ -200,8 +197,8 @@ public class TypeNameTest {
     @Test
     public void canUnboxAnnotatedPrimitive() {
         assertThat(ClassName.get("java.lang", "Boolean")
-                .annotated(ANNOTATION_SPEC)
-                .unbox())
+                        .annotated(ANNOTATION_SPEC)
+                        .unbox())
                 .isEqualTo(TypeName.BOOLEAN.annotated(ANNOTATION_SPEC));
     }
 
