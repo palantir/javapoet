@@ -1076,11 +1076,10 @@ public final class TypeSpec {
                         kind.implicitTypeModifiers);
             }
 
-            boolean isAbstract =
-                    switch (kind) {
-                        case CLASS, RECORD -> modifiers.contains(Modifier.ABSTRACT);
-                        case ENUM, ANNOTATION, INTERFACE -> true;
-                    };
+            boolean isAbstract = switch (kind) {
+                case CLASS, RECORD -> modifiers.contains(Modifier.ABSTRACT);
+                case ENUM, ANNOTATION, INTERFACE -> true;
+            };
             for (MethodSpec methodSpec : methodSpecs) {
                 checkArgument(
                         isAbstract || !methodSpec.modifiers().contains(Modifier.ABSTRACT),
