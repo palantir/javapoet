@@ -18,6 +18,7 @@ package com.palantir.javapoet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 public class CodeWriterTest {
@@ -33,6 +34,19 @@ public class CodeWriterTest {
              *
              * B
              */
+            """);
+    }
+
+    @Test
+    public void markdownJavadocStyle() throws IOException {
+        CodeBlock javadocCodeBlock = CodeBlock.of("A\r\n\r\nB\r\n");
+        StringBuilder out = new StringBuilder();
+        new CodeWriter(out, "  ", Collections.emptyMap(), Collections.emptySet(), Collections.emptySet(), true)
+                .emitJavadoc(javadocCodeBlock);
+        assertThat(out.toString()).isEqualTo("""
+            /// A
+            ///
+            /// B
             """);
     }
 }
