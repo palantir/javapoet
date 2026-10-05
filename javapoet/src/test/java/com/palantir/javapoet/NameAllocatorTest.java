@@ -83,6 +83,21 @@ public final class NameAllocatorTest {
     }
 
     @Test
+    public void identifierIgnorableCharactersAreSkipped() {
+        assertThat(NameAllocator.toJavaIdentifier("a\u0000b")).isEqualTo("ab");
+        assertThat(NameAllocator.toJavaIdentifier("a\u200Bb")).isEqualTo("ab");
+        assertThat(NameAllocator.toJavaIdentifier("a\u00ADb")).isEqualTo("ab");
+        assertThat(NameAllocator.toJavaIdentifier("a\uDB40\uDC01b")).isEqualTo("ab");
+        assertThat(NameAllocator.toJavaIdentifier("ab\u200B")).isEqualTo("ab");
+        assertThat(NameAllocator.toJavaIdentifier("\u200B1ab")).isEqualTo("_1ab");
+        assertThat(NameAllocator.toJavaIdentifier("\u200B\u0000")).isEqualTo("_");
+
+        NameAllocator nameAllocator = new NameAllocator();
+        assertThat(nameAllocator.newName("f\u200Boo")).isEqualTo("foo");
+        assertThat(nameAllocator.newName("foo")).isEqualTo("foo_");
+    }
+
+    @Test
     public void identifierIgnorableCharacters() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("foo")).isEqualTo("foo");
