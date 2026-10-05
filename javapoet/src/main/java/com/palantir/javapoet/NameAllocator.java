@@ -130,11 +130,12 @@ public final class NameAllocator implements Cloneable {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < suggestion.length(); ) {
             int codePoint = suggestion.codePointAt(i);
-            if (i == 0 && !Character.isJavaIdentifierStart(codePoint) && Character.isJavaIdentifierPart(codePoint)) {
+            boolean validPart = Character.isJavaIdentifierPart(codePoint) && !Character.isIdentifierIgnorable(codePoint);
+            if (i == 0 && !Character.isJavaIdentifierStart(codePoint) && validPart) {
                 result.append("_");
             }
 
-            int validCodePoint = Character.isJavaIdentifierPart(codePoint) ? codePoint : '_';
+            int validCodePoint = validPart ? codePoint : '_';
             result.appendCodePoint(validCodePoint);
             i += Character.charCount(codePoint);
         }

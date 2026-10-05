@@ -83,6 +83,16 @@ public final class NameAllocatorTest {
     }
 
     @Test
+    public void identifierIgnorableCharacters() {
+        NameAllocator nameAllocator = new NameAllocator();
+        assertThat(nameAllocator.newName("foo")).isEqualTo("foo");
+        assertThat(nameAllocator.newName("foo\u0000")).isEqualTo("foo_");
+        assertThat(nameAllocator.newName("foo\u200B")).isEqualTo("foo__");
+        assertThat(nameAllocator.newName("foo\u00AD")).isEqualTo("foo___");
+        assertThat(nameAllocator.newName("\u200Bbar")).isEqualTo("_bar");
+    }
+
+    @Test
     public void tagReuseForbidden() {
         NameAllocator nameAllocator = new NameAllocator();
         nameAllocator.newName("foo", 1);
