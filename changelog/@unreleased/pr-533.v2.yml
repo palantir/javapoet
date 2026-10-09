@@ -1,5 +1,0 @@
-type: fix
-fix:
-  description: Skip identifier-ignorable characters when allocating Java names to avoid names that javac considers identical.
-  links:
-  - https://github.com/palantir/javapoet/pull/533

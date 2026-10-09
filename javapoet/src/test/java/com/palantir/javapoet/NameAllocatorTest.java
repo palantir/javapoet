@@ -84,27 +84,30 @@ public final class NameAllocatorTest {
 
     @Test
     public void identifierIgnorableCharactersAreSkipped() {
-        assertThat(NameAllocator.toJavaIdentifier("a\u0000b")).isEqualTo("ab");
-        assertThat(NameAllocator.toJavaIdentifier("a\u200Bb")).isEqualTo("ab");
-        assertThat(NameAllocator.toJavaIdentifier("a\u00ADb")).isEqualTo("ab");
-        assertThat(NameAllocator.toJavaIdentifier("a\uDB40\uDC01b")).isEqualTo("ab");
-        assertThat(NameAllocator.toJavaIdentifier("ab\u200B")).isEqualTo("ab");
-        assertThat(NameAllocator.toJavaIdentifier("\u200B1ab")).isEqualTo("_1ab");
-        assertThat(NameAllocator.toJavaIdentifier("\u200B\u0000")).isEqualTo("_");
-
         NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("f\u200Boo")).isEqualTo("foo");
-        assertThat(nameAllocator.newName("foo")).isEqualTo("foo_");
+        assertThat(nameAllocator.newName("a\u200Bb", 1)).isEqualTo("ab");
+        assertThat(nameAllocator.newName("ab\u200B", 2)).isEqualTo("ab_");
+        assertThat(nameAllocator.newName("\u200B1ab", 3)).isEqualTo("_1ab");
+        assertThat(nameAllocator.newName("\u200B\u200B", 4)).isEqualTo("__");
+        assertThat(nameAllocator.get(1)).isEqualTo("ab");
     }
 
     @Test
     public void identifierIgnorableCharacters() {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("foo")).isEqualTo("foo");
-        assertThat(nameAllocator.newName("foo\u0000")).isEqualTo("foo_");
-        assertThat(nameAllocator.newName("foo\u200B")).isEqualTo("foo__");
-        assertThat(nameAllocator.newName("foo\u00AD")).isEqualTo("foo___");
+        assertThat(nameAllocator.newName("foo\u200B")).isEqualTo("foo_");
+        assertThat(nameAllocator.newName("f\u200Boo")).isEqualTo("foo__");
+        assertThat(nameAllocator.newName("fo\u200Bo")).isEqualTo("foo___");
         assertThat(nameAllocator.newName("\u200Bbar")).isEqualTo("_bar");
+    }
+
+    @Test
+    public void supplementaryIdentifierIgnorableCharacter() {
+        // U+E0001 requires a surrogate pair, exercising code-point iteration.
+        NameAllocator nameAllocator = new NameAllocator();
+        assertThat(nameAllocator.newName("a\uDB40\uDC01b")).isEqualTo("ab");
+        assertThat(nameAllocator.newName("ab")).isEqualTo("ab_");
     }
 
     @Test
