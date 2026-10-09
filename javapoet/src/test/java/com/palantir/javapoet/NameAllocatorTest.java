@@ -18,7 +18,11 @@ package com.palantir.javapoet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public final class NameAllocatorTest {
 
@@ -50,64 +54,26 @@ public final class NameAllocatorTest {
         assertThat(nameAllocator.get(3)).isEqualTo("foo__");
     }
 
-    @Test
-    public void characterMappingSubstitute() {
+    @ParameterizedTest
+    @MethodSource
+    public void characterMapping(String suggestion, String expected) {
         NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("a-b", 1)).isEqualTo("a_b");
+        assertThat(nameAllocator.newName(suggestion)).isEqualTo(expected);
     }
 
-    @Test
-    public void characterMappingSurrogate() {
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("a\uD83C\uDF7Ab", 1)).isEqualTo("a_b");
-    }
-
-    @Test
-    public void characterMappingInvalidStartButValidPart() {
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("1ab", 1)).isEqualTo("_1ab");
-        assertThat(nameAllocator.newName("a-1", 2)).isEqualTo("a_1");
-    }
-
-    @Test
-    public void characterMappingInvalidStartIsInvalidPart() {
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("&ab", 1)).isEqualTo("_ab");
-    }
-
-    @Test
-    public void javaKeyword() {
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("public", 1)).isEqualTo("public_");
-        assertThat(nameAllocator.get(1)).isEqualTo("public_");
-    }
-
-    @Test
-    public void identifierIgnorableCharactersAreSkipped() {
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("a\u200Bb", 1)).isEqualTo("ab");
-        assertThat(nameAllocator.newName("ab\u200B", 2)).isEqualTo("ab_");
-        assertThat(nameAllocator.newName("\u200B1ab", 3)).isEqualTo("_1ab");
-        assertThat(nameAllocator.newName("\u200B\u200B", 4)).isEqualTo("__");
-        assertThat(nameAllocator.get(1)).isEqualTo("ab");
-    }
-
-    @Test
-    public void identifierIgnorableCharacters() {
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("foo")).isEqualTo("foo");
-        assertThat(nameAllocator.newName("foo\u200B")).isEqualTo("foo_");
-        assertThat(nameAllocator.newName("f\u200Boo")).isEqualTo("foo__");
-        assertThat(nameAllocator.newName("fo\u200Bo")).isEqualTo("foo___");
-        assertThat(nameAllocator.newName("\u200Bbar")).isEqualTo("_bar");
-    }
-
-    @Test
-    public void supplementaryIdentifierIgnorableCharacter() {
-        // U+E0001 requires a surrogate pair, exercising code-point iteration.
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("a\uDB40\uDC01b")).isEqualTo("ab");
-        assertThat(nameAllocator.newName("ab")).isEqualTo("ab_");
+    private static List<Arguments> characterMapping() {
+        return List.of(
+                Arguments.of("ab", "ab"),
+                Arguments.of("1ab", "_1ab"),
+                Arguments.of("-ab", "_ab"),
+                Arguments.of("\ud83c\udf7aab", "_ab"),
+                Arguments.of("\u0000ab", "_ab"),
+                Arguments.of("a\udb40\udc01b", "ab"),
+                Arguments.of("a1b", "a1b"),
+                Arguments.of("a-b", "a_b"),
+                Arguments.of("a\ud83c\udf7ab", "a_b"),
+                Arguments.of("a\u0000b", "ab"),
+                Arguments.of("a\udb40\udc01b", "ab"));
     }
 
     @Test
