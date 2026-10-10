@@ -18,7 +18,11 @@ package com.palantir.javapoet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public final class NameAllocatorTest {
 
@@ -50,29 +54,30 @@ public final class NameAllocatorTest {
         assertThat(nameAllocator.get(3)).isEqualTo("foo__");
     }
 
-    @Test
-    public void characterMappingSubstitute() {
+    @ParameterizedTest
+    @MethodSource
+    public void characterMapping(String suggestion, String expected) {
         NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("a-b", 1)).isEqualTo("a_b");
+        assertThat(nameAllocator.newName(suggestion)).isEqualTo(expected);
     }
 
-    @Test
-    public void characterMappingSurrogate() {
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("a\uD83C\uDF7Ab", 1)).isEqualTo("a_b");
-    }
-
-    @Test
-    public void characterMappingInvalidStartButValidPart() {
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("1ab", 1)).isEqualTo("_1ab");
-        assertThat(nameAllocator.newName("a-1", 2)).isEqualTo("a_1");
-    }
-
-    @Test
-    public void characterMappingInvalidStartIsInvalidPart() {
-        NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("&ab", 1)).isEqualTo("_ab");
+    private static List<Arguments> characterMapping() {
+        return List.of(
+                Arguments.of("ab", "ab"),
+                Arguments.of("1ab", "_1ab"),
+                Arguments.of("&ab", "_ab"),
+                Arguments.of("\uD83C\uDF7Aab", "_ab"),
+                Arguments.of("\u200Bab", "_ab"),
+                Arguments.of("a1b", "a1b"),
+                Arguments.of("a-1", "a_1"),
+                Arguments.of("a-b", "a_b"),
+                Arguments.of("a\uD83C\uDF7Ab", "a_b"),
+                Arguments.of("a\u200Bb", "ab"),
+                Arguments.of("ab\u200B", "ab"),
+                Arguments.of("\u200B1ab", "_1ab"),
+                Arguments.of("\u200B\u200B", "__"),
+                // U+E0001 requires a surrogate pair, exercising code-point iteration.
+                Arguments.of("a\uDB40\uDC01b", "ab"));
     }
 
     @Test
@@ -80,6 +85,15 @@ public final class NameAllocatorTest {
         NameAllocator nameAllocator = new NameAllocator();
         assertThat(nameAllocator.newName("public", 1)).isEqualTo("public_");
         assertThat(nameAllocator.get(1)).isEqualTo("public_");
+    }
+
+    @Test
+    public void nameCollisionAfterCharacterMapping() {
+        NameAllocator nameAllocator = new NameAllocator();
+        assertThat(nameAllocator.newName("f\u200Boo")).isEqualTo("foo");
+        assertThat(nameAllocator.newName("foo")).isEqualTo("foo_");
+        assertThat(nameAllocator.newName("foo\u200B")).isEqualTo("foo__");
+        assertThat(nameAllocator.newName("f\uDB40\uDC01oo")).isEqualTo("foo___");
     }
 
     @Test
