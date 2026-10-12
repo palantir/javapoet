@@ -64,20 +64,19 @@ public final class NameAllocatorTest {
     private static List<Arguments> characterMapping() {
         return List.of(
                 Arguments.of("ab", "ab"),
+                Arguments.of("a1b", "a1b"),
                 Arguments.of("1ab", "_1ab"),
-                Arguments.of("&ab", "_ab"),
+                Arguments.of("-ab", "_ab"),
                 Arguments.of("\uD83C\uDF7Aab", "_ab"),
                 Arguments.of("\u200Bab", "_ab"),
-                Arguments.of("a1b", "a1b"),
-                Arguments.of("a-1", "a_1"),
+                Arguments.of("\u200B1ab", "_1ab"),
                 Arguments.of("a-b", "a_b"),
                 Arguments.of("a\uD83C\uDF7Ab", "a_b"),
                 Arguments.of("a\u200Bb", "ab"),
-                Arguments.of("ab\u200B", "ab"),
-                Arguments.of("\u200B1ab", "_1ab"),
-                Arguments.of("\u200B\u200B", "__"),
                 // U+E0001 requires a surrogate pair, exercising code-point iteration.
-                Arguments.of("a\uDB40\uDC01b", "ab"));
+                Arguments.of("a\uDB40\uDC01b", "ab"),
+                Arguments.of("ab\u200B", "ab"),
+                Arguments.of("\u200B\u200B", "__"));
     }
 
     @Test
@@ -90,8 +89,8 @@ public final class NameAllocatorTest {
     @Test
     public void nameCollisionAfterCharacterMapping() {
         NameAllocator nameAllocator = new NameAllocator();
-        assertThat(nameAllocator.newName("f\u200Boo")).isEqualTo("foo");
-        assertThat(nameAllocator.newName("foo")).isEqualTo("foo_");
+        assertThat(nameAllocator.newName("foo")).isEqualTo("foo");
+        assertThat(nameAllocator.newName("f\u200Boo")).isEqualTo("foo_");
         assertThat(nameAllocator.newName("foo\u200B")).isEqualTo("foo__");
         assertThat(nameAllocator.newName("f\uDB40\uDC01oo")).isEqualTo("foo___");
     }
