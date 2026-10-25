@@ -65,6 +65,17 @@ public final class CodeBlockTest {
     }
 
     @Test
+    public void alignedEmptyControlFlow() {
+        assertThat(CodeBlock.builder()
+                        .add("// Aligned\n")
+                        .beginControlFlow("")
+                        .endControlFlow()
+                        .build()
+                        .toString())
+                .contains("\n{");
+    }
+
+    @Test
     public void dollarSignEscapeCannotBeIndexed() {
         assertThatThrownBy(() -> CodeBlock.builder().add("$1$", "taco").build())
                 .isInstanceOf(IllegalArgumentException.class)
