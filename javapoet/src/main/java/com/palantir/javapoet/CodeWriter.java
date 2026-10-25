@@ -251,7 +251,7 @@ final class CodeWriter {
                     builder.add("\n");
                 }
                 emitTagNewline = false;
-                builder.add("@param $L $L", parameterSpec.name(), parameterSpec.javadoc());
+                builder.add("@param $L $L\n", parameterSpec.name(), parameterSpec.javadoc());
             }
         }
         emitJavadoc(builder.build());
