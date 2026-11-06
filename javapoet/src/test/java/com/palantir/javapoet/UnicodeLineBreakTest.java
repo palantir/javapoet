@@ -49,7 +49,8 @@ public final class UnicodeLineBreakTest {
                                 .build())
                 .build();
         compile(file);
-        try (URLClassLoader loader = new URLClassLoader(new URL[] {directory.toUri().toURL()})) {
+        try (URLClassLoader loader =
+                new URLClassLoader(new URL[] {directory.toUri().toURL()})) {
             assertThat(loader.loadClass("example.Generated").getMethod("value").invoke(null))
                     .isEqualTo(value);
         }
@@ -68,7 +69,8 @@ public final class UnicodeLineBreakTest {
                                 .build())
                 .build();
         compile(file);
-        try (URLClassLoader loader = new URLClassLoader(new URL[] {directory.toUri().toURL()})) {
+        try (URLClassLoader loader =
+                new URLClassLoader(new URL[] {directory.toUri().toURL()})) {
             assertThat(loader.loadClass("example.Generated")
                             .getAnnotation(CharacterValues.class)
                             .value())
@@ -94,8 +96,18 @@ public final class UnicodeLineBreakTest {
     private void compile(JavaFile file) throws Exception {
         file.writeTo(directory);
         assertThat(ToolProvider.getSystemJavaCompiler()
-                        .run(null, null, null, "-d", directory.toString(), "-classpath",
-                                CharacterValues.class.getProtectionDomain().getCodeSource().getLocation().getPath(),
+                        .run(
+                                null,
+                                null,
+                                null,
+                                "-d",
+                                directory.toString(),
+                                "-classpath",
+                                CharacterValues.class
+                                        .getProtectionDomain()
+                                        .getCodeSource()
+                                        .getLocation()
+                                        .getPath(),
                                 directory.resolve("example/Generated.java").toString()))
                 .isZero();
     }
