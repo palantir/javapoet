@@ -10,11 +10,11 @@ com.google.auto.value:auto-value-annotations:1.11.1 (2 constraints: d11cf419)
 
 com.google.code.findbugs:jsr305:3.0.2 (1 constraints: 0705fc35)
 
-com.google.errorprone:error_prone_annotations:2.50.0 (2 constraints: d71411cc)
+com.google.errorprone:error_prone_annotations:2.52.0 (2 constraints: d91457cc)
 
 com.google.guava:failureaccess:1.0.3 (1 constraints: 160ae3b4)
 
-com.google.guava:guava:33.7.2-jre (5 constraints: 8c41b90d)
+com.google.guava:guava:33.8.0-jre (5 constraints: 8b41090d)
 
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava (1 constraints: bd17c918)
 
