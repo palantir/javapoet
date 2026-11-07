@@ -69,6 +69,7 @@ public final class JavaFile {
     private final Set<String> staticImports;
     private final Set<String> alwaysQualify;
     private final String indent;
+    private final boolean useMarkdownJavadoc;
 
     private JavaFile(Builder builder) {
         this.fileComment = builder.fileComment.build();
@@ -77,6 +78,7 @@ public final class JavaFile {
         this.skipJavaLangImports = builder.skipJavaLangImports;
         this.staticImports = Util.immutableSet(builder.staticImports);
         this.indent = builder.indent;
+        this.useMarkdownJavadoc = builder.useMarkdownJavadoc;
 
         Set<String> alwaysQualifiedNames = new LinkedHashSet<>();
         fillAlwaysQualifiedNames(builder.typeSpec, alwaysQualifiedNames);
@@ -105,7 +107,8 @@ public final class JavaFile {
         Map<String, ClassName> suggestedImports = importsCollector.suggestedImports();
 
         // Second pass: write the code, taking advantage of the imports.
-        CodeWriter codeWriter = new CodeWriter(out, indent, suggestedImports, staticImports, alwaysQualify);
+        CodeWriter codeWriter =
+                new CodeWriter(out, indent, suggestedImports, staticImports, alwaysQualify, useMarkdownJavadoc);
         emit(codeWriter);
     }
 
@@ -292,6 +295,7 @@ public final class JavaFile {
         builder.fileComment.add(fileComment);
         builder.skipJavaLangImports = skipJavaLangImports;
         builder.indent = indent;
+        builder.useMarkdownJavadoc = useMarkdownJavadoc;
         return builder;
     }
 
@@ -301,6 +305,7 @@ public final class JavaFile {
         private final CodeBlock.Builder fileComment = CodeBlock.builder();
         private boolean skipJavaLangImports;
         private String indent = "  ";
+        private boolean useMarkdownJavadoc;
 
         private final Set<String> staticImports = new TreeSet<>();
 
@@ -348,6 +353,11 @@ public final class JavaFile {
 
         public Builder indent(String indent) {
             this.indent = indent;
+            return this;
+        }
+
+        public Builder useMarkdownJavadoc() {
+            this.useMarkdownJavadoc = true;
             return this;
         }
 
