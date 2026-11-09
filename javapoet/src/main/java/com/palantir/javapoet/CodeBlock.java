@@ -391,6 +391,7 @@ public final class CodeBlock {
             return o != null ? String.valueOf(o) : null;
         }
 
+        @SuppressWarnings("for-rollout:PatternMatchingInstanceof")
         private TypeName argToType(Object o) {
             if (o instanceof TypeName typeName) {
                 return (TypeName) o;
