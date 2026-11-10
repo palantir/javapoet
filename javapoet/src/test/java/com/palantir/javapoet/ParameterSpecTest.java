@@ -129,4 +129,13 @@ public class ParameterSpecTest {
                 .isInstanceOf(Exception.class)
                 .hasMessage("unexpected parameter modifier: public");
     }
+
+    @Test
+    public void toBuilderKeepsJavadoc() {
+        ParameterSpec parameter = ParameterSpec.builder(int.class, "count")
+                .addJavadoc("the number of Tacos to buy.\n")
+                .build();
+
+        assertThat(parameter.toBuilder().build().javadoc()).isEqualTo(parameter.javadoc());
+    }
 }

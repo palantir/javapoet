@@ -822,6 +822,24 @@ public final class TypeSpecTest {
     }
 
     @Test
+    public void recordToBuilder() {
+        TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
+                .recordConstructor(MethodSpec.constructorBuilder()
+                        .addParameter(
+                                ParameterSpec.builder(String.class, "name").build())
+                        .build())
+                .build();
+        assertThat(toString(typeSpec.toBuilder().build())).isEqualTo("""
+            package com.palantir.tacos;
+
+            import java.lang.String;
+
+            record Taco(String name) {
+            }
+            """);
+    }
+
+    @Test
     public void recordTwoFields() {
         TypeSpec typeSpec = TypeSpec.recordBuilder("Taco")
                 .recordConstructor(MethodSpec.constructorBuilder()
@@ -1360,6 +1378,19 @@ public final class TypeSpecTest {
                         .build())
                 .build();
         assertThat(outer.originatingElements()).containsExactly(outerElement, innerElement);
+    }
+
+    @Test
+    public void toBuilderDoesNotDuplicateOriginatingElementsOfNestedTypes() {
+        Element outerElement = Mockito.mock(Element.class);
+        Element innerElement = Mockito.mock(Element.class);
+        TypeSpec outer = TypeSpec.classBuilder("Outer")
+                .addOriginatingElement(outerElement)
+                .addType(TypeSpec.classBuilder("Inner")
+                        .addOriginatingElement(innerElement)
+                        .build())
+                .build();
+        assertThat(outer.toBuilder().build().originatingElements()).containsExactly(outerElement, innerElement);
     }
 
     @Test
