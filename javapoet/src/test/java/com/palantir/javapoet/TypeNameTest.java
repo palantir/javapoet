@@ -23,7 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 @SuppressWarnings("ClassCanBeStatic")
 public class TypeNameTest {
