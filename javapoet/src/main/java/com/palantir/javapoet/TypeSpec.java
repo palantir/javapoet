@@ -260,8 +260,15 @@ public final class TypeSpec {
         builder.typeSpecs.addAll(typeSpecs);
         builder.initializerBlock.add(initializerBlock);
         builder.staticBlock.add(staticBlock);
-        builder.originatingElements.addAll(originatingElements);
+        // The originating elements of nested types are added again when the builder is built.
+        int nestedOriginatingElements = 0;
+        for (TypeSpec typeSpec : typeSpecs) {
+            nestedOriginatingElements += typeSpec.originatingElements.size();
+        }
+        builder.originatingElements.addAll(
+                originatingElements.subList(0, originatingElements.size() - nestedOriginatingElements));
         builder.alwaysQualifiedNames.addAll(alwaysQualifiedNames);
+        builder.recordConstructor = recordConstructor;
         return builder;
     }
 

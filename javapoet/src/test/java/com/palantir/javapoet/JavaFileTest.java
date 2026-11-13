@@ -92,6 +92,32 @@ public final class JavaFileTest {
     }
 
     @Test
+    public void toBuilderKeepsStaticImports() {
+        TypeSpec taco = TypeSpec.classBuilder("Taco")
+                .addMethod(MethodSpec.methodBuilder("toppings")
+                        .returns(List.class)
+                        .addStatement("return $T.emptyList()", Collections.class)
+                        .build())
+                .build();
+        JavaFile javaFile = JavaFile.builder("com.palantir.tacos", taco)
+                .addStaticImport(Collections.class, "emptyList")
+                .build();
+        assertThat(javaFile.toBuilder().build().toString()).isEqualTo("""
+            package com.palantir.tacos;
+
+            import static java.util.Collections.emptyList;
+
+            import java.util.List;
+
+            class Taco {
+              List toppings() {
+                return emptyList();
+              }
+            }
+            """);
+    }
+
+    @Test
     public void importStaticForCrazyFormatsWorks() {
         MethodSpec method = MethodSpec.methodBuilder("method").build();
         JavaFile javaFile = JavaFile.builder(
