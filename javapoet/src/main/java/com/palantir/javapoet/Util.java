@@ -102,6 +102,8 @@ final class Util {
             case '\t' -> "\\t"; /* \u0009: horizontal tab (HT) */
             case '\n' -> "\\n"; /* \u000a: linefeed (LF) */
             case '\f' -> "\\f"; /* \u000c: form feed (FF) */
+            case '\u2028' -> "\\u2028";
+            case '\u2029' -> "\\u2029";
             case '\r' -> "\\r"; /* \u000d: carriage return (CR) */
             case '\"' -> "\""; /* \u0022: double quote (") */
             case '\'' -> "\\'"; /* \u0027: single quote (') */
