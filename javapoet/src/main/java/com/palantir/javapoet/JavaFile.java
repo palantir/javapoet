@@ -291,6 +291,7 @@ public final class JavaFile {
         Builder builder = new Builder(packageName, typeSpec);
         builder.fileComment.add(fileComment);
         builder.skipJavaLangImports = skipJavaLangImports;
+        builder.staticImports.addAll(staticImports);
         builder.indent = indent;
         return builder;
     }
